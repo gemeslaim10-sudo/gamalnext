@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Check if user is an admin (hardcoded emails matches frontend allowlist)
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'montasrrm@gmail.com' || 
+        request.auth.token.email == 'gemeslaim10@gmail.com'
+      );
+    }
+    
+    function isAuth() {
+        return request.auth != null;
+    }
+
+    // Site Content (Hero, Skills, Experience, Projects)
+    // Public: Read-only
+    // Admin: Read/Write
+    match /site_content/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // AI Settings
+    match /settings/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    
+    // Reviews
+    match /reviews/{reviewId} {
+        // Public: can read only approved reviews
+        // Admin: can read all
+        allow read: if (resource.data.status == 'approved') || isAdmin();
+        
+        // Anyone: Create (Guests allowed)
+        allow create: if true;
+        
+        // Admin: Update/Delete
+        allow update, delete: if isAdmin();
+    }
+    
+    // Users
+    match /users/{userId} {
+        // Public can view profiles
+        allow read: if true; 
+        // Owner/Admin can write
+        allow write: if isAuth() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Articles
+    match /articles/{articleId} {
+        allow read: if true; // We will filter 'published' status in client queries
+        allow create: if isAuth(); // Users can submit
+        allow update, delete: if isAdmin() || (isAuth() && resource.data.authorId == request.auth.uid); // Authors can edit own? Let's say yes for now.
+    }
+    
+    // Notifications
+    match /notifications/{notifId} {
+        // Recipient can read and update (e.g. mark read)
+        allow read, update: if isAuth() && (resource.data.recipientId == request.auth.uid || (resource.data.recipientId == 'ADMIN' && isAdmin()));
+        // Anyone auth can create a notification (e.g. triggers)
+        allow create: if isAuth();
+        allow delete: if isAdmin() || (isAuth() && resource.data.recipientId == request.auth.uid);
+    }
+    
+    // Comments
+    match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+        allow update, delete: if isAuth() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Likes
+    match /likes/{likeId} {
+        allow read: if true;
+        allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+        allow delete: if isAuth() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+  }
+}
