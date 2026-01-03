@@ -39,7 +39,7 @@ export default function AiChatWidget() {
 
             try {
                 // 1. Fetch AI Settings (Welcome Message)
-                let welcomeText = "مرحباً بك! 👋\nأنا المساعد الذكي الخاص بالموقع. كيف يمكنني مساعدتك اليوم؟";
+                let welcomeText = "أهلًا وسهلًا بك في منصة جمال 👋 منوّر موقعنا!\nأنا المساعد الافتراضي هنا، ومتحمس أعرّفك على جمال وخدماته الرائعة: تطوير مواقع ديناميكية، متاجر إلكترونية، لوحات تحكم، وتحسين SEO باستخدام أحدث التقنيات، وأيضًا دمج الذكاء الاصطناعي (Gemini AI)! 🚀\n\nممكن أعرف حضرتك يسعدني جداً مساعدتك، ما هو اسمك الكريم؟ 😊";
                 const aiDoc = await getDoc(doc(db, "settings", "ai"));
                 if (aiDoc.exists() && aiDoc.data().welcomeMessage) {
                     welcomeText = aiDoc.data().welcomeMessage;
@@ -97,13 +97,21 @@ export default function AiChatWidget() {
                 parts: [{ text: m.text }]
             }));
 
+            // Get or create Session ID
+            let sessionId = sessionStorage.getItem("chatSessionId");
+            if (!sessionId) {
+                sessionId = crypto.randomUUID();
+                sessionStorage.setItem("chatSessionId", sessionId);
+            }
+
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: userMessage,
                     history,
-                    userContext // Pass user context to API
+                    userContext, // Pass user context to API
+                    sessionId // Pass Session ID for archiving
                 }),
             });
 
@@ -119,10 +127,17 @@ export default function AiChatWidget() {
 
         } catch (error: any) {
             console.error("Chat Error:", error);
-            // Show the actual error message to the user/developer in the chat
+
+            let userFriendlyError = `⚠️ عذراً، حدث خطأ: ${error.message || "حدث خطأ غير متوقع"}`;
+
+            // Handle Network/Server Down errors specifically
+            if (error.message && (error.message.includes("Failed to fetch") || error.message.includes("NetworkError"))) {
+                userFriendlyError = "⚠️ عذراً، لا يمكن الاتصال بالخادم حالياً. قد يكون الخادم قيد التحديث أو إعادة التشغيل. الرجاء المحاولة مرة أخرى بعد ثوانٍ.";
+            }
+
             setMessages(prev => [...prev, {
                 role: 'model',
-                text: `⚠️ عذراً، حدث خطأ: ${error.message || "حدث خطأ غير متوقع"}`
+                text: userFriendlyError
             }]);
         } finally {
             setLoading(false);

@@ -29,11 +29,11 @@ export default function NotFound() {
                         </div>
 
                         <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                            بيانات مفقودة!
+                            عذراً، المحتوى المطلوب غير متاح
                         </h2>
 
                         <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-                            عذراً، يبدو أن الصفحة التي تبحث عنها قد فقدت في الفضاء الرقمي أو تم نقلها إلى خادم آخر.
+                            نعتذر، لم يتم العثور على الصفحة المطلوبة ضمن النطاق الحالي، أو ربما تم تغيير مسار الوصول.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -42,14 +42,14 @@ export default function NotFound() {
                                 className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/25 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all transform hover:-translate-y-1"
                             >
                                 <Home className="w-5 h-5" />
-                                العودة للرئيسية
+                                الانتقال للصفحة الرئيسية
                             </Link>
                             <button
                                 onClick={() => window.history.back()}
                                 className="w-full sm:w-auto px-8 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl flex items-center justify-center gap-2 transition-all border border-slate-700 hover:text-white"
                             >
                                 <ArrowRight className="w-5 h-5" />
-                                رجوع للخلف
+                                العودة للصفحة السابقة
                             </button>
                         </div>
                     </div>

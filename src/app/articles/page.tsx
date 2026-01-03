@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MoveRight, Calendar } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Toaster } from "react-hot-toast";
 
 // SEO Metadata
 export const metadata = {
@@ -26,8 +27,9 @@ export default async function ArticlesPage() {
             return dateB - dateA;
         }).map((article: any) => ({
             ...article,
-            // Serialize createdAt to number or string to pass to Client Component
-            createdAt: article.createdAt?.seconds ? article.createdAt.seconds * 1000 : Date.now()
+            // Serialize timestamps to numbers to pass to Client Component
+            createdAt: article.createdAt?.seconds ? article.createdAt.seconds * 1000 : Date.now(),
+            updatedAt: article.updatedAt?.seconds ? article.updatedAt.seconds * 1000 : null
         }));
     } catch (e) {
         console.error("Failed to fetch articles server side", e);
@@ -56,6 +58,7 @@ export default async function ArticlesPage() {
             </section>
 
             <Footer />
+            <Toaster />
         </main>
     );
 }

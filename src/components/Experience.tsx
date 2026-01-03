@@ -5,9 +5,9 @@ import { useContent } from '@/hooks/useContent';
 
 const defaultExperienceData = {
     items: [
-        { title: "مطور ومصمم مواقع ويب", period: "شهران", description: "تطوير مواقع كاملة مع لوحات تحكم ديناميكية.", active: true },
-        { title: "محلل بيانات", period: "شهر واحد", description: "تحليل الحملات الإعلانية وتقديم تقارير الأداء.", active: false },
-        { title: "مدخل بيانات", period: "3 أشهر", description: "إدارة وتنظيم البيانات بدقة عالية.", active: false }
+        { title: "مطور تطبيقات ومواقع ويب", period: "فترة عمل تعاقدية", description: "بناء منصات رقمية متكاملة مدعومة بأنظمة إدارة محتوى ديناميكية.", active: true },
+        { title: "محلل بيانات", period: "فترة عمل تعاقدية", description: "إجراء تحليلات معمقة للحملات الترويجية وإعداد تقارير الأداء الاستراتيجية.", active: false },
+        { title: "مسؤول إدارة البيانات", period: "فترة عمل تعاقدية", description: "معالجة وتنظيم البيانات المؤسسية وفق أعلى معايير الدقة.", active: false }
     ]
 };
 
@@ -19,10 +19,10 @@ export default function Experience({ initialData }: { initialData?: any }) {
         <section id="experience" className="py-20 bg-slate-950">
             <div className="max-w-4xl mx-auto px-4">
                 <Reveal className="text-center mb-12">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">الخبرات السابقة</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">السجل المهني</h2>
                     <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2">
                         <Building2 className="w-4 h-4 text-blue-400" />
-                        <span className="text-blue-300 text-sm font-medium">تدرج وظيفي داخل وكالة إعلانات</span>
+                        <span className="text-blue-300 text-sm font-medium">مسار التقدم الوظيفي في المؤسسات الإعلانية</span>
                     </div>
                 </Reveal>
 

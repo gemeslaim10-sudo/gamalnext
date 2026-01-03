@@ -79,5 +79,19 @@ service cloud.firestore {
         allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
         allow delete: if isAuth() && (resource.data.userId == request.auth.uid || isAdmin());
     }
+
+    // AI Chat Sessions (New)
+    match /chat_sessions/{sessionId} {
+      // Guests (via API) create and update sessions
+      allow create, update: if true;
+      // Only Admins can view/manage logs
+      allow read, delete: if isAdmin();
+    }
+
+    // Leads (New)
+    match /leads/{leadId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
   }
 }

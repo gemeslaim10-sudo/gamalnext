@@ -12,18 +12,64 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "Gamal Abdel Aty | Data & Web Specialist",
-  description: "محلل بيانات & مطور ويب مدعوم بالذكاء الاصطناعي. أحول البيانات المعقدة إلى رؤى واضحة، وأبني مواقع ويب ديناميكية تتحدث مع قواعد البيانات وتفهم العملاء.",
-  keywords: ["طوير ويب", "تحليل بيانات", "Next.js", "React", "Gemini AI", "Egypt", "Freelance", "جمال عبد العاطي"],
-  authors: [{ name: "Gamal Abdel Aty" }],
+  title: {
+    default: "جمال عبد العاطي | Full Stack Web Developer & SEO Specialist",
+    template: "%s | جمال عبد العاطي"
+  },
+  description: "مطور تطبيقات ومواقع ويب متخصص في Next.js و React. تطوير حلول Web Applications متكاملة وتنفيذ استراتيجيات SEO لتعزيز الظهور الرقمي.",
+  keywords: ["تطوير ويب", "Full Stack Developer", "Next.js", "React", "SEO Specialist", "تطوير تطبيقات", "مطور مواقع", "جمال عبد العاطي", "Web Developer Egypt", "مطور ويب"],
+  authors: [{ name: "جمال عبد العاطي", url: "https://gamal-dev.com" }],
+  creator: "جمال عبد العاطي",
+  publisher: "جمال عبد العاطي",
+  metadataBase: new URL('https://gamal-dev.com'), // Update with your actual domain
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: "Gamal Abdel Aty | Data & Web Specialist",
-    description: "محلل بيانات & مطور ويب مدعوم بالذكاء الاصطناعي.",
     type: "website",
     locale: "ar_EG",
+    url: "https://gamal-dev.com",
+    siteName: "جمال عبد العاطي - Portfolio",
+    title: "جمال عبد العاطي | Full Stack Web Developer & SEO Specialist",
+    description: "مطور تطبيقات ومواقع ويب متخصص في Next.js و React. تطوير حلول Web Applications متكاملة.",
+    images: [
+      {
+        url: "/og-image.png", // We'll create this
+        width: 1200,
+        height: 630,
+        alt: "جمال عبد العاطي - Full Stack Developer",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "جمال عبد العاطي | Full Stack Web Developer & SEO Specialist",
+    description: "مطور تطبيقات ومواقع ويب متخصص في Next.js و React.",
+    images: ["/og-image.png"],
+    creator: "@gamaldev", // Update with your Twitter handle if you have one
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   icons: {
-    icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjM2I4MmY2IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBvbHlsaW5lIHBvaW50cz0iMTYgMTggMjIgMTIgMTYgNiIvPjxwb2x5bGluZSBwb2ludHM9IjggNiAyIDEyIDggMTgiLz48L3N2Zz4=",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  verification: {
+    // google: 'your-google-verification-code', // Add when you get it from Search Console
   },
 };
 

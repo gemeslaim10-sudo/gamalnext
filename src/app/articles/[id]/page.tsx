@@ -21,7 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
         title: `${article.title} | Gamal Selim`,
         description: article.summary || article.content.substring(0, 150),
+        keywords: article.tags || [],
         openGraph: {
+            title: article.title,
+            description: article.summary || article.content.substring(0, 150),
             images: article.media?.[0]?.url ? [article.media[0].url] : [],
         },
     };
@@ -44,5 +47,26 @@ export default async function ArticlePage({ params }: Props) {
         createdAt: article.createdAt?.seconds ? article.createdAt.seconds * 1000 : Date.now()
     };
 
-    return <ArticleView article={serializedArticle} />;
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: article.title,
+        image: article.media?.[0]?.url ? [article.media[0].url] : [],
+        datePublished: new Date(serializedArticle.createdAt).toISOString(),
+        author: {
+            '@type': 'Person',
+            name: article.authorName || 'Gamal Selim',
+        },
+        description: article.summary || article.content.substring(0, 150),
+    };
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <ArticleView article={serializedArticle} />
+        </>
+    );
 }

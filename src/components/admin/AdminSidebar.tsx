@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Briefcase, Code, MessageSquare, Users, LogOut, Bot } from "lucide-react";
+import { LayoutDashboard, FileText, Briefcase, Code, MessageSquare, Users, LogOut, Bot, History } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +16,7 @@ const menuItems = [
     { icon: MessageSquare, label: "Reviews", href: "/admin/reviews" },
     { icon: Users, label: "Users", href: "/admin/users" },
     { icon: Bot, label: "AI Chat Settings", href: "/admin/ai" },
+    { icon: History, label: "AI Chat Logs", href: "/admin/ai-chats" },
 ];
 
 interface AdminSidebarProps {

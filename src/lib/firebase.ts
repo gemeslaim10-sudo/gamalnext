@@ -14,6 +14,10 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase (Singleton pattern)
+if (!firebaseConfig.apiKey) {
+    throw new Error("Firebase API Key is missing. Please check your .env.local file or Vercel Environment Variables.");
+}
+
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);

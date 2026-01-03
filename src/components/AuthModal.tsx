@@ -29,15 +29,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     const getFriendlyErrorMessage = (error: any) => {
         const msg = error.code || error.message || "";
         if (msg.includes("auth/invalid-credential") || msg.includes("auth/wrong-password") || msg.includes("auth/user-not-found")) {
-            return "Incorrect email or password.";
+            return "بيانات الاعتماد غير صحيحة.";
         }
         if (msg.includes("auth/email-already-in-use")) {
-            return "This email is already registered.";
+            return "البريد الإلكتروني مسجل بالفعل.";
         }
         if (msg.includes("auth/weak-password")) {
-            return "Password should be at least 6 characters.";
+            return "كلمة المرور يجب أن تكون 6 أحرف على الأقل.";
         }
-        return "Authentication failed. Please try again.";
+        return "فشلت عملية المصادقة، يرجى المحاولة.";
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +46,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         try {
             if (isLogin) {
                 await signInWithEmailAndPassword(auth, email, password);
-                toast.success("Welcome back!");
+                toast.success("مرحباً بكم مجدداً");
             } else {
                 const cred = await createUserWithEmailAndPassword(auth, email, password);
                 await updateProfile(cred.user, { displayName: name });
@@ -58,7 +58,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     role: "user",
                     createdAt: serverTimestamp()
                 });
-                toast.success("Account created successfully!");
+                toast.success("تم إنشاء الحساب بنجاح.");
             }
             onClose();
         } catch (err: any) {
@@ -75,15 +75,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         try {
             await signInWithGoogle();
             onClose();
-            toast.success("Signed in with Google");
+            toast.success("تم تسجيل الدخول عبر Google بنجاح.");
         } catch (e: any) {
             console.error("Google Signin Error:", e);
             const errorCode = e.code || e.message || "";
             // Don't show error if user simply closed the popup
             if (errorCode.includes("auth/popup-closed-by-user") || errorCode.includes("auth/cancelled-popup-request")) {
-                toast("Sign-in cancelled", { icon: "ℹ️" });
+                toast("تم إلغاء تسجيل الدخول.", { icon: "ℹ️" });
             } else {
-                toast.error("Google Sign-in failed. Please try again.");
+                toast.error("فشل تسجيل الدخول عبر Google.");
             }
         } finally {
             setLoading(false);
@@ -98,8 +98,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </button>
 
                 <div className="p-8">
-                    <h2 className="text-2xl font-bold text-white text-center mb-2">{isLogin ? "Welcome Back" : "Create Account"}</h2>
-                    <p className="text-slate-400 text-center mb-8 text-sm">Join our community to leave reviews and comments</p>
+                    <h2 className="text-2xl font-bold text-white text-center mb-2">{isLogin ? "تسجيل الدخول" : "إنشاء حساب جديد"}</h2>
+                    <p className="text-slate-400 text-center mb-8 text-sm">انضم إلينا للاستفادة من كامل الميزات المتاحة</p>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {!isLogin && (
@@ -107,7 +107,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                 <UserIcon className="absolute left-3 top-3.5 w-5 h-5 text-slate-500" />
                                 <input
                                     type="text"
-                                    placeholder="Full Name"
+                                    placeholder="الاسم الكامل"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
@@ -119,7 +119,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             <Mail className="absolute left-3 top-3.5 w-5 h-5 text-slate-500" />
                             <input
                                 type="email"
-                                placeholder="Email Address"
+                                placeholder="البريد الإلكتروني الرسمي"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
@@ -130,7 +130,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             <Lock className="absolute left-3 top-3.5 w-5 h-5 text-slate-500" />
                             <input
                                 type="password"
-                                placeholder="Password"
+                                placeholder="كلمة المرور"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
@@ -144,13 +144,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             disabled={loading}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all flex justify-center items-center gap-2"
                         >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isLogin ? "Sign In" : "Sign Up")}
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isLogin ? "دخول" : "تسجيل")}
                         </button>
                     </form>
 
                     <div className="my-6 flex items-center gap-4">
                         <div className="h-px bg-slate-800 flex-1"></div>
-                        <span className="text-slate-500 text-xs uppercase">Or continue with</span>
+                        <span className="text-slate-500 text-xs uppercase">أو المتابعة عبر</span>
                         <div className="h-px bg-slate-800 flex-1"></div>
                     </div>
 
@@ -171,9 +171,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </button>
 
                     <p className="mt-6 text-center text-slate-400 text-sm">
-                        {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+                        {isLogin ? "ليس لديك حساب؟" : "لديك حساب بالفعل؟"}{" "}
                         <button onClick={() => setIsLogin(!isLogin)} className="text-blue-400 hover:text-blue-300 font-semibold ml-1">
-                            {isLogin ? "Sign Up" : "Sign In"}
+                            {isLogin ? "إنشاء حساب" : "تسجيل الدخول"}
                         </button>
                     </p>
                 </div>

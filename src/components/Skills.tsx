@@ -1,18 +1,18 @@
 'use client';
-import { Code, Database, BarChart, FileText } from 'lucide-react';
+import { Code, Search, BarChart3, Database, LineChart } from 'lucide-react';
 import Reveal from './Reveal';
 import { useContent } from '@/hooks/useContent';
 
 const iconMap: any = {
-    Code, Database, BarChart, FileText
+    Code, Search, BarChart3, Database, LineChart
 };
 
 const defaultSkillsData = {
     mainSkills: [
-        { title: "تطوير الويب والـ AI", description: "بناء مواقع Full Stack باستخدام Next.js و React مع ربط Gemini AI API وتدريبها.", tags: "Next.js, React, Gemini API, Tailwind", icon: "Code" },
-        { title: "تحليل البيانات", description: "إدارة قواعد بيانات معقدة (SQL/PostgreSQL) واستخراج تقارير تحليلية.", tags: "MySQL, PostgreSQL, Data Entry", icon: "Database" },
-        { title: "تحليل الإعلانات", description: "استخراج وتحليل بيانات Meta Ads Manager لتقييم الحملات الإعلانية.", tags: "Meta Ads, Marketing Reports", icon: "BarChart" },
-        { title: "إدارة المحتوى", description: "خبرة في Shopify و WordPress وتصميم مستندات رسمية.", tags: "Word/Excel, Shopify, PowerPoint", icon: "FileText" }
+        { title: "Full Stack Web Development", description: "بناء وتطوير Web Applications باستخدام أطر عمل حديثة (Next.js, React)، مع التركيز على Performance و Scalability.", tags: "Next.js, React, Performance", icon: "Code" },
+        { title: "Search Engine Optimization (SEO)", description: "تطبيق معايير Technical SEO و On-Page Optimization لضمان فهرسة صحيحة وظهور متقدم في نتائج البحث (SERPs).", tags: "Technical SEO, On-page, SERPs", icon: "Search" },
+        { title: "Vibe Engineering & UX", description: "ضبط الطابع العام للمنتج الرقمي وتصميم تدفق تجربة المستخدم (User Flow) باستخدام مبادئ Vibe Engineering لخلق أثر ملموس.", tags: "Vibe Eng, User Flow, UX", icon: "LineChart" },
+        { title: "Data Analytics & Tools", description: "رصد الأداء وتحليل سلوك المستخدمين عبر Google Analytics و Google Search Console لاتخاذ قرارات مبنية على البيانات.", tags: "Google Analytics, GSC, Data Insights", icon: "Database" }
     ],
     techStack: [
         { name: 'React.js', val: '95%' },
@@ -23,13 +23,11 @@ const defaultSkillsData = {
         { name: 'Laravel', val: '70%' },
     ],
     software: [
-        { name: 'Excel/Sheets', level: 'احترافي', color: 'text-green-400' },
-        { name: 'VS Code', level: 'احترافي', color: 'text-green-400' },
-        { name: 'PowerPoint', level: 'احترافي', color: 'text-green-400' },
-        { name: 'Word', level: 'احترافي', color: 'text-green-400' },
-        { name: 'Photoshop', level: 'متوسط', color: 'text-yellow-400' },
-        { name: 'Premiere', level: 'متوسط', color: 'text-yellow-400' },
-        { name: 'After Effects', level: 'مبتدئ', color: 'text-slate-400' },
+        { name: 'Google Search Console', level: 'مستوى متقدم', color: 'text-orange-500' },
+        { name: 'Google Analytics', level: 'مستوى متقدم', color: 'text-yellow-500' },
+        { name: 'VS Code', level: 'مستوى متقدم', color: 'text-blue-400' },
+        { name: 'Excel/Sheets', level: 'مستوى متقدم', color: 'text-green-400' },
+        { name: 'WordPress', level: 'مستوى ممارس', color: 'text-white' },
     ]
 };
 
@@ -42,10 +40,10 @@ export default function Skills({ initialData }: { initialData?: any }) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <Reveal className="text-center mb-12 md:mb-16">
                     <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                        المهارات <span className="text-blue-500">والخبرات</span>
+                        الخبرات <span className="text-blue-500">والكفاءات التقنية</span>
                     </h2>
                     <p className="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
-                        مزيج قوي من تحليل البيانات وتطوير البرمجيات الحديثة
+                        تخصص دقيق في بناء الويب واستراتيجيات التصدر في محركات البحث
                     </p>
                 </Reveal>
 
@@ -78,7 +76,7 @@ export default function Skills({ initialData }: { initialData?: any }) {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
                     {/* Tech Stack Progress */}
                     <Reveal className="glass p-6 md:p-8 rounded-2xl border-slate-700">
-                        <h3 className="text-xl md:text-2xl font-bold text-white mb-8 border-r-4 border-blue-500 pr-4">التقنيات البرمجية</h3>
+                        <h3 className="text-xl md:text-2xl font-bold text-white mb-8 border-r-4 border-blue-500 pr-4">حزمة التقنيات البرمجية</h3>
                         <div className="space-y-6">
                             {skills.techStack?.map((item: any) => (
                                 <div key={item.name}>
@@ -97,7 +95,7 @@ export default function Skills({ initialData }: { initialData?: any }) {
                     {/* Software Levels */}
                     <div className="space-y-6 md:space-y-8">
                         <Reveal className="glass p-6 md:p-8 rounded-2xl border-slate-700">
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-6 border-r-4 border-purple-500 pr-4">مستوى البرامج</h3>
+                            <h3 className="text-xl md:text-2xl font-bold text-white mb-6 border-r-4 border-purple-500 pr-4">إتقان البرمجيات التطبيقية</h3>
                             <div className="flex flex-wrap gap-3">
                                 {skills.software?.map((tool: any) => (
                                     <div key={tool.name} className="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 flex-grow text-center">
@@ -110,7 +108,7 @@ export default function Skills({ initialData }: { initialData?: any }) {
 
                         {/* Static Chart for Visual Balance */}
                         <Reveal className="glass p-6 md:p-8 rounded-2xl border-slate-700">
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-4 border-r-4 border-cyan-500 pr-4">أدوات العمل اليومية</h3>
+                            <h3 className="text-xl md:text-2xl font-bold text-white mb-4 border-r-4 border-cyan-500 pr-4">أدوات الإنتاجية اليومية</h3>
                             <div className="space-y-4">
                                 <div>
                                     <div className="flex justify-between text-sm mb-1">

@@ -84,7 +84,12 @@ export function MediaUpload({ items, onChange }: MediaUploadProps) {
                             </div>
                         ) : (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={item.url} alt="Media" className="w-full h-full object-cover" />
+                            <img
+                                src={item.url}
+                                alt="Media"
+                                className="w-full h-full object-cover"
+                                referrerPolicy="no-referrer"
+                            />
                         )}
 
                         <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded text-xs text-white capitalize">

@@ -5,8 +5,8 @@ import { useContent } from '@/hooks/useContent';
 
 const defaultHeroData = {
     heroTitle: "جمال عبد العاطي",
-    heroSubtitle: "محلل بيانات & مطور ويب مدعوم بالذكاء الاصطناعي",
-    heroDescription: "أحول البيانات المعقدة إلى رؤى واضحة، وأبني مواقع ويب ديناميكية تتحدث مع قواعد البيانات وتفهم العملاء باستخدام أحدث تقنيات Gemini AI.",
+    heroSubtitle: "Full Stack Web Developer & SEO Specialist",
+    heroDescription: "تطوير حلول Web Applications متكاملة، وتنفيذ استراتيجيات SEO لتعزيز الظهور الرقمي.",
     whatsappNumber: "201024531452",
     resumeLink: "#projects"
 };
@@ -32,7 +32,7 @@ export default function Hero() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                     </span>
-                    مرحباً بك في عالم البيانات والذكاء
+                    تطوير مواقع الويب و SEO
                 </Reveal>
 
                 <h1 className="text-5xl sm:text-7xl md:text-9xl font-black text-white mb-8 tracking-tight">
@@ -40,7 +40,7 @@ export default function Hero() {
                 </h1>
 
                 <Reveal className="stagger-2 text-xl sm:text-3xl md:text-4xl text-slate-300 mb-10 font-light max-w-4xl mx-auto leading-relaxed">
-                    <div dangerouslySetInnerHTML={{ __html: hero.heroSubtitle.replace('محلل بيانات', '<span class="text-blue-400 font-semibold drop-shadow-[0_0_10px_rgba(96,165,250,0.3)]">محلل بيانات</span>').replace('مطور ويب', '<span class="text-purple-400 font-semibold drop-shadow-[0_0_10px_rgba(168,85,247,0.3)]">مطور ويب</span>') }} />
+                    <div dangerouslySetInnerHTML={{ __html: hero.heroSubtitle.replace('Full Stack Web Developer', '<span class="text-blue-400 font-semibold drop-shadow-[0_0_10px_rgba(96,165,250,0.3)]">Full Stack Web Developer</span>').replace('SEO Specialist', '<span class="text-purple-400 font-semibold drop-shadow-[0_0_10px_rgba(168,85,247,0.3)]">SEO Specialist</span>') }} />
                 </Reveal>
 
                 <Reveal className="stagger-3 max-w-2xl mx-auto text-slate-400 text-lg sm:text-xl mb-12 leading-relaxed px-4">
@@ -51,12 +51,12 @@ export default function Hero() {
                     <a href={hero.resumeLink} className="group relative w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_40px_rgba(37,99,235,0.5)] transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
                         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                         <span className="relative flex items-center justify-center gap-2">
-                            تصفح أعمالي <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            استعراض المشاريع <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </span>
                     </a>
                     <a href={`https://wa.me/${hero.whatsappNumber}`} target="_blank" className="group w-full sm:w-auto px-8 py-4 rounded-xl border border-white/10 hover:border-green-400/50 bg-white/5 hover:bg-green-500/10 text-slate-200 hover:text-green-400 font-medium text-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center gap-3">
                         <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        تواصل عبر واتساب
+                        بدء محادثة رسمية
                     </a>
                 </Reveal>
             </div>

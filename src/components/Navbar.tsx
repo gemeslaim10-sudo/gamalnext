@@ -51,7 +51,7 @@ export default function Navbar() {
                                 {/* Who We Are Dropdown */}
                                 <div className="relative group/menu">
                                     <button className="flex items-center gap-1 text-sm font-medium text-white hover:text-blue-400 transition-colors py-4">
-                                        من نحن <ChevronDown className="w-4 h-4 group-hover/menu:rotate-180 transition-transform" />
+                                        التعريف بنا <ChevronDown className="w-4 h-4 group-hover/menu:rotate-180 transition-transform" />
                                     </button>
 
                                     {/* Mega Menu Dropdown */}
@@ -62,8 +62,8 @@ export default function Navbar() {
                                                     <Zap className="w-5 h-5" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-white text-sm">المهارات والتقنيات</h4>
-                                                    <p className="text-slate-500 text-xs mt-0.5">أدوات ولغات البرمجة التي أتقنها</p>
+                                                    <h4 className="font-bold text-white text-sm">مجالات التخصص</h4>
+                                                    <p className="text-slate-500 text-xs mt-0.5">التطوير الرقمي و SEO</p>
                                                 </div>
                                             </Link>
 
@@ -72,7 +72,7 @@ export default function Navbar() {
                                                     <Briefcase className="w-5 h-5" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-white text-sm">الخبرات العملية</h4>
+                                                    <h4 className="font-bold text-white text-sm">السجل المهني</h4>
                                                     <p className="text-slate-500 text-xs mt-0.5">مسيرتي المهنية والشركات</p>
                                                 </div>
                                             </Link>
@@ -82,20 +82,20 @@ export default function Navbar() {
                                                     <FolderGit2 className="w-5 h-5" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-white text-sm">معرض الأعمال</h4>
-                                                    <p className="text-slate-500 text-xs mt-0.5">أبرز المشاريع التي أنجزتها</p>
+                                                    <h4 className="font-bold text-white text-sm">سجل المشاريع</h4>
+                                                    <p className="text-slate-500 text-xs mt-0.5">نخبة المشاريع المنجزة</p>
                                                 </div>
                                             </Link>
                                         </div>
                                         <div className="bg-slate-950/50 p-3 text-center border-t border-slate-800">
                                             <Link href="/contact" className="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors">
-                                                هل تريد العمل معي؟ تواصل الآن &rarr;
+                                                لبدء تعاون مثمر، يرجى التواصل &rarr;
                                             </Link>
                                         </div>
                                     </div>
                                 </div>
-                                <Link href="/articles" className={`text-sm font-medium transition-colors ${isActive('/articles') ? 'text-blue-400' : 'text-white hover:text-blue-400'}`}>المقالات</Link>
-                                <Link href="/contact" className={`px-4 py-2 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all text-sm font-bold`}>تواصل معي</Link>
+                                <Link href="/articles" className={`text-sm font-medium transition-colors ${isActive('/articles') ? 'text-blue-400' : 'text-white hover:text-blue-400'}`}>المدونة التقنية</Link>
+                                <Link href="/contact" className={`px-4 py-2 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all text-sm font-bold`}>اتصل بنا</Link>
 
                                 <div className="h-6 w-px bg-slate-800 mx-2"></div>
 
@@ -141,7 +141,7 @@ export default function Navbar() {
                                         onClick={() => setIsAuthModalOpen(true)}
                                         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-lg shadow-blue-500/20"
                                     >
-                                        تسجيل الدخول
+                                        الدخول للنظام
                                     </button>
                                 )}
                             </div>
@@ -176,7 +176,7 @@ export default function Navbar() {
                             </Link>
                             <Link href="/skills" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center gap-3 ${isActive('/skills') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
                                 <span className="bg-slate-800 p-1.5 rounded-lg text-yellow-400"><Zap className="w-4 h-4" /></span>
-                                المهارات
+                                التخصصات
                             </Link>
                             <Link href="/experience" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center gap-3 ${isActive('/experience') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
                                 <span className="bg-slate-800 p-1.5 rounded-lg text-purple-400"><Briefcase className="w-4 h-4" /></span>
@@ -184,15 +184,15 @@ export default function Navbar() {
                             </Link>
                             <Link href="/projects" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center gap-3 ${isActive('/projects') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
                                 <span className="bg-slate-800 p-1.5 rounded-lg text-green-400"><FolderGit2 className="w-4 h-4" /></span>
-                                أعمالي
+                                المشاريع
                             </Link>
                             <Link href="/articles" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center gap-3 ${isActive('/articles') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
                                 <span className="bg-slate-800 p-1.5 rounded-lg text-pink-400"><FileText className="w-4 h-4" /></span>
-                                المقالات
+                                المدونة
                             </Link>
                             <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center gap-3 ${isActive('/contact') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
                                 <span className="bg-slate-800 p-1.5 rounded-lg text-cyan-400"><MessageSquare className="w-4 h-4" /></span>
-                                تواصل معي
+                                اتصل بنا
                             </Link>
                         </div>
 
@@ -206,7 +206,7 @@ export default function Navbar() {
                                     <img src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`} className="w-12 h-12 rounded-full border-2 border-blue-500/30" alt={user.displayName || "User"} />
                                     <div>
                                         <div className="text-white font-bold">{user.displayName || user.email}</div>
-                                        <div className="text-xs text-slate-400">عضو نشط</div>
+                                        <div className="text-xs text-slate-400">عضوية مفعلة</div>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
@@ -225,7 +225,7 @@ export default function Navbar() {
                                 onClick={() => { setIsAuthModalOpen(true); setIsMobileMenuOpen(false); }}
                                 className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-lg shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all transform hover:scale-[1.02]"
                             >
-                                تسجيل الدخول / إنشاء حساب
+                                الدخول للنظام / تسجيل جديد
                             </button>
                         )}
                     </div>

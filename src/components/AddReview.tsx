@@ -18,7 +18,7 @@ export default function AddReview({ onAdded }: { onAdded?: () => void }) {
         e.preventDefault();
 
         if (!user && !guestName.trim()) {
-            toast.error("Please enter your name");
+            toast.error("يرجى إدخال الاسم للمتابعة");
             return;
         }
 
@@ -34,13 +34,13 @@ export default function AddReview({ onAdded }: { onAdded?: () => void }) {
                 createdAt: serverTimestamp(),
                 isGuest: !user
             });
-            toast.success("تم إرسال تقييمك للمراجعة!");
+            toast.success("تم استلام التقييم بنجاح، قيد المراجعة.");
             setComment("");
             setGuestName("");
             setRating(5);
             if (onAdded) onAdded();
         } catch (e) {
-            toast.error("Failed to submit review");
+            toast.error("تعذر إرسال التقييم، يرجى المحاولة لاحقاً");
             console.error(e);
         } finally {
             setLoading(false);
@@ -55,12 +55,12 @@ export default function AddReview({ onAdded }: { onAdded?: () => void }) {
                 <div className="bg-yellow-500/10 p-2 rounded-xl">
                     <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
                 </div>
-                شاركنا تجربتك
+                مشاركة التقييم الفني
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-3">تقييمك</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-3">درجة التقييم</label>
                     <div className="flex gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                             <button
@@ -79,7 +79,7 @@ export default function AddReview({ onAdded }: { onAdded?: () => void }) {
 
                 {!user && (
                     <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">الاسم</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">الاسم الكامل</label>
                         <div className="relative">
                             <input
                                 type="text"
@@ -87,7 +87,7 @@ export default function AddReview({ onAdded }: { onAdded?: () => void }) {
                                 onChange={(e) => setGuestName(e.target.value)}
                                 required
                                 className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-4 pl-12 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder:text-slate-600"
-                                placeholder="اسمك الكريم"
+                                placeholder="يرجى كتابة الاسم..."
                             />
                             <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" />
                         </div>
@@ -95,14 +95,14 @@ export default function AddReview({ onAdded }: { onAdded?: () => void }) {
                 )}
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">رأيك يهمنا</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">الانطباع العام والملاحظات</label>
                     <textarea
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
                         required
                         rows={4}
                         className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none placeholder:text-slate-600"
-                        placeholder="اكتب تعليقك هنا..."
+                        placeholder="يرجى تدوين الملاحظات هنا..."
                     />
                 </div>
 
@@ -112,7 +112,7 @@ export default function AddReview({ onAdded }: { onAdded?: () => void }) {
                     className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/25 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:-translate-y-1 active:scale-[0.98]"
                 >
                     <Send className="w-5 h-5" />
-                    {loading ? "جاري الإرسال..." : "إرسال التقييم"}
+                    {loading ? "جاري المعالجة..." : "اعتماد وإرسال التقييم"}
                 </button>
             </form>
         </div>

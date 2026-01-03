@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Calendar, ArrowLeft, Share2 } from "lucide-react";
+import { Calendar, ArrowLeft, Share2, Edit, Trash2 } from "lucide-react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -12,6 +12,14 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import LikeButton from "@/components/social/LikeButton";
 import CommentSection from "@/components/social/CommentSection";
+import ReactMarkdown from 'react-markdown';
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { toast, Toaster } from "react-hot-toast";
+import RelatedArticles from "./RelatedArticles";
+import { useState } from "react";
 
 type Article = {
     id: string;
@@ -20,9 +28,35 @@ type Article = {
     content: string;
     media: { url: string; type: 'image' | 'video' }[];
     createdAt: any;
+    authorId: string;
 }
 
 export default function ArticleView({ article }: { article: Article }) {
+    const { user } = useAuth();
+    const router = useRouter();
+    const [deleting, setDeleting] = useState(false);
+
+    const isAuthor = user && article.authorId === user.uid;
+
+    const handleDelete = async () => {
+        if (!confirm("هل أنت متأكد من حذف هذا المقال؟ لا يمكن التراجع عن هذه العملية.")) {
+            return;
+        }
+
+        setDeleting(true);
+        toast.loading("جاري حذف المقال...", { id: "delete" });
+
+        try {
+            await deleteDoc(doc(db, "articles", article.id));
+            toast.success("تم حذف المقال بنجاح!", { id: "delete" });
+            router.push("/articles");
+        } catch (error) {
+            console.error("Delete error:", error);
+            toast.error("فشل حذف المقال", { id: "delete" });
+            setDeleting(false);
+        }
+    };
+
     // Handle date formatting (supports Timestamp or serialized props)
     const formattedDate = (() => {
         if (!article.createdAt) return 'Recently';
@@ -40,18 +74,56 @@ export default function ArticleView({ article }: { article: Article }) {
             <Navbar />
 
             {/* Header / Hero */}
-            <div className="pt-32 pb-10 px-4 max-w-4xl mx-auto text-center">
+            <div className="pt-32 pb-10 px-4 max-w-4xl mx-auto text-center relative">
                 <Link href="/articles" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-8 transition-colors">
                     <ArrowLeft className="w-4 h-4" /> العودة للمقالات
                 </Link>
 
-                <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                {/* Author Actions - Desktop (side) */}
+                {isAuthor && (
+                    <div className="hidden md:flex absolute top-32 left-4 gap-2">
+                        <Link
+                            href={`/articles/${article.id}/edit`}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg text-sm"
+                        >
+                            <Edit className="w-4 h-4" /> تعديل
+                        </Link>
+                        <button
+                            onClick={handleDelete}
+                            disabled={deleting}
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg disabled:opacity-50 text-sm"
+                        >
+                            <Trash2 className="w-4 h-4" /> حذف
+                        </button>
+                    </div>
+                )}
+
+                <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-6 leading-tight px-4">
                     {article.title}
                 </h1>
 
-                <div className="flex justify-center items-center gap-6 text-slate-500 text-sm font-mono mt-4">
-                    <span className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {formattedDate}</span>
-                    <span className="flex items-center gap-2"><Share2 className="w-4 h-4" /> مشاركة</span>
+                {/* Author Actions - Mobile (below title) */}
+                {isAuthor && (
+                    <div className="flex md:hidden justify-center gap-3 mb-6 px-4">
+                        <Link
+                            href={`/articles/${article.id}/edit`}
+                            className="flex-1 max-w-[200px] bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 transition-all shadow-lg text-sm"
+                        >
+                            <Edit className="w-4 h-4" /> تعديل
+                        </Link>
+                        <button
+                            onClick={handleDelete}
+                            disabled={deleting}
+                            className="flex-1 max-w-[200px] bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 transition-all shadow-lg disabled:opacity-50 text-sm"
+                        >
+                            <Trash2 className="w-4 h-4" /> حذف
+                        </button>
+                    </div>
+                )}
+
+                <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 text-slate-500 text-xs md:text-sm font-mono mt-4 px-4">
+                    <span className="flex items-center gap-2"><Calendar className="w-3 h-3 md:w-4 md:h-4" /> {formattedDate}</span>
+                    <span className="flex items-center gap-2"><Share2 className="w-3 h-3 md:w-4 md:h-4" /> مشاركة</span>
                     <LikeButton articleId={article.id} />
                 </div>
             </div>
@@ -93,16 +165,31 @@ export default function ArticleView({ article }: { article: Article }) {
             {/* Content Body */}
             <article className="max-w-3xl mx-auto px-4 pb-20">
                 <div className="prose prose-lg prose-invert mx-auto leading-loose text-slate-300">
-                    {/* Rendering plain text with line breaks for now */}
-                    {article.content.split('\n').map((paragraph, idx) => (
-                        <p key={idx} className="mb-4">{paragraph}</p>
-                    ))}
+                    <ReactMarkdown
+                        components={{
+                            a: ({ node, ...props }) => (
+                                <a
+                                    {...props}
+                                    className="text-blue-400 hover:text-blue-300 underline decoration-blue-500/30 hover:decoration-blue-300 transition-all font-semibold"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                />
+                            ),
+                            p: ({ children }) => <p className="mb-6 leading-relaxed">{children}</p>
+                        }}
+                    >
+                        {article.content}
+                    </ReactMarkdown>
                 </div>
 
                 <CommentSection articleId={article.id} />
             </article>
 
+            {/* Related Articles */}
+            <RelatedArticles currentArticleId={article.id} />
+
             <Footer />
+            <Toaster />
         </main>
     );
 }
