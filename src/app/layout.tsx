@@ -18,17 +18,17 @@ export const metadata: Metadata = {
   },
   description: "مطور تطبيقات ومواقع ويب متخصص في Next.js و React. تطوير حلول Web Applications متكاملة وتنفيذ استراتيجيات SEO لتعزيز الظهور الرقمي.",
   keywords: ["تطوير ويب", "Full Stack Developer", "Next.js", "React", "SEO Specialist", "تطوير تطبيقات", "مطور مواقع", "جمال عبد العاطي", "Web Developer Egypt", "مطور ويب"],
-  authors: [{ name: "جمال عبد العاطي", url: "https://gamal-dev.com" }],
+  authors: [{ name: "جمال عبد العاطي", url: "https://gamal-platform.vercel.app" }],
   creator: "جمال عبد العاطي",
   publisher: "جمال عبد العاطي",
-  metadataBase: new URL('https://gamal-dev.com'), // Update with your actual domain
+  metadataBase: new URL('https://gamal-platform.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: "website",
     locale: "ar_EG",
-    url: "https://gamal-dev.com",
+    url: "https://gamal-platform.vercel.app",
     siteName: "جمال عبد العاطي - Portfolio",
     title: "جمال عبد العاطي | Full Stack Web Developer & SEO Specialist",
     description: "مطور تطبيقات ومواقع ويب متخصص في Next.js و React. تطوير حلول Web Applications متكاملة.",
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     ],
   },
   verification: {
-    // google: 'your-google-verification-code', // Add when you get it from Search Console
+    google: 'scBJmQaizROXeIHuHxdAHnAL2C6KZFyrUYDIUEuhNps',
   },
 };
 
