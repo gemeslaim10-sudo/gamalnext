@@ -2,7 +2,12 @@
 
 import Reveal from "./Reveal";
 import AddReview from "./AddReview";
-import { Swiper, SwiperSlide } from 'swiper/react';
+import dynamic from 'next/dynamic';
+
+// Dynamic import for Swiper to reduce initial JS
+const Swiper = dynamic(() => import('swiper/react').then(mod => mod.Swiper), { ssr: false });
+const SwiperSlide = dynamic(() => import('swiper/react').then(mod => mod.SwiperSlide), { ssr: false });
+
 import { Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -27,11 +32,13 @@ export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
 
             <div className="max-w-7xl mx-auto px-4 relative z-10">
                 <Reveal className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">شهادات الشركاء والعملاء</h2>
-                    <p className="text-slate-400">انطباعات حول جودة الخدمات المقدمة</p>
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">آراء العملاء</h2>
+                    {!reviews.length && (
+                        <p className="text-slate-400">يسعدني أن تشاركني رأيك وتقييمك حول تجربتك معي</p>
+                    )}
                 </Reveal>
 
-                {reviews.length > 0 ? (
+                {reviews.length > 0 && (
                     <div className="mb-20">
                         <Swiper
                             modules={[Pagination, Autoplay]}
@@ -80,10 +87,6 @@ export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
                                 </SwiperSlide>
                             ))}
                         </Swiper>
-                    </div>
-                ) : (
-                    <div className="text-center text-slate-500 mb-16">
-                        <p>لا توجد تقييمات حالياً. نتشرف بمشاركتكم التجربة الأولى.</p>
                     </div>
                 )}
 

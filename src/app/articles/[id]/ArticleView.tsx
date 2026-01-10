@@ -5,7 +5,12 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Calendar, ArrowLeft, Share2, Edit, Trash2 } from "lucide-react";
-import { Swiper, SwiperSlide } from 'swiper/react';
+import dynamic from "next/dynamic";
+
+// Dynamic import for Swiper to reduce initial JS
+const Swiper = dynamic(() => import('swiper/react').then(mod => mod.Swiper), { ssr: false });
+const SwiperSlide = dynamic(() => import('swiper/react').then(mod => mod.SwiperSlide), { ssr: false });
+
 import { Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -136,8 +141,15 @@ export default function ArticleView({ article }: { article: Article }) {
                             article.media[0].type === 'video' ? (
                                 <video src={article.media[0].url} controls className="w-full max-h-[600px] object-contain mx-auto" />
                             ) : (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={article.media[0].url} alt={article.title} className="w-full max-h-[600px] object-contain mx-auto" />
+                                <div className="relative w-full h-[400px] md:h-[600px]">
+                                    <Image
+                                        src={article.media[0].url}
+                                        alt={article.title}
+                                        fill
+                                        className="object-contain mx-auto"
+                                        priority
+                                    />
+                                </div>
                             )
                         ) : (
                             <Swiper
@@ -151,8 +163,12 @@ export default function ArticleView({ article }: { article: Article }) {
                                         {item.type === 'video' ? (
                                             <video src={item.url} controls className="w-full h-full object-contain" />
                                         ) : (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={item.url} alt={`Slide ${idx}`} className="w-full h-full object-contain" />
+                                            <Image
+                                                src={item.url}
+                                                alt={`Slide ${idx}`}
+                                                fill
+                                                className="object-contain"
+                                            />
                                         )}
                                     </SwiperSlide>
                                 ))}

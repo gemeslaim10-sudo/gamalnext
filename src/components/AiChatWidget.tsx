@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { MessageSquare, Send, X, Bot, User, Loader2, Minimize2, Minimize, Maximize2 } from "lucide-react";
+import { Bot, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
+
+// Extracted Sub-components
+import ChatHeader from "./chat/ChatHeader";
+import ChatMessage from "./chat/ChatMessage";
+import ChatInput from "./chat/ChatInput";
 
 type Message = {
     role: 'user' | 'model';
@@ -18,6 +23,7 @@ export default function AiChatWidget() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
+
     // User Context for AI
     const [userContext, setUserContext] = useState({ name: "Guest", gender: "Unknown" });
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -170,27 +176,8 @@ export default function AiChatWidget() {
                         exit={{ opacity: 0, y: 100, scale: 0.9 }}
                         className="fixed bottom-6 right-6 z-50 w-[90vw] md:w-[400px] h-[500px] md:h-[600px] bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
                     >
-                        {/* Header */}
-                        <div className="p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-b border-slate-700/50 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-600 rounded-lg">
-                                    <Bot className="w-5 h-5 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-white text-sm">المساعد الذكي</h3>
-                                    <p className="text-xs text-blue-300 flex items-center gap-1">
-                                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                                        متاح الآن
-                                    </p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setIsOpen(false)}
-                                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
+                        {/* Header Component */}
+                        <ChatHeader onClose={() => setIsOpen(false)} />
 
                         {/* Messages Area */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
@@ -202,22 +189,7 @@ export default function AiChatWidget() {
                             )}
 
                             {messages.map((msg, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`flex items-start gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
-                                >
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-purple-600' : 'bg-blue-600'}`}>
-                                        {msg.role === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
-                                    </div>
-                                    <div
-                                        className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed ${msg.role === 'user'
-                                            ? 'bg-purple-600/20 text-purple-100 rounded-tr-none border border-purple-500/20'
-                                            : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700'
-                                            }`}
-                                    >
-                                        <div style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</div>
-                                    </div>
-                                </div>
+                                <ChatMessage key={idx} role={msg.role} text={msg.text} />
                             ))}
 
                             {loading && messages.length > 0 && (
@@ -229,26 +201,13 @@ export default function AiChatWidget() {
                             <div ref={messagesEndRef} />
                         </div>
 
-                        {/* Input Area */}
-                        <form onSubmit={handleSubmit} className="p-4 border-t border-slate-800 bg-slate-900/50">
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    placeholder="اكتب رسالتك هنا..."
-                                    className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 px-4 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
-                                    dir="auto"
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!input.trim() || loading}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:bg-slate-700 disabled:cursor-not-allowed"
-                                >
-                                    <Send className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </form>
+                        {/* Input Area Component */}
+                        <ChatInput
+                            input={input}
+                            setInput={setInput}
+                            onSubmit={handleSubmit}
+                            loading={loading}
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>

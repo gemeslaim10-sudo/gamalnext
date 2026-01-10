@@ -62,7 +62,7 @@ export default function Projects({ initialData }: { initialData?: any }) {
                     </p>
                 </Reveal>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
                     {projects.items?.map((project: any, index: number) => {
                         const tags = project.tags.split(',').map((t: string) => t.trim());
                         return (
@@ -96,7 +96,7 @@ export default function Projects({ initialData }: { initialData?: any }) {
                                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
 
                                         {/* Hover Overlay with Link Button */}
-                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 bg-slate-900/40 backdrop-blur-sm">
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 bg-slate-900/20">
                                             <a
                                                 href={project.link}
                                                 target="_blank"

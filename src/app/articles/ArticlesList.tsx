@@ -17,10 +17,11 @@ type Article = {
     summary?: string;
     media: { url: string; type: 'image' | 'video' }[];
     createdAt: any;
+    updatedAt?: any;
     authorId: string;
 }
 
-export default function ArticlesList({ initialArticles }: { initialArticles?: any[] }) {
+export default function ArticlesList({ initialArticles }: { initialArticles?: Article[] }) {
     const [articles, setArticles] = useState<Article[]>(initialArticles || []);
     const [loading, setLoading] = useState(!initialArticles);
     const [deleting, setDeleting] = useState<string | null>(null);

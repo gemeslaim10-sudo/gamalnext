@@ -2,6 +2,19 @@ import Experience from "@/components/Experience";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getDocument } from "@/lib/server-utils";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "خبراتي | جمال سليم - جمال ويب",
+    description: "ملخص لمسيرتي المهنية (جمال سليم) والخبرات التي اكتسبتها في مجال جمال تحليل بيانات والـ SEO.",
+    keywords: ["جمال عبد العاطي", "جمال سليم", "جمال تك", "خبرة ويب", "جمال تحليل بيانات", "جمال seo"],
+    openGraph: {
+        title: "خبراتي | جمال سليم - جمال ويب",
+        description: "ملخص لمسيرتي المهنية والخبرات التي اكتسبتها في مجال تطوير الويب والتحصيل الرقمي.",
+        images: ["/og-image.png"],
+        url: 'https://gamaltech.info/experience',
+    },
+};
 
 export const revalidate = 3600; // Revalidate every hour
 

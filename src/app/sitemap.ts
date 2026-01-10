@@ -3,13 +3,19 @@ import { getCollection } from '@/lib/server-utils'
 
 export const revalidate = 3600; // Revalidate every hour
 
+interface Article {
+    id: string;
+    updatedAt?: { seconds: number };
+    createdAt?: { seconds: number };
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://gamal-dev.com';
+    const baseUrl = 'https://gamaltech.info';
 
     // Static Routes
     const routes: MetadataRoute.Sitemap = [
         {
-            url: baseUrl,
+            url: `${baseUrl}/`,
             lastModified: new Date(),
             changeFrequency: 'weekly',
             priority: 1,
@@ -47,10 +53,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
 
     // Dynamic Articles
-    const articles = await getCollection<any>('articles');
+    const articles = await getCollection<Article>('articles');
     const articleRoutes: MetadataRoute.Sitemap = articles.map((article) => ({
         url: `${baseUrl}/articles/${article.id}`,
-        lastModified: new Date(article.updatedAt?.seconds || article.createdAt?.seconds ? (article.updatedAt?.seconds || article.createdAt?.seconds) * 1000 : Date.now()),
+        lastModified: new Date((article.updatedAt?.seconds || article.createdAt?.seconds || Date.now() / 1000) * 1000),
         changeFrequency: 'weekly',
         priority: 0.7,
     }));

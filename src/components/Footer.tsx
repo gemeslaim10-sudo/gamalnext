@@ -31,8 +31,8 @@ export default function Footer() {
                             <div className="bg-purple-500/10 p-4 rounded-xl text-purple-400 group-hover:text-purple-300 group-hover:bg-purple-500/20 transition-colors w-fit mb-4">
                                 <Briefcase className="w-8 h-8" />
                             </div>
-                            <h3 className="font-bold text-white text-2xl mb-3 group-hover:text-purple-400 transition-colors">السجل المهني</h3>
-                            <p className="text-slate-400 text-sm leading-relaxed">مسيرتي المهنية والشركات</p>
+                            <h3 className="font-bold text-white text-2xl mb-3 group-hover:text-purple-400 transition-colors">الخبرة العملية</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed">المسار المهني والأدوار السابقة</p>
                         </Link>
 
                         {/* Projects Section */}
@@ -43,8 +43,8 @@ export default function Footer() {
                             <div className="bg-green-500/10 p-4 rounded-xl text-green-400 group-hover:text-green-300 group-hover:bg-green-500/20 transition-colors w-fit mb-4">
                                 <FolderGit2 className="w-8 h-8" />
                             </div>
-                            <h3 className="font-bold text-white text-2xl mb-3 group-hover:text-green-400 transition-colors">سجل المشاريع</h3>
-                            <p className="text-slate-400 text-sm leading-relaxed">نخبة المشاريع المنجزة</p>
+                            <h3 className="font-bold text-white text-2xl mb-3 group-hover:text-green-400 transition-colors">أعمالي</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed">مجموعة المشاريع التي قمت بتنفيذها</p>
                         </Link>
                     </div>
 

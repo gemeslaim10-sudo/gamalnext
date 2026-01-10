@@ -7,9 +7,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Toaster } from "react-hot-toast";
 
+import { Metadata } from "next";
+
 // SEO Metadata
-export const metadata = {
-    title: "المقالات التقنية | Gamal Selim",
+export const metadata: Metadata = {
+    title: "المقالات التقنية | جمال عبد العاطي",
     description: "مقالات حصرية في تطوير الويب، الذكاء الاصطناعي، وتحليل البيانات.",
 };
 

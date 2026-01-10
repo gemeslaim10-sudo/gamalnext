@@ -9,10 +9,10 @@ const iconMap: any = {
 
 const defaultSkillsData = {
     mainSkills: [
-        { title: "Full Stack Web Development", description: "بناء وتطوير Web Applications باستخدام أطر عمل حديثة (Next.js, React)، مع التركيز على Performance و Scalability.", tags: "Next.js, React, Performance", icon: "Code" },
-        { title: "Search Engine Optimization (SEO)", description: "تطبيق معايير Technical SEO و On-Page Optimization لضمان فهرسة صحيحة وظهور متقدم في نتائج البحث (SERPs).", tags: "Technical SEO, On-page, SERPs", icon: "Search" },
-        { title: "Vibe Engineering & UX", description: "ضبط الطابع العام للمنتج الرقمي وتصميم تدفق تجربة المستخدم (User Flow) باستخدام مبادئ Vibe Engineering لخلق أثر ملموس.", tags: "Vibe Eng, User Flow, UX", icon: "LineChart" },
-        { title: "Data Analytics & Tools", description: "رصد الأداء وتحليل سلوك المستخدمين عبر Google Analytics و Google Search Console لاتخاذ قرارات مبنية على البيانات.", tags: "Google Analytics, GSC, Data Insights", icon: "Database" }
+        { title: "CMS & Solution Architect", description: "بناء وتطوير المتاجر الإلكترونية (جمال ويب) والأنظمة البرمجية باستخدام WordPress و Shopify مع حلول متكاملة لمن يتساءل ازاي اعمل ويبسايت احترافي.", tags: "WordPress, Shopify, Data Structures", icon: "Code" },
+        { title: "SEO Optimization", description: "تقديم أفضل خدمات مواقع (جمال SEO) واستراتيجيات متقدمة للتصدر في محركات البحث وتحسين الظهور الرقمي.", tags: "Search Engine Optimization, Technical SEO", icon: "Search" },
+        { title: "AI Agents & Automation", description: "استخدام وكلاء الذكاء الاصطناعي (AI Agents) والتحليل الذكي لإدارة المهام الرقمية المعقدة بآلية عالية.", tags: "AI Agents, Automation, Intelligence", icon: "LineChart" },
+        { title: "Data Analysis & UI/UX", description: "تحليل البيانات وسلوك المنصات مع توجيه تجربة المستخدم لتحقيق أفضل أثر رقمي ممكن.", tags: "Data Analytics, User Experience, UI/UX", icon: "Database" }
     ],
     techStack: [
         { name: 'React.js', val: '95%' },
