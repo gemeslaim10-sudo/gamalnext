@@ -29,8 +29,6 @@ export default function ArticlesList({ initialArticles }: { initialArticles?: Ar
     const router = useRouter();
 
     useEffect(() => {
-        if (initialArticles) return;
-
         const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({
@@ -38,6 +36,10 @@ export default function ArticlesList({ initialArticles }: { initialArticles?: Ar
                 ...doc.data()
             } as Article));
             setArticles(data);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching articles:", error);
+            // toast.error("فشل تحميل المقالات. تأكد من نشر قواعد البيانات (Rules)."); // Optional: less spammy
             setLoading(false);
         });
         return () => unsubscribe();

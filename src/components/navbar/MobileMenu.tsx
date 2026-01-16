@@ -17,7 +17,7 @@ export default function MobileMenu({ isOpen, setIsOpen, user, logout, isActive, 
     if (!isOpen) return null;
 
     return (
-        <div className="lg:hidden bg-slate-900 border-b border-slate-800 absolute w-full top-20 left-0 transition-all duration-300 shadow-xl z-40">
+        <div className="lg:hidden bg-slate-900 border-b border-slate-800 absolute w-full top-14 left-0 transition-all duration-300 shadow-xl z-40">
             <div className="px-4 py-6 space-y-3">
                 {/* Mobile Nav Links */}
                 <div className="space-y-1 text-right">
@@ -40,6 +40,10 @@ export default function MobileMenu({ isOpen, setIsOpen, user, logout, isActive, 
                     <Link href="/articles" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/articles') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
                         المدونة
                         <span className="bg-slate-800 p-1.5 rounded-lg text-pink-400"><FileText className="w-4 h-4" /></span>
+                    </Link>
+                    <Link href="/tools" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/tools') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
+                        الأدوات
+                        <span className="bg-slate-800 p-1.5 rounded-lg text-blue-400"><Zap className="w-4 h-4" /></span>
                     </Link>
                     <Link href="/contact" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/contact') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
                         اتصل بنا

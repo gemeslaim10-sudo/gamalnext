@@ -33,6 +33,11 @@ export default function CommentSection({ articleId }: { articleId: string }) {
         const unsubscribe = onSnapshot(q, (snap) => {
             const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Comment));
             setComments(data);
+        }, (error) => {
+            console.error("Comments subscription error:", error);
+            if (error.code === 'failed-precondition') {
+                toast.error("مطلوب إنشاء Index للتعليقات (راجع الكونسول)");
+            }
         });
 
         return () => unsubscribe();
@@ -58,9 +63,13 @@ export default function CommentSection({ articleId }: { articleId: string }) {
             });
             setNewComment("");
             toast.success("تم إضافة تعليقك");
-        } catch (e) {
-            console.error(e);
-            toast.error("فشل نشر التعليق");
+        } catch (e: any) {
+            console.error("Error submitting comment:", e);
+            if (e.code === 'permission-denied') {
+                toast.error("آسف، ليس لديك صلاحية للتعليق. يرجى تسجيل الدخول مرة أخرى.");
+            } else {
+                toast.error("حدث خطأ أثناء نشر التعليق.");
+            }
         } finally {
             setSubmitting(false);
         }

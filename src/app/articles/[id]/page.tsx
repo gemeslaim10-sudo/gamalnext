@@ -70,7 +70,7 @@ export default async function ArticlePage({ params }: Props) {
         '@context': 'https://schema.org',
         '@type': 'BlogPosting',
         headline: article.title,
-        image: article.media?.[0]?.url ? [article.media[0].url] : [],
+        image: article.media?.[0]?.url ? [article.media[0].url] : ["https://gamaltech.info/og-image.png"],
         datePublished: new Date(serializedArticle.createdAt).toISOString(),
         dateModified: article.updatedAt?.seconds ? new Date(article.updatedAt.seconds * 1000).toISOString() : new Date(serializedArticle.createdAt).toISOString(),
         author: {

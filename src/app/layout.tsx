@@ -3,6 +3,8 @@ import { Cairo } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ChatWrapper from "@/components/chat/ChatWrapper";
 import { Toaster } from "react-hot-toast";
+import Script from 'next/script';
+import GlobalErrorListener from '@/components/GlobalErrorListener';
 import "./globals.css";
 
 
@@ -107,6 +109,7 @@ export default function RootLayout({
               })
             }}
           />
+          <GlobalErrorListener />
           {children}
           <ChatWrapper />
           <Toaster position="bottom-center" toastOptions={{

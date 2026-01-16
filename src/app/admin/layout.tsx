@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ALLOWED_ADMINS } from "@/lib/constants";
+import Script from "next/script";
 
 const ADMIN_EMAIL = "gamal@example.com"; // User should update this or we use env
 
@@ -43,6 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     return (
         <div className="min-h-screen bg-slate-950 flex">
+            <Script src="https://widget.cloudinary.com/v2.0/global/all.js" strategy="lazyOnload" />
             {/* Mobile Toggle Button */}
             <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}

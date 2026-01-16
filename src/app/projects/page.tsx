@@ -28,6 +28,26 @@ export default async function ProjectsPage() {
                 <Projects initialData={projectsData} />
             </div>
             <Footer />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [{
+                            "@type": "ListItem",
+                            "position": 1,
+                            "name": "الرئيسية",
+                            "item": "https://gamaltech.info"
+                        }, {
+                            "@type": "ListItem",
+                            "position": 2,
+                            "name": "أعمالي",
+                            "item": "https://gamaltech.info/projects"
+                        }]
+                    })
+                }}
+            />
         </main>
     );
 }

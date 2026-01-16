@@ -1,5 +1,6 @@
 'use client';
 import { MessageCircle, ChevronDown, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 import Reveal from './Reveal';
 import { useContent } from '@/hooks/useContent';
 
@@ -38,10 +39,13 @@ export default function Hero() {
 
                         {/* Main Image Container */}
                         <div className="relative w-56 h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-slate-900 shadow-2xl">
-                            <img
+                            <Image
                                 src="/gamal.jpg"
                                 alt={hero.heroTitle}
-                                className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-125"
+                                fill
+                                priority
+                                className="object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-125"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                         </div>
                     </div>
@@ -84,7 +88,7 @@ export default function Hero() {
                 </Reveal>
             </div>
 
-            <a href="#skills" className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-slate-500 hover:text-blue-400 animate-bounce cursor-pointer transition-colors duration-300 hidden sm:block">
+            <a href="#skills" className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-slate-500 hover:text-blue-400 animate-bounce cursor-pointer transition-colors duration-300 hidden sm:block">
                 <ChevronDown className="w-10 h-10" />
             </a>
         </section>

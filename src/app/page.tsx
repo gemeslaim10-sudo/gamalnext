@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import FeaturedProjects from "@/components/FeaturedProjects";
+import FeaturedTools from "@/components/FeaturedTools";
 import TrendingArticles from "@/components/TrendingArticles";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
@@ -11,6 +12,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <FeaturedProjects />
+      <FeaturedTools />
       <TrendingArticles />
       <Reviews />
       <Footer />

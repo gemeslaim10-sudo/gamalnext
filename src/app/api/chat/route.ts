@@ -182,7 +182,7 @@ async function handleFallbacks(message: string, sanitizedHistory: any[], finalSy
         try {
             const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
-                headers: { "Authorization": `Bearer ${orKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://gamal.dev" },
+                headers: { "Authorization": `Bearer ${orKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://gamaltech.info" },
                 body: JSON.stringify({
                     model: "google/gemini-2.0-flash-exp:free",
                     messages: openAyHistory

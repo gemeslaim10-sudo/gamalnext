@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 interface AuthContextType {
     user: User | null;
@@ -32,16 +33,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setError(null);
         const provider = new GoogleAuthProvider();
         try {
-            await signInWithPopup(auth, provider);
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+
+            // Create/Update User Document
+            await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                name: user.displayName || "Anonymous",
+                email: user.email,
+                photoURL: user.photoURL,
+                lastLoginAt: serverTimestamp(),
+                // Only set createdAt if it doesn't exist (merge won't overwrite existing fields but we want to be sure)
+            }, { merge: true });
+
         } catch (error: any) {
             console.error("Error signing in with Google", error);
+            let errorMessage = "Failed to sign in with Google.";
+
             if (error.code === 'auth/popup-closed-by-user') {
-                setError("Sign-in cancelled by user.");
+                errorMessage = "Sign-in cancelled by user.";
             } else if (error.code === 'auth/popup-blocked') {
-                setError("Sign-in popup was blocked by the browser. Please allow popups for this site.");
-            } else {
-                setError("Failed to sign in with Google. Please try again.");
+                errorMessage = "Sign-in popup was blocked by the browser.";
+            } else if (error.code === 'auth/unauthorized-domain') {
+                errorMessage = "This domain is not authorized for Google Sign-In. Please contact support.";
             }
+
+            setError(errorMessage);
+            throw error; // Re-throw to let components handle it
         }
     };
 

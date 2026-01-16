@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { doc, onSnapshot, DocumentData } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { toast } from "react-hot-toast";
 
 /**
  * Hook to subscribe to a Firestore document.
@@ -24,6 +25,10 @@ export function useContent<T>(collectionName: string, docId: string, defaultData
             setLoading(false);
         }, (error) => {
             console.error(`Error fetching ${collectionName}/${docId}:`, error);
+            // Prevent spamming toasts if it's just a permission issue handled elsewhere or initial load
+            if (error.code !== 'permission-denied') {
+                toast.error(`Failed to load content: ${collectionName}`);
+            }
             setLoading(false);
         });
 

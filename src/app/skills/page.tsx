@@ -28,6 +28,26 @@ export default async function SkillsPage() {
                 <Skills initialData={skillsData} />
             </div>
             <Footer />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [{
+                            "@type": "ListItem",
+                            "position": 1,
+                            "name": "الرئيسية",
+                            "item": "https://gamaltech.info"
+                        }, {
+                            "@type": "ListItem",
+                            "position": 2,
+                            "name": "مهاراتي",
+                            "item": "https://gamaltech.info/skills"
+                        }]
+                    })
+                }}
+            />
         </main>
     );
 }

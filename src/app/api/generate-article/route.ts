@@ -316,8 +316,8 @@ export async function POST(req: Request) {
                     headers: {
                         "Authorization": `Bearer ${openRouterApiKey}`,
                         "Content-Type": "application/json",
-                        "HTTP-Referer": "https://gamal-app.com", // Required by OpenRouter
-                        "X-Title": "Gamal App"
+                        "HTTP-Referer": "https://gamaltech.info", // Required by OpenRouter
+                        "X-Title": "GamalTech"
                     },
                     body: JSON.stringify({
                         model: "google/gemini-2.0-flash-exp:free", // Using a free/reliable model

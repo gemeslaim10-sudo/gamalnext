@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper: Check if user is an admin (hardcoded emails matches frontend allowlist)
+    // Helper: Check if user is an admin
     function isAdmin() {
       return request.auth != null && (
         request.auth.token.email == 'montasrrm@gmail.com' || 
@@ -10,88 +10,93 @@ service cloud.firestore {
       );
     }
     
+    // Helper: Check if user is authenticated
     function isAuth() {
         return request.auth != null;
     }
 
-    // Site Content (Hero, Skills, Experience, Projects)
+    // 1. Site Content (Hero, Skills, Experience, Projects, AI Settings)
     // Public: Read-only
     // Admin: Read/Write
     match /site_content/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
-
-    // AI Settings
     match /settings/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    
-    // Reviews
-    match /reviews/{reviewId} {
-        // Public: can read only approved reviews
-        // Admin: can read all
-        allow read: if (resource.data.status == 'approved') || isAdmin();
-        
-        // Anyone: Create (Guests allowed)
-        allow create: if true;
-        
-        // Admin: Update/Delete
-        allow update, delete: if isAdmin();
+    // 2. Articles
+    // Public: Read all
+    // Auth: Create
+    // Admin/Owner: Update/Delete
+    match /articles/{articleId} {
+        allow read: if true;
+        allow create: if isAuth(); 
+        allow update, delete: if isAdmin() || (isAuth() && resource.data.authorId == request.auth.uid);
     }
     
-    // Users
+    // 3. User Profiles
+    // Public: Read
+    // Owner/Admin: Write
     match /users/{userId} {
-        // Public can view profiles
         allow read: if true; 
-        // Owner/Admin can write
         allow write: if isAuth() && (request.auth.uid == userId || isAdmin());
     }
 
-    // Articles
-    match /articles/{articleId} {
-        allow read: if true; // We will filter 'published' status in client queries
-        allow create: if isAuth(); // Users can submit
-        allow update, delete: if isAdmin() || (isAuth() && resource.data.authorId == request.auth.uid); // Authors can edit own? Let's say yes for now.
+    // 4. Comments
+    // Public: Read
+    // Auth: Create
+    // Admin/Owner: Update/Delete
+    match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isAuth();
+        allow update, delete: if isAuth() && (resource.data.userId == request.auth.uid || isAdmin());
     }
-    
-    // Notifications
+
+    // 5. Reviews
+    // Public: Read approved only (or Admin read all)
+    // Any: Create
+    // Admin: Update/Delete
+    match /reviews/{reviewId} {
+        allow read: if (resource.data.status == 'approved') || isAdmin();
+        allow create: if true;
+        allow update, delete: if isAdmin();
+    }
+
+    // 6. Notifications
     match /notifications/{notifId} {
-        // Recipient can read and update (e.g. mark read)
         allow read, update: if isAuth() && (resource.data.recipientId == request.auth.uid || (resource.data.recipientId == 'ADMIN' && isAdmin()));
-        // Anyone auth can create a notification (e.g. triggers)
         allow create: if isAuth();
         allow delete: if isAdmin() || (isAuth() && resource.data.recipientId == request.auth.uid);
     }
     
-    // Comments
-    match /comments/{commentId} {
-        allow read: if true;
-        allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
-        allow update, delete: if isAuth() && (resource.data.userId == request.auth.uid || isAdmin());
-    }
-
-    // Likes
+    // 7. Likes
     match /likes/{likeId} {
         allow read: if true;
-        allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+        allow create: if isAuth();
         allow delete: if isAuth() && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
-    // AI Chat Sessions (New)
+    // 8. AI Chat Sessions
     match /chat_sessions/{sessionId} {
-      // Guests (via API) create and update sessions
       allow create, update: if true;
-      // Only Admins can view/manage logs
       allow read, delete: if isAdmin();
     }
 
-    // Leads (New)
+    // 9. Leads
     match /leads/{leadId} {
       allow create: if true;
       allow read, update, delete: if isAdmin();
+    }
+
+    // 10. User History (Tools Usage)
+    match /user_history/{historyId} {
+      allow read: if isAuth() && resource.data.userId == request.auth.uid;
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuth() && resource.data.userId == request.auth.uid;
+      allow update: if false; // لا يُسمح بالتعديل
     }
   }
 }

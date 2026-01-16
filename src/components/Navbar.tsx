@@ -38,13 +38,13 @@ export default function Navbar() {
                 <div className={`absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent transition-opacity duration-300 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-20">
+                    <div className="flex items-center justify-between h-14">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2 cursor-pointer z-50 group no-scroll-spy">
-                            <div className="bg-gradient-to-tr from-blue-500 to-cyan-400 p-2 rounded-lg group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
-                                <Terminal className="text-white w-5 h-5 sm:w-6 sm:h-6" />
+                            <div className="bg-gradient-to-tr from-blue-500 to-cyan-400 p-1 rounded-lg group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
+                                <Terminal className="text-white w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </div>
-                            <span className="font-bold text-lg sm:text-2xl tracking-wider text-white">
+                            <span className="font-bold text-sm sm:text-lg tracking-wider text-white">
                                 GAMAL<span className="text-blue-400">TECH</span>
                             </span>
                         </Link>
@@ -58,6 +58,13 @@ export default function Navbar() {
                                 <MegaMenu />
 
                                 <Link href="/articles" className={`text-sm font-medium transition-colors ${isActive('/articles') ? 'text-blue-400' : 'text-white hover:text-blue-400'}`}>المدونة التقنية</Link>
+                                <Link href="/tools" className={`text-sm font-medium transition-colors ${isActive('/tools') ? 'text-blue-400' : 'text-white hover:text-blue-400 relative group'}`}>
+                                    الأدوات
+                                    <span className="absolute -top-3 -right-3 flex h-2.5 w-2.5">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+                                    </span>
+                                </Link>
                                 <Link href="/contact" className={`px-4 py-2 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all text-sm font-bold`}>اتصل بنا</Link>
 
                                 <div className="h-6 w-px bg-slate-800 mx-2"></div>

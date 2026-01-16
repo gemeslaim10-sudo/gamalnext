@@ -82,6 +82,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             // Don't show error if user simply closed the popup
             if (errorCode.includes("auth/popup-closed-by-user") || errorCode.includes("auth/cancelled-popup-request")) {
                 toast("تم إلغاء تسجيل الدخول.", { icon: "ℹ️" });
+            } else if (errorCode.includes("auth/unauthorized-domain")) {
+                toast.error("الدومين غير مصرح به. يرجى إضافته في إعدادات Firebase.");
             } else {
                 toast.error("فشل تسجيل الدخول عبر Google.");
             }

@@ -196,14 +196,22 @@ export default function UserProfilePage() {
                                     </Link>
                                 )}
 
-                                {/* Edit Profile - Only for Owner */}
                                 {user && user.uid === id && (
-                                    <Link
-                                        href="/settings"
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                    >
-                                        تعديل الملف الشخصي
-                                    </Link>
+                                    <>
+                                        <Link
+                                            href="/write"
+                                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                                        >
+                                            <span className="text-lg">✍️</span> كتابة مقال
+                                        </Link>
+
+                                        <Link
+                                            href="/settings"
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                        >
+                                            تعديل الملف الشخصي
+                                        </Link>
+                                    </>
                                 )}
 
                                 {/* Delete Account - Only for Owner */}
