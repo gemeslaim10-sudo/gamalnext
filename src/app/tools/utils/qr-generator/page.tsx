@@ -51,7 +51,7 @@ export default function QrGeneratorPage() {
                                 type="text"
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
-                                placeholder="https://example.com"
+                                placeholder="https://gamaltech.info"
                                 className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pr-10 pl-4 text-white focus:border-blue-500 outline-none"
                             />
                             <LinkIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />

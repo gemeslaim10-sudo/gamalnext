@@ -50,6 +50,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: 'monthly',
             priority: 0.7,
         },
+        // Tools Routes
+        {
+            url: `${baseUrl}/tools`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.9,
+        },
+        { url: `${baseUrl}/tools/media/video-to-audio`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/audio/text-to-speech`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/translation/ai-translator`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/finance/currency`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/data/table-generator`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/utils/qr-generator`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/security/password-generator`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/data/text-analyzer`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/media/image-compressor`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/media/youtube-thumbnail`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/data/json-formatter`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/utils/unit-converter`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/utils/age-calculator`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/tools/utils/stopwatch`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     ];
 
     // Dynamic Articles
@@ -61,5 +82,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
     }));
 
-    return [...routes, ...articleRoutes];
+    // Dynamic Users (Public Profiles)
+    const users = await getCollection<any>('users');
+    const userRoutes: MetadataRoute.Sitemap = users.map((user) => ({
+        url: `${baseUrl}/users/${user.id}`,
+        lastModified: new Date(Date.now()), // Users might not have updatedAt, default to now
+        changeFrequency: 'monthly',
+        priority: 0.6,
+    }));
+
+    return [...routes, ...articleRoutes, ...userRoutes];
 }

@@ -144,6 +144,13 @@ const tools = [
     }
 ];
 
+export const metadata = {
+    title: "مركز الأدوات | جمال تك",
+    alternates: {
+        canonical: './',
+    },
+};
+
 export default function ToolsPage() {
     return (
         <div>

@@ -1,6 +1,6 @@
-import Skills from "@/components/Skills";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Skills from "@/components/sections/Skills";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { getDocument } from "@/lib/server-utils";
 import { Metadata } from "next";
 
@@ -8,6 +8,9 @@ export const metadata: Metadata = {
     title: "مهاراتي | جمال عبد العاطي - جمال ويب",
     description: "تعرف على الأدوات والتقنيات (جمال ويب) التي أتقنها في تطوير المهارات والـ SEO، من الويبسايت إلى تحليل البيانات.",
     keywords: ["جمال عبد العاطي", "جمال تك", "مهارات ويب", "جمال ويب", "تحليل بيانات", "مقالات seo"],
+    alternates: {
+        canonical: './',
+    },
     openGraph: {
         title: "مهاراتي | جمال عبد العاطي - جمال ويب",
         description: "تعرف على الأدوات والتقنيات التي أتقنها في تطوير المواقع والتطبيقات.",

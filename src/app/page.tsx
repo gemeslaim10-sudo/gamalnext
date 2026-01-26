@@ -1,10 +1,10 @@
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import FeaturedProjects from "@/components/FeaturedProjects";
-import FeaturedTools from "@/components/FeaturedTools";
-import TrendingArticles from "@/components/TrendingArticles";
-import Reviews from "@/components/Reviews";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Hero from "@/components/sections/Hero";
+import FeaturedProjects from "@/components/projects/FeaturedProjects";
+import FeaturedTools from "@/components/sections/FeaturedTools";
+import TrendingArticles from "@/components/articles/TrendingArticles";
+import Reviews from "@/components/reviews/Reviews";
+import Footer from "@/components/layout/Footer";
 
 export default function Home() {
   return (

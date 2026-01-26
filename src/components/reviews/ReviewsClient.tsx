@@ -1,6 +1,6 @@
 "use client";
 
-import Reveal from "./Reveal";
+import Reveal from "../sections/Reveal";
 import AddReview from "./AddReview";
 import dynamic from 'next/dynamic';
 

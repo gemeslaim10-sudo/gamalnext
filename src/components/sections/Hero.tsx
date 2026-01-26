@@ -7,7 +7,7 @@ import { useContent } from '@/hooks/useContent';
 const defaultHeroData = {
     heroTitle: "جمال عبد العاطي",
     heroSubtitle: "SEO Optimization & Data Analyst",
-    heroDescription: "خبير في جمال تك (Gamal Tech) لتحسين محركات البحث، تحليل البيانات، وتطوير الأنظمة الرقمية (CMS)، المتاجر الإلكترونية، ومعرفة كيفية عمل ويبسايت احترافي.",
+    heroDescription: "متخصص في تحسين محركات البحث وتحليل البيانات. أساعدك في تصدر نتائج البحث، تطوير المتاجر الإلكترونية، وبناء حلول رقمية احترافية تحقق أهدافك.",
     whatsappNumber: "201024531452",
     resumeLink: "#projects"
 };
@@ -70,7 +70,7 @@ export default function Hero() {
                 <Reveal className="stagger-3 max-w-2xl mx-auto text-slate-400 text-lg sm:text-xl mb-12 leading-relaxed px-4 text-center">
                     {hero.heroDescription}
                     <div className="mt-4 text-slate-500 text-sm md:text-base font-medium">
-                        CMS Specialist (WordPress & Shopify) | AI Agents Developer
+                        WordPress & Shopify Expert | AI Solutions Developer
                     </div>
                 </Reveal>
 

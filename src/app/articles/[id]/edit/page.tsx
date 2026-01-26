@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/layout/Navbar";
 import { toast, Toaster } from "react-hot-toast";
 import { MediaUpload } from "@/components/admin/MediaUpload";
 import { Save, Loader2, ArrowLeft } from "lucide-react";

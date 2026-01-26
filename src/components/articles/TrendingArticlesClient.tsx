@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { MoveRight, TrendingUp, Sparkles } from "lucide-react";
-import Reveal from "./Reveal";
+import Reveal from "../sections/Reveal";
 import dynamic from 'next/dynamic';
-import ArticleCard from "./articles/ArticleCard";
+import ArticleCard from "./ArticleCard";
 
 // Dynamic import for Swiper to reduce initial JS
 const Swiper = dynamic(() => import('swiper/react').then(mod => mod.Swiper), { ssr: false });

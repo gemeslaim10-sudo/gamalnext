@@ -2,8 +2,8 @@
 
 import { Code2, Sparkles, Star } from 'lucide-react';
 import Link from 'next/link';
-import Reveal from './Reveal';
-import ProjectCard from './projects/ProjectCard';
+import Reveal from '../sections/Reveal';
+import ProjectCard from './ProjectCard';
 
 type Project = {
     title: string;

@@ -3,8 +3,8 @@ import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import { getCollection } from "@/lib/server-utils";
 import Link from "next/link";
 import { MoveRight, Calendar } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { Toaster } from "react-hot-toast";
 
 import { Metadata } from "next";
@@ -13,6 +13,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "المقالات التقنية | جمال عبد العاطي",
     description: "مقالات حصرية في تطوير الويب، الذكاء الاصطناعي، وتحليل البيانات.",
+    alternates: {
+        canonical: './',
+    },
 };
 
 export const revalidate = 60; // Helper for ISG

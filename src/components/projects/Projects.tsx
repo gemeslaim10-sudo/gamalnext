@@ -1,7 +1,7 @@
 'use client';
 import { ExternalLink, FolderGit2, Code2, Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import Reveal from './Reveal';
+import Reveal from '../sections/Reveal';
 import { useContent } from '@/hooks/useContent';
 
 const defaultProjectsData = {

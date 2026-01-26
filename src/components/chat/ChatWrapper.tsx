@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-const AiChatWidget = dynamic(() => import("@/components/AiChatWidget"), { ssr: false });
+const AiChatWidget = dynamic(() => import("./AiChatWidget"), { ssr: false });
 
 export default function ChatWrapper() {
     return <AiChatWidget />;

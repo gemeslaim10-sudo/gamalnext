@@ -62,7 +62,7 @@ export default function AdminLogin() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                            placeholder="admin@example.com"
+                            placeholder="admin@gamaltech.info"
                         />
                     </div>
 

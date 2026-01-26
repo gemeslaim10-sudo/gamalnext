@@ -2,16 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { Terminal, Menu, X } from 'lucide-react';
-import { AuthModal } from './AuthModal';
+import { AuthModal } from '../auth/AuthModal';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import NotificationsDropdown from './NotificationsDropdown';
 import { usePathname } from 'next/navigation';
 
 // Extracted Sub-components
-import MegaMenu from './navbar/MegaMenu';
-import UserMenu from './navbar/UserMenu';
-import MobileMenu from './navbar/MobileMenu';
+import MegaMenu from '../navbar/MegaMenu';
+import UserMenu from '../navbar/UserMenu';
+import MobileMenu from '../navbar/MobileMenu';
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);

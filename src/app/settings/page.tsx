@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/layout/Navbar";
 import { toast, Toaster } from "react-hot-toast";
 import { User, MapPin, Briefcase, Heart, Camera, Loader2, Save } from "lucide-react";
 // Reusing MediaUpload logic but simplified for single image or just using the hook directly?

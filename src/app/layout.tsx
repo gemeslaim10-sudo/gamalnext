@@ -4,7 +4,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import ChatWrapper from "@/components/chat/ChatWrapper";
 import { Toaster } from "react-hot-toast";
 import Script from 'next/script';
-import GlobalErrorListener from '@/components/GlobalErrorListener';
+import GlobalErrorListener from '@/components/providers/GlobalErrorListener';
 import "./globals.css";
 
 
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   publisher: "جمال عبد العاطي",
   metadataBase: new URL('https://gamaltech.info'),
   alternates: {
-    canonical: '/',
+    canonical: './',
   },
   openGraph: {
     type: "website",
@@ -103,8 +103,9 @@ export default function RootLayout({
                 "url": "https://gamaltech.info",
                 "jobTitle": "SEO Optimization & Data Analyst",
                 "sameAs": [
-                  "https://github.com/gamaldev",
-                  "https://linkedin.com/in/gamaldev"
+                  // Add your real social media links here:
+                  // "https://github.com/your-username",
+                  // "https://linkedin.com/in/your-username"
                 ]
               })
             }}

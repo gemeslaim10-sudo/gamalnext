@@ -8,9 +8,9 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 
 // Extracted Sub-components
-import ChatHeader from "./chat/ChatHeader";
-import ChatMessage from "./chat/ChatMessage";
-import ChatInput from "./chat/ChatInput";
+import ChatHeader from "../chat/ChatHeader";
+import ChatMessage from "../chat/ChatMessage";
+import ChatInput from "../chat/ChatInput";
 
 type Message = {
     role: 'user' | 'model';

@@ -54,7 +54,7 @@ export default function Footer() {
                     {/* Bottom Section */}
                     <div className="text-center">
                         <p className="font-medium text-slate-400 mb-2">
-                            © 2024 <span className="text-white font-bold">جمال عبد العاطي</span>. جميع الحقوق محفوظة.
+                            © 2025 <span className="text-white font-bold">جمال عبد العاطي</span>. جميع الحقوق محفوظة.
                         </p>
                         <p className="text-slate-600 font-mono text-xs tracking-wide">Built with Next.js & Gemini AI</p>
                     </div>
