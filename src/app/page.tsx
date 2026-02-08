@@ -6,6 +6,8 @@ import TrendingArticles from "@/components/articles/TrendingArticles";
 import Reviews from "@/components/reviews/Reviews";
 import Footer from "@/components/layout/Footer";
 
+export const revalidate = 0; // Revalidate immediately (dynamic)
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-slate-950 text-slate-200">

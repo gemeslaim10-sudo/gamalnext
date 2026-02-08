@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     },
 };
 
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 0; // Revalidate immediately (dynamic)
 
 export default async function ExperiencePage() {
     const experienceData = await getDocument("site_content", "experience");

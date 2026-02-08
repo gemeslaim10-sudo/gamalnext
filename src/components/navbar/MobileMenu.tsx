@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Terminal, Zap, Briefcase, FolderGit2, FileText, MessageSquare } from 'lucide-react';
+import { Terminal, Zap, Briefcase, FolderGit2, FileText, MessageSquare, Package } from 'lucide-react';
 
 interface MobileMenuProps {
     isOpen: boolean;
@@ -45,6 +45,10 @@ export default function MobileMenu({ isOpen, setIsOpen, user, logout, isActive, 
                         الأدوات
                         <span className="bg-slate-800 p-1.5 rounded-lg text-blue-400"><Zap className="w-4 h-4" /></span>
                     </Link>
+                    <a href="https://packages.gamaltech.info" target="_blank" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 text-slate-300 hover:text-white hover:bg-slate-800/80`}>
+                        الباقات
+                        <span className="bg-slate-800 p-1.5 rounded-lg text-orange-400"><Package className="w-4 h-4" /></span>
+                    </a>
                     <Link href="/contact" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/contact') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
                         اتصل بنا
                         <span className="bg-slate-800 p-1.5 rounded-lg text-cyan-400"><MessageSquare className="w-4 h-4" /></span>

@@ -7,6 +7,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { Save, Plus, Trash } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { revalidateProjects } from "@/app/actions";
 
 type ProjectItem = {
     title: string;
@@ -76,6 +77,7 @@ export default function ProjectsPage() {
     const onSubmit = async (data: ProjectsForm) => {
         try {
             await setDoc(doc(db, "site_content", "projects"), data);
+            await revalidateProjects();
             toast.success("Projects updated!");
         } catch (e) {
             toast.error("Error saving.");

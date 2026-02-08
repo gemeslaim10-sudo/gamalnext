@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     },
 };
 
-export const revalidate = 60; // Helper for ISG
+export const revalidate = 0; // Helper for dynamic
 
 export default async function ArticlesPage() {
     // Fetch articles on server
