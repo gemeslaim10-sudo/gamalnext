@@ -1,199 +1,196 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, addDoc, collection, serverTimestamp, setDoc, arrayUnion } from "firebase/firestore";
-import { STRICT_INSTRUCTION } from "@/lib/ai/instructions";
+import { doc, addDoc, collection, serverTimestamp, setDoc, arrayUnion } from "firebase/firestore";
 import { discoverModels } from "@/lib/ai/models";
+import { getAiConfig, AiConfig } from "@/lib/ai/config";
+import { aiTools, toolHandlers } from "@/lib/ai/tools";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+    let body: any;
     try {
-        const { message, history, userContext, sessionId } = await req.json();
-        const apiKey = process.env.GEMINI_API_KEY;
+        body = await req.json();
+    } catch (e) {
+        return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const { message, history, userContext, sessionId } = body;
+    const chatHistory = Array.isArray(history) ? history : [];
+
+    try {
+        // 1. Fetch Configuration & Discover Model
+        const config = await getAiConfig();
+        const apiKey = config.geminiKey;
 
         if (!apiKey) {
-            console.error("Missing Gemini API Key in environment variables.");
-            return NextResponse.json({ error: "Configuration Error: Gemini API Key is missing." }, { status: 500 });
+            throw new Error("Gemini API Key is missing.");
         }
 
-        // 1. Fetch AI Settings
-        let customSystemPrompt = "You are a helpful AI assistant.";
-        let preferredModel = "";
+        const candidateModels = await discoverModels(apiKey, config.modelName);
+        const selectedModelName = candidateModels[0] || "gemini-1.5-flash";
 
+        // 2. RAG STEP (Information Layer)
+        let ragContext = "";
         try {
-            const aiDoc = await getDoc(doc(db, "settings", "ai"));
-            if (aiDoc.exists()) {
-                const data = aiDoc.data();
-                if (data.prompt) customSystemPrompt = data.prompt;
-                if (data.modelName) preferredModel = data.modelName;
+            const searchResults = await toolHandlers.search_knowledge_base({ query: message });
+            if (searchResults && searchResults.length > 0) {
+                ragContext = "\n\n[REAL-TIME DATA]:\n" + 
+                    searchResults.map(r => `- ${r.type.toUpperCase()}: ${r.title || r.content?.title || "Info"}: ${r.content?.description || ""}`).join("\n");
             }
-        } catch (error) {
-            console.error("Firestore Error (fetching settings):", error);
+        } catch (e) {
+            console.error("RAG search failed:", e);
         }
 
-        // 2. Discover Best Available Models
-        const candidateModels = await discoverModels(apiKey, preferredModel);
+        // 3. Assemble Final Agentic Instruction
+        const finalSystemInstruction = 
+            (config.systemRole || "") + 
+            "\n\n[INSTRUCTIONS]:\n" + (config.prompt || "") + 
+            "\n\n[STYLE & NUANCE]:\n" + (config.stylePrompt || "") + 
+            ragContext +
+            (userContext ? `\n\n[USER CONTEXT]: Speaking to: ${userContext.name || "Guest"}, Gender: ${userContext.gender || "Unknown"}` : "");
 
-        // 3. Prepare Final System Instructions
-        let finalSystemInstruction = STRICT_INSTRUCTION + "\n\n[ADMIN CUSTOM INSTRUCTIONS]:\n" + customSystemPrompt;
+        // 4. Sanitize History
+        const sanitizedHistory = chatHistory.map(m => ({
+            role: m.role === 'model' ? 'model' : 'user',
+            parts: [{ text: m.parts?.[0]?.text || m.text || "" }]
+        })).filter(m => m.parts[0].text);
 
-        if (userContext) {
-            finalSystemInstruction += `\n\n[USER CONTEXT]\nYou are speaking to: ${userContext.name || "Guest"}\nGender: ${userContext.gender || "Unknown"}\nIMPORTANT: Address the user appropriately based on their gender (e.g., "يا أستاذ" for Male, "يا أستاذة" for Female) if the language allows.`;
-        }
-
-        // 4. Sanitize and Prepare History
-        const validHistory = Array.isArray(history) ? history : [];
-        const sanitizedHistory: any[] = [];
-        let foundFirstUser = false;
-        for (const msg of validHistory) {
-            if (!foundFirstUser && msg.role === 'model') continue;
-            if (msg.role === 'user') foundFirstUser = true;
-            if (sanitizedHistory.length > 0 && sanitizedHistory[sanitizedHistory.length - 1].role === msg.role) continue;
-            sanitizedHistory.push(msg);
-        }
-        if (sanitizedHistory.length > 0 && sanitizedHistory[sanitizedHistory.length - 1].role === 'user') {
-            sanitizedHistory.pop();
-        }
-
-        // 5. Initialize SDK & Execute with Retry Strategy
+        // 5. Initialize SDK with Tools
         const genAI = new GoogleGenerativeAI(apiKey);
-        let text = "";
-        let success = false;
-        let lastError: any = null;
+        const model = genAI.getGenerativeModel({ 
+            model: selectedModelName,
+            tools: [{ 
+                // @ts-ignore
+                functionDeclarations: aiTools 
+            }]
+        });
 
-        for (const modelName of candidateModels) {
-            try {
-                const model = genAI.getGenerativeModel({ model: modelName });
-                const chat = model.startChat({
-                    history: sanitizedHistory,
-                    systemInstruction: {
-                        role: "system",
-                        parts: [{ text: finalSystemInstruction }]
-                    },
-                });
+        const chat = model.startChat({
+            history: sanitizedHistory,
+            systemInstruction: {
+                role: "system",
+                parts: [{ text: finalSystemInstruction }]
+            },
+        });
 
-                const result = await chat.sendMessage(message);
-                const response = await result.response;
-                text = response.text();
+        // 6. Send Message & Handle Tool Calls (The Agentic Loop)
+        let result = await chat.sendMessage(message);
+        let response = result.response;
+        let toolCalls = response.functionCalls();
 
-                if (text) {
-                    success = true;
-                    console.log(`Success with Gemini model: ${modelName}`);
-                    break;
+        let iterations = 0;
+        while (toolCalls && toolCalls.length > 0 && iterations < 3) {
+            iterations++;
+            const toolResponses: any[] = [];
+            for (const call of toolCalls) {
+                const handler = (toolHandlers as any)[call.name];
+                if (handler) {
+                    console.log(`🤖 AI AGENT EXECUTING TOOL: ${call.name}`, call.args);
+                    const toolResult = await handler(call.args);
+                    toolResponses.push({
+                        functionResponse: {
+                            name: call.name,
+                            response: { result: toolResult }
+                        }
+                    });
                 }
-            } catch (error: any) {
-                lastError = error;
-                console.warn(`Failed with Gemini model ${modelName}: ${error.message?.substring(0, 100)}...`);
-                continue;
+            }
+            if (toolResponses.length > 0) {
+                result = await chat.sendMessage(toolResponses);
+                response = result.response;
+                toolCalls = response.functionCalls();
+            } else {
+                break;
             }
         }
 
-        // 6. Fallback Strategy (Groq, HF, OpenRouter)
-        if (!success) {
-            text = await handleFallbacks(message, sanitizedHistory, finalSystemInstruction);
-            if (text) success = true;
-        }
-
-        if (!success) {
-            throw lastError || new Error("All AI providers (Gemini, Groq, HF, OpenRouter) failed.");
-        }
+        let text = response.text();
 
         // 7. Detect Lead Data
         const leadRegex = /\[\[LEAD_DATA:({[\s\S]*?})\]\]/;
         const match = text.match(leadRegex);
-
         if (match && match[1]) {
             try {
                 const leadData = JSON.parse(match[1]);
                 await addDoc(collection(db, "leads"), {
                     ...leadData,
                     capturedAt: serverTimestamp(),
-                    source: "ai_chat",
-                    userId: userContext?.name !== "Guest" ? userContext.name : "Anonymous"
+                    source: "ai_agent_v3",
+                    userId: userContext?.name || "Anonymous"
                 });
                 text = text.replace(match[0], "").trim();
             } catch (e) { console.error("Lead parsing error:", e); }
         }
 
-        // 8. Archive Session
+        // 8. Session Management
         if (sessionId) {
             try {
-                const sessionRef = doc(db, "chat_sessions", sessionId);
-                await setDoc(sessionRef, {
+                await setDoc(doc(db, "chat_sessions", sessionId), {
                     sessionId,
                     userId: userContext?.name || "Anonymous",
-                    userContext,
                     lastMessageAt: serverTimestamp(),
                     preview: text.substring(0, 100),
                     messages: arrayUnion(
                         { role: 'user', text: message, timestamp: new Date() },
                         { role: 'model', text, timestamp: new Date() }
-                    ),
-                    startedAt: serverTimestamp()
+                    )
                 }, { merge: true });
-            } catch (e) { console.error("Archiving error:", e); }
+            } catch (e) { console.error("Session saving error:", e); }
         }
 
         return NextResponse.json({ response: text });
 
     } catch (error: any) {
-        console.error("AI Chat Execution Error:", error);
-        return NextResponse.json({
-            error: `AI Error: ${error.message || "Unknown error"}`,
-            details: JSON.stringify(error, Object.getOwnPropertyNames(error))
-        }, { status: 500 });
-    }
-}
-
-async function handleFallbacks(message: string, sanitizedHistory: any[], finalSystemInstruction: string): Promise<string> {
-    const openAyHistory = [
-        { role: "system", content: finalSystemInstruction },
-        ...sanitizedHistory.map((m: any) => ({
-            role: m.role === 'model' ? 'assistant' : 'user',
-            content: m.parts[0].text
-        })),
-        { role: "user", content: message }
-    ];
-
-    // 1. GROQ
-    const groqKey = process.env.GROQ_API_KEY;
-    if (groqKey) {
+        console.error("Gemini Agentic Flow Failed. Attempting Cross-Provider Failover...", error);
+        
         try {
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${groqKey}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: openAyHistory,
-                    max_tokens: 1024
-                })
-            });
-            if (res.ok) {
-                const data = await res.json();
-                return data.choices[0]?.message?.content || "";
-            }
-        } catch (e) { console.error("Groq Error:", e); }
-    }
+            const config = await getAiConfig();
+            const fallbackMessages = [
+                { role: "system", content: "You are a professional assistant for Gamal.Dev. Answer precisely and politely. Tone: Professional." },
+                ...chatHistory.map((m: any) => ({
+                    role: m.role === 'model' ? 'assistant' : 'user',
+                    content: m.parts?.[0]?.text || m.text || ""
+                })),
+                { role: "user", content: message }
+            ];
 
-    // 2. OpenRouter
-    const orKey = process.env.OPENROUTER_API_KEY;
-    if (orKey) {
-        try {
-            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${orKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://gamaltech.info" },
-                body: JSON.stringify({
-                    model: "google/gemini-2.0-flash-exp:free",
-                    messages: openAyHistory
-                })
-            });
-            if (res.ok) {
-                const data = await res.json();
-                return data.choices[0]?.message?.content || "";
+            // Try Groq
+            if (config.groqKey) {
+                const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${config.groqKey}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: fallbackMessages
+                    })
+                });
+                if (groqRes.ok) {
+                    const data = await groqRes.json();
+                    return NextResponse.json({ response: data.choices[0]?.message?.content || "عذراً، حدث خطأ، سأكون قادراً على مساعدتك قريباً." });
+                }
             }
-        } catch (e) { console.error("OpenRouter Error:", e); }
-    }
 
-    return "";
+            // Try OpenRouter
+            if (config.openRouterKey) {
+                const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${config.openRouterKey}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "google/gemini-2.0-flash-exp:free",
+                        messages: fallbackMessages
+                    })
+                });
+                if (orRes.ok) {
+                    const data = await orRes.json();
+                    return NextResponse.json({ response: data.choices[0]?.message?.content || "عذراً، جارٍ المعالجة..." });
+                }
+            }
+
+            return NextResponse.json({ error: "All AI providers failed." }, { status: 500 });
+        } catch (e) {
+            return NextResponse.json({ error: "Critical Failover Error" }, { status: 500 });
+        }
+    }
 }

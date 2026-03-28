@@ -1,4 +1,4 @@
-import { MessageCircle, Zap, Briefcase, FolderGit2 } from 'lucide-react';
+import { MessageCircle, Zap, FolderGit2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Footer() {
@@ -10,7 +10,7 @@ export default function Footer() {
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20 relative z-10">
                     {/* Main Navigation Sections */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-16">
                         {/* Skills Section */}
                         <Link
                             href="/skills"
@@ -21,18 +21,6 @@ export default function Footer() {
                             </div>
                             <h3 className="font-bold text-white text-2xl mb-3 group-hover:text-blue-400 transition-colors">مجالات التخصص</h3>
                             <p className="text-slate-400 text-sm leading-relaxed">التطوير الرقمي و SEO</p>
-                        </Link>
-
-                        {/* Experience Section */}
-                        <Link
-                            href="/experience"
-                            className="group bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-2xl p-8 hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(168,85,247,0.3)]"
-                        >
-                            <div className="bg-purple-500/10 p-4 rounded-xl text-purple-400 group-hover:text-purple-300 group-hover:bg-purple-500/20 transition-colors w-fit mb-4">
-                                <Briefcase className="w-8 h-8" />
-                            </div>
-                            <h3 className="font-bold text-white text-2xl mb-3 group-hover:text-purple-400 transition-colors">الخبرة العملية</h3>
-                            <p className="text-slate-400 text-sm leading-relaxed">المسار المهني والأدوار السابقة</p>
                         </Link>
 
                         {/* Projects Section */}

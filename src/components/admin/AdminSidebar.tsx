@@ -2,21 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Briefcase, Code, MessageSquare, Users, LogOut, Bot, History } from "lucide-react";
+import { LayoutDashboard, FileText, Code, MessageSquare, Users, LogOut, Bot, History, ExternalLink } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
-    { icon: FileText, label: "Content (Hero)", href: "/admin/content" },
-    { icon: Code, label: "Skills", href: "/admin/skills" },
-    { icon: Briefcase, label: "Experience", href: "/admin/experience" },
-    { icon: FileText, label: "Projects", href: "/admin/projects" },
-    { icon: FileText, label: "Articles (Blog)", href: "/admin/articles" },
-    { icon: MessageSquare, label: "Reviews", href: "/admin/reviews" },
-    { icon: Users, label: "Users", href: "/admin/users" },
-    { icon: Bot, label: "AI Chat Settings", href: "/admin/ai" },
-    { icon: History, label: "AI Chat Logs", href: "/admin/ai-chats" },
+    { icon: LayoutDashboard, label: "لوحة التحكم", href: "/admin" },
+    { icon: FileText, label: "محتوى الواجهة (Hero)", href: "/admin/content" },
+    { icon: Code, label: "المهارات", href: "/admin/skills" },
+    { icon: FileText, label: "معرض الأعمال", href: "/admin/projects" },
+    { icon: FileText, label: "المقالات والمدونة", href: "/admin/articles" },
+    { icon: MessageSquare, label: "آراء العملاء", href: "/admin/reviews" },
+    { icon: Users, label: "المستخدمين", href: "/admin/users" },
+    { icon: Bot, label: "إعدادات شات AI", href: "/admin/ai" },
+    { icon: History, label: "سجلات محادثات AI", href: "/admin/ai-chats" },
 ];
 
 interface AdminSidebarProps {
@@ -60,13 +59,20 @@ export function AdminSidebar({ className, onClose }: AdminSidebarProps) {
                 </ul>
             </nav>
 
-            <div className="p-4 border-t border-slate-800">
+            <div className="p-4 border-t border-slate-800 space-y-2">
+                <Link
+                    href="/"
+                    className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors w-full bg-blue-500/5 rounded-lg border border-blue-500/20"
+                >
+                    <ExternalLink className="w-5 h-5" />
+                    العودة للموقع
+                </Link>
                 <button
                     onClick={logout}
-                    className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 transition-colors w-full"
+                    className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 transition-colors w-full rounded-lg hover:bg-red-500/5"
                 >
                     <LogOut className="w-5 h-5" />
-                    Logout
+                    تسجيل الخروج
                 </button>
             </div>
         </aside>

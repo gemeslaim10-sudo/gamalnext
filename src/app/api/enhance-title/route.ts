@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { getAiConfig } from "@/lib/ai/config";
+import { discoverModels } from "@/lib/ai/models";
 
 export const dynamic = 'force-dynamic';
 
@@ -11,52 +13,16 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
         }
 
-        const apiKey = process.env.GEMINI_API_KEY;
+        const config = await getAiConfig();
+        const apiKey = config.geminiKey;
+        
         if (!apiKey) {
-            return NextResponse.json({ error: "API Key missing" }, { status: 500 });
+            return NextResponse.json({ error: "Gemini API Key missing in dashboard/env" }, { status: 500 });
         }
 
-        // Dynamic Model Discovery with robust error handling
-        let selectedModelName = "gemini-1.5-flash"; // Safe fallback
-
-        try {
-            const modelsRes = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`,
-                {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
-                    signal: AbortSignal.timeout(5000) // 5 second timeout
-                }
-            );
-
-            if (modelsRes.ok) {
-                const modelsData = await modelsRes.json();
-                const validModels = modelsData.models?.filter((m: any) =>
-                    m.name.includes("gemini") &&
-                    m.supportedGenerationMethods?.includes("generateContent") &&
-                    !m.name.includes("vision") // Exclude vision-only models
-                );
-
-                if (validModels && validModels.length > 0) {
-                    // Priority: flash > pro > any available
-                    const flashModel = validModels.find((m: any) =>
-                        m.name.includes("flash") && !m.name.includes("thinking")
-                    );
-                    const proModel = validModels.find((m: any) => m.name.includes("pro"));
-                    const selectedModel = flashModel || proModel || validModels[0];
-
-                    // Extract model name (remove "models/" prefix if present)
-                    selectedModelName = selectedModel.name.replace(/^models\//, '');
-                    console.log(`✅ Dynamic Model Selected: ${selectedModelName}`);
-                } else {
-                    console.log(`⚠️ No valid models found, using fallback: ${selectedModelName}`);
-                }
-            } else {
-                console.log(`⚠️ Models API returned ${modelsRes.status}, using fallback: ${selectedModelName}`);
-            }
-        } catch (error: any) {
-            console.log(`⚠️ Model discovery failed (${error.message}), using fallback: ${selectedModelName}`);
-        }
+        // 1. Discover Best Available Models
+        const candidateModels = await discoverModels(apiKey, config.modelName);
+        const selectedModelName = candidateModels[0] || "gemini-1.5-flash";
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: selectedModelName });

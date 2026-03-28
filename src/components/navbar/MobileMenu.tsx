@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Terminal, Zap, Briefcase, FolderGit2, FileText, MessageSquare, Package } from 'lucide-react';
+import { Terminal, Zap, FolderGit2, FileText, MessageSquare, Package } from 'lucide-react';
 
 interface MobileMenuProps {
     isOpen: boolean;
@@ -28,10 +28,6 @@ export default function MobileMenu({ isOpen, setIsOpen, user, logout, isActive, 
                     <Link href="/skills" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/skills') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
                         التخصصات
                         <span className="bg-slate-800 p-1.5 rounded-lg text-yellow-400"><Zap className="w-4 h-4" /></span>
-                    </Link>
-                    <Link href="/experience" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/experience') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
-                        الخبرات
-                        <span className="bg-slate-800 p-1.5 rounded-lg text-purple-400"><Briefcase className="w-4 h-4" /></span>
                     </Link>
                     <Link href="/projects" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/projects') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
                         المشاريع

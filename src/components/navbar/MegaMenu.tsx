@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ChevronDown, Zap, Briefcase, FolderGit2 } from 'lucide-react';
+import { ChevronDown, Zap, FolderGit2 } from 'lucide-react';
 
 export default function MegaMenu() {
     return (
@@ -20,16 +20,6 @@ export default function MegaMenu() {
                         <div>
                             <h4 className="font-bold text-white text-sm">مجالات التخصص</h4>
                             <p className="text-slate-500 text-xs mt-0.5">التطوير الرقمي و SEO</p>
-                        </div>
-                    </Link>
-
-                    <Link href="/experience" className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-800 transition-colors group/item">
-                        <div className="bg-purple-500/10 p-2 rounded-lg text-purple-400 group-hover/item:text-purple-300 group-hover/item:bg-purple-500/20 transition-colors">
-                            <Briefcase className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-white text-sm">الخبرة العملية</h4>
-                            <p className="text-slate-500 text-xs mt-0.5">المسار المهني والأدوار السابقة</p>
                         </div>
                     </Link>
 

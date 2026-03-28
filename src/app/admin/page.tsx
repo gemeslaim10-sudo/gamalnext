@@ -3,13 +3,12 @@
 import { useEffect, useState } from "react";
 import { collection, getCountFromServer } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Code, Briefcase, FileText, MessageSquare, Users } from "lucide-react";
+import { Code, FileText, MessageSquare, Users } from "lucide-react";
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState({
         skills: 0,
         projects: 0,
-        experience: 0,
         reviews: 0,
         users: 0
     });
@@ -28,14 +27,12 @@ export default function AdminDashboard() {
                         // Check for specific array field or default to 'items' or 'mainSkills'
                         if (docName === 'skills') return (data.mainSkills?.length || 0) + (data.techStack?.length || 0);
                         if (docName === 'projects') return data.items?.length || 0;
-                        if (docName === 'experience') return data.items?.length || 0;
                     }
                     return 0;
                 };
 
                 const skillsCount = await getArrayCount("skills", "mainSkills");
                 const projectsCount = await getArrayCount("projects", "items");
-                const expCount = await getArrayCount("experience", "items");
 
                 // Fetch counts from actual collections
                 let reviewCount = 0;
@@ -50,7 +47,6 @@ export default function AdminDashboard() {
                 setStats({
                     skills: skillsCount,
                     projects: projectsCount,
-                    experience: expCount,
                     reviews: reviewCount,
                     users: userCount
                 });
@@ -64,7 +60,6 @@ export default function AdminDashboard() {
     const cards = [
         { label: "Total Skills", value: stats.skills, icon: Code, color: "bg-blue-500" },
         { label: "Projects", value: stats.projects, icon: FileText, color: "bg-purple-500" },
-        { label: "Experience", value: stats.experience, icon: Briefcase, color: "bg-green-500" },
         { label: "Reviews", value: stats.reviews, icon: MessageSquare, color: "bg-orange-500" },
         { label: "Registered Users", value: stats.users, icon: Users, color: "bg-pink-500" },
     ];

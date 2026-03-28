@@ -1,7 +1,8 @@
 export async function discoverModels(apiKey: string, preferredModel?: string): Promise<string[]> {
     let candidateModels: string[] = [];
+    const isAuto = !preferredModel || preferredModel.toLowerCase() === "auto" || preferredModel.toLowerCase() === "تلقائي";
 
-    if (preferredModel) {
+    if (preferredModel && !isAuto) {
         candidateModels.push(preferredModel);
     }
 
@@ -17,12 +18,17 @@ export async function discoverModels(apiKey: string, preferredModel?: string): P
                 m.supportedGenerationMethods?.includes("generateContent")
             ) || [];
 
-            const flashModels = allGeminis.filter((m: any) => m.name.includes("flash"));
-            const otherModels = allGeminis.filter((m: any) => !m.name.includes("flash"));
+            // Rank strategy: Flash 2.0 > Flash 1.5 > Pro 1.5
+            const flash2 = allGeminis.filter((m: any) => m.name.includes("gemini-2.0-flash"));
+            const flash15 = allGeminis.filter((m: any) => m.name.includes("gemini-1.5-flash"));
+            const pro15 = allGeminis.filter((m: any) => m.name.includes("gemini-1.5-pro"));
+            const otherFlash = allGeminis.filter((m: any) => m.name.includes("flash") && !flash2.length && !flash15.length);
+            const others = allGeminis.filter((m: any) => !m.name.includes("flash"));
 
-            [...flashModels, ...otherModels].forEach(m => {
-                if (!candidateModels.includes(m.name)) {
-                    candidateModels.push(m.name);
+            [...flash2, ...flash15, ...pro15, ...otherFlash, ...others].forEach(m => {
+                const name = m.name.startsWith("models/") ? m.name : `models/${m.name}`;
+                if (!candidateModels.includes(name)) {
+                    candidateModels.push(name);
                 }
             });
         }
@@ -30,8 +36,9 @@ export async function discoverModels(apiKey: string, preferredModel?: string): P
         console.error("Model discovery failed:", e);
     }
 
+    // Default Fallbacks if nothing found
     if (candidateModels.length === 0) {
-        candidateModels.push("models/gemini-1.5-flash"); // Ultimate fallback
+        candidateModels.push("models/gemini-2.0-flash-exp", "models/gemini-1.5-flash", "models/gemini-1.5-pro");
     }
 
     return candidateModels;
