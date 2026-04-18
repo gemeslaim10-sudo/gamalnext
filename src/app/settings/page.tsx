@@ -49,11 +49,16 @@ export default function SettingsPage() {
     }, [user]);
 
     const handlePhotoUpload = () => {
-        openCloudinaryWidget((url) => {
-            if (url) {
-                setFormData(prev => ({ ...prev, photoURL: url }));
+        openCloudinaryWidget(
+            (url) => {
+                if (url) {
+                    setFormData(prev => ({ ...prev, photoURL: url }));
+                }
+            },
+            (error) => {
+                toast.error(error.message || "فشل فتح نافذة رفع الصور");
             }
-        });
+        );
     };
 
     const handleSubmit = async (e: React.FormEvent) => {

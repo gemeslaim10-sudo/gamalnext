@@ -103,11 +103,20 @@ export default function AiChatWidget() {
                 parts: [{ text: m.text }]
             }));
 
-            // Get or create Session ID
-            let sessionId = sessionStorage.getItem("chatSessionId");
-            if (!sessionId) {
-                sessionId = crypto.randomUUID();
-                sessionStorage.setItem("chatSessionId", sessionId);
+            // Get or create Session ID:
+            // - Authenticated users get a deterministic ID based on their UID
+            //   (consistent across tabs and devices).
+            // - Guests get a UUID stored in localStorage
+            //   (persists across tabs in the same browser).
+            let sessionId: string;
+            if (user?.uid) {
+                sessionId = `session_${user.uid}`;
+            } else {
+                sessionId = localStorage.getItem("chatSessionId") || "";
+                if (!sessionId) {
+                    sessionId = crypto.randomUUID();
+                    localStorage.setItem("chatSessionId", sessionId);
+                }
             }
 
             const res = await fetch('/api/chat', {

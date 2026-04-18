@@ -16,17 +16,16 @@ export function ImageUpload({ value, onChange, label = "صورة المشروع"
 
     const handleUpload = () => {
         setLoading(true);
-        // @ts-ignore
-        if (typeof window !== "undefined" && window.cloudinary) {
-            openCloudinaryWidget((url) => {
+        openCloudinaryWidget(
+            (url) => {
                 onChange(url);
                 setLoading(false);
-            });
-        } else {
-            const url = prompt("أدخل رابط الصورة مباشرة:", value);
-            if (url) onChange(url);
-            setLoading(false);
-        }
+            },
+            (error) => {
+                toast.error(error.message || "فشل فتح نافذة رفع الصور");
+                setLoading(false);
+            }
+        );
     };
 
     const handlePaste = useCallback(async (e: React.ClipboardEvent) => {

@@ -69,8 +69,13 @@ export default function Hero() {
 
                 <Reveal className="stagger-3 max-w-2xl mx-auto text-slate-400 text-lg sm:text-xl mb-12 leading-relaxed px-4 text-center">
                     {hero.heroDescription}
-                    <div className="mt-4 text-slate-500 text-sm md:text-base font-medium">
-                        WordPress & Shopify Expert | AI Solutions Developer
+                    <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm md:text-base">
+                        <div className="px-5 py-2 rounded-full bg-slate-900/40 border border-slate-700/50 text-slate-300 backdrop-blur-md shadow-lg flex items-center gap-2 transition-all hover:border-blue-500/30">
+                            مصمم ومطور مواقع <span className="text-blue-400 font-bold tracking-wide">WordPress</span>
+                        </div>
+                        <div className="px-5 py-2 rounded-full bg-slate-900/40 border border-slate-700/50 text-slate-300 backdrop-blur-md shadow-lg flex items-center gap-2 transition-all hover:border-purple-500/30">
+                            Build Systems With <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-bold tracking-wide">AI Agents</span>
+                        </div>
                     </div>
                 </Reveal>
 

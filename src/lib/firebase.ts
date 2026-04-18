@@ -1,7 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getAnalytics, isSupported } from "firebase/analytics";
+import { Analytics, getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -25,14 +25,36 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Analytics runs only on client side
-let analytics;
-if (typeof window !== "undefined") {
-    isSupported().then((yes) => {
-        if (yes) {
-            analytics = getAnalytics(app);
-        }
-    });
+// Analytics: lazy singleton pattern to avoid async export race condition.
+// Consumers should use: const analytics = await getAnalyticsInstance();
+let _analyticsInstance: Analytics | null = null;
+let _analyticsPromise: Promise<Analytics | null> | null = null;
+
+function getAnalyticsInstance(): Promise<Analytics | null> {
+    if (typeof window === "undefined") {
+        return Promise.resolve(null);
+    }
+
+    if (_analyticsInstance) {
+        return Promise.resolve(_analyticsInstance);
+    }
+
+    if (!_analyticsPromise) {
+        _analyticsPromise = isSupported()
+            .then((yes) => {
+                if (yes) {
+                    _analyticsInstance = getAnalytics(app);
+                    return _analyticsInstance;
+                }
+                return null;
+            })
+            .catch((err) => {
+                console.warn("Firebase Analytics initialization failed:", err);
+                return null;
+            });
+    }
+
+    return _analyticsPromise;
 }
 
-export { app, auth, db, analytics };
+export { app, auth, db, getAnalyticsInstance };

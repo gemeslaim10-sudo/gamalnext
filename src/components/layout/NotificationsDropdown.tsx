@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { collection, query, where, orderBy, onSnapshot, updateDoc, doc, limit } from "firebase/firestore";
+import { useEffect, useState, useCallback } from "react";
+import { collection, query, where, orderBy, onSnapshot, updateDoc, doc, limit, Unsubscribe } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { Bell, Check } from "lucide-react";
@@ -30,42 +30,77 @@ export default function NotificationsDropdown() {
     useEffect(() => {
         if (!user) return;
 
-        // Is this user an admin?
         const isAdmin = user.email && ADMIN_EMAILS.includes(user.email);
 
-        // Build query: My notifications OR Admin notifications if I am admin
-        // Firestore OR queries are restricted. We will listen to my quota.
-        // For admin, we can have a separate hook or just simplistic logic:
-        // If normal user -> recipientId == uid
-        // If admin -> recipientId == uid OR recipientId == 'ADMIN'. 
-        // For simplicity, we just listen to recipientId == uid first. 
-        // To support ADMIN notifications, we need complex query or multiple listeners.
+        // ── Strategy ──
+        // Instead of a single query with `where("recipientId", "in", [uid, "ADMIN"])` + `orderBy`
+        // which requires a composite Firestore index that may not exist and can fail silently,
+        // we use **two independent listeners** for admins and merge results client-side.
+        // For regular users only one listener is created (no overhead).
 
-        let q = query(
+        const unsubscribers: Unsubscribe[] = [];
+
+        // Bucket for merging results from both listeners
+        let userNotifs: Notification[] = [];
+        let adminNotifs: Notification[] = [];
+
+        const mergeAndUpdate = () => {
+            // Combine, deduplicate by id, sort by createdAt descending, and limit to 20
+            const merged = new Map<string, Notification>();
+            for (const n of [...userNotifs, ...adminNotifs]) {
+                merged.set(n.id, n);
+            }
+            const sorted = Array.from(merged.values()).sort((a, b) => {
+                const getTime = (ts: any): number => {
+                    if (!ts) return 0;
+                    if (typeof ts.toMillis === 'function') return ts.toMillis();
+                    if (typeof ts.seconds === 'number') return ts.seconds * 1000;
+                    return 0;
+                };
+                return getTime(b.createdAt) - getTime(a.createdAt);
+            }).slice(0, 20);
+
+            setNotifications(sorted);
+            setUnreadCount(sorted.filter(n => !n.read).length);
+        };
+
+        // Listener 1: User-specific notifications (always active)
+        const userQuery = query(
             collection(db, "notifications"),
             where("recipientId", "==", user.uid),
             orderBy("createdAt", "desc"),
-            limit(10)
+            limit(15)
+        );
+        unsubscribers.push(
+            onSnapshot(userQuery, (snap) => {
+                userNotifs = snap.docs.map(d => ({ id: d.id, ...d.data() } as Notification));
+                mergeAndUpdate();
+            }, (error) => {
+                console.error("User notifications listener error:", error);
+            })
         );
 
+        // Listener 2: Admin broadcast notifications (only for admins)
         if (isAdmin) {
-            // NOTE: Firestore doesn't support logical OR in `where` easily with different fields or strict inequality mixed.
-            // But here we want recipientId IN [uid, 'ADMIN'].
-            q = query(
+            const adminQuery = query(
                 collection(db, "notifications"),
-                where("recipientId", "in", [user.uid, 'ADMIN']),
+                where("recipientId", "==", "ADMIN"),
                 orderBy("createdAt", "desc"),
-                limit(10)
+                limit(15)
+            );
+            unsubscribers.push(
+                onSnapshot(adminQuery, (snap) => {
+                    adminNotifs = snap.docs.map(d => ({ id: d.id, ...d.data() } as Notification));
+                    mergeAndUpdate();
+                }, (error) => {
+                    console.error("Admin notifications listener error:", error);
+                })
             );
         }
 
-        const unsubscribe = onSnapshot(q, (snap) => {
-            const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Notification));
-            setNotifications(data);
-            setUnreadCount(data.filter(n => !n.read).length);
-        });
-
-        return () => unsubscribe();
+        return () => {
+            unsubscribers.forEach(unsub => unsub());
+        };
     }, [user]);
 
     const handleRead = async (notif: Notification) => {

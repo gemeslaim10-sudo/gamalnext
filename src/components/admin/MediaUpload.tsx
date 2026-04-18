@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Image, Video, Upload, X } from "lucide-react";
 import { openCloudinaryWidget } from "@/lib/cloudinary";
+import toast from "react-hot-toast";
 
 interface MediaItem {
     url: string;
@@ -19,14 +20,8 @@ export function MediaUpload({ items, onChange }: MediaUploadProps) {
 
     const handleUpload = () => {
         setLoading(true);
-        // @ts-ignore
-        if (typeof window !== "undefined" && window.cloudinary) {
-            openCloudinaryWidget((url) => {
-                // Simple heuristic to determine type based on extension or cloud response
-                // For now, assuming standard image extensions, else video. 
-                // A better way is if the widget returns resource_type.
-                // Since our current simplified wrapper might just return URL, we'll try to guess.
-                // Ideally, check the URL extension.
+        openCloudinaryWidget(
+            (url) => {
                 const isVideo = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes("/video/upload/");
                 const newItem: MediaItem = {
                     url,
@@ -34,16 +29,12 @@ export function MediaUpload({ items, onChange }: MediaUploadProps) {
                 };
                 onChange([...items, newItem]);
                 setLoading(false);
-            });
-        } else {
-            // Fallback
-            const url = prompt("Enter Media URL:");
-            if (url) {
-                const isVideo = url.match(/\.(mp4|webm|ogg|mov)$/i);
-                onChange([...items, { url, type: isVideo ? 'video' : 'image' }]);
+            },
+            (error) => {
+                toast.error(error.message || "فشل فتح نافذة رفع الملفات");
+                setLoading(false);
             }
-            setLoading(false);
-        }
+        );
     };
 
     const handleRemove = (index: number) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { collection, getDocs, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'react-hot-toast';
@@ -140,6 +140,17 @@ export default function AdminToolsPage() {
     const [tools, setTools] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // ── Debounce map: one timer per tool ID ──
+    // Prevents concurrent Firestore writes when a checkbox is toggled rapidly.
+    const debounceTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+
+    // Cleanup all pending timers on unmount
+    useEffect(() => {
+        return () => {
+            debounceTimers.current.forEach(timer => clearTimeout(timer));
+        };
+    }, []);
+
     useEffect(() => {
         fetchTools();
     }, []);
@@ -172,9 +183,8 @@ export default function AdminToolsPage() {
         }
     };
 
-    const handleUpdate = async (id: string, field: string, value: any) => {
-        const newTools = tools.map(t => t.id === id ? { ...t, [field]: value } : t);
-        setTools(newTools); // Optimistic update
+    const handleUpdate = (id: string, field: string, value: any) => {
+        setTools(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t)); // Optimistic update
     };
 
     const saveChanges = async (id: string) => {
@@ -188,6 +198,24 @@ export default function AdminToolsPage() {
             fetchTools(); // Revert
         }
     };
+
+    /**
+     * Debounced save: cancels any pending save for the same tool ID,
+     * then schedules a new one after 500ms. This prevents Firestore
+     * read/write conflicts from rapid double-clicks.
+     */
+    const debouncedSave = useCallback((id: string) => {
+        // Cancel any previous pending save for this tool
+        const existing = debounceTimers.current.get(id);
+        if (existing) clearTimeout(existing);
+
+        const timer = setTimeout(() => {
+            debounceTimers.current.delete(id);
+            saveChanges(id);
+        }, 500);
+
+        debounceTimers.current.set(id, timer);
+    }, [tools]);
 
     return (
         <div>
@@ -252,8 +280,8 @@ export default function AdminToolsPage() {
                                         checked={tool.isActive}
                                         onChange={(e) => {
                                             handleUpdate(tool.id, 'isActive', e.target.checked);
-                                            // Auto save for toggle
-                                            setTimeout(() => saveChanges(tool.id), 100);
+                                            // Debounced auto-save: safe against rapid double-clicks
+                                            debouncedSave(tool.id);
                                         }}
                                         className="w-4 h-4 rounded"
                                     />
