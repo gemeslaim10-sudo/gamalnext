@@ -200,14 +200,42 @@ export default function AdminAiPage() {
 
                         <div className="pt-10 border-t border-slate-800 mt-6">
                             <div className="flex flex-col lg:flex-row items-center gap-10">
-                                <div className="w-full lg:w-1/3">
-                                    <label className="block text-[10px] font-black text-slate-500 mb-3 uppercase tracking-widest">نموذج الذكاء الاصطناعي الافتراضي</label>
-                                    <div className="relative">
-                                        <input value={modelName} onChange={e => setModelName(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-white focus:border-blue-500 outline-none font-mono text-sm" placeholder="auto" />
-                                        <Bot className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-700 w-5 h-5" />
+                                <div className="w-full lg:w-1/2">
+                                    <label className="block text-[10px] font-black text-slate-500 mb-3 uppercase tracking-widest">اختيار محرك الذكاء الاصطناعي</label>
+                                    <div className="relative group">
+                                        <select 
+                                            value={modelName === "auto" || modelName === "تلقائي" || !modelName ? "auto" : modelName}
+                                            onChange={(e) => setModelName(e.target.value)}
+                                            className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-white focus:border-blue-500 outline-none font-bold appearance-none cursor-pointer transition-all pr-12"
+                                        >
+                                            <option value="auto">🌟 تلقائي (نظام الذكاء الخارق - FAILOVER)</option>
+                                            <option value="gemini-2.0-flash-exp">🚀 Gemini 2.0 Flash (الأحدث والأسرح)</option>
+                                            <option value="gemini-1.5-flash">⚡ Gemini 1.5 Flash (متوازن)</option>
+                                            <option value="gemini-1.5-pro">💎 Gemini 1.5 Pro (الأعمق والأقوى)</option>
+                                            <option value="custom">🛠️ تخصيص يدوي (Custom Model Name)</option>
+                                        </select>
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-blue-500 transition-colors">
+                                            <Bot className="w-5 h-5" />
+                                        </div>
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600">
+                                            <Zap className="w-4 h-4 fill-current" />
+                                        </div>
                                     </div>
-                                    <p className="text-[10px] text-slate-600 mt-2 px-2 italic">
-                                        * اكتب <span className="text-blue-500 font-bold">auto</span> أو <span className="text-blue-500 font-bold">تلقائي</span> لتفعيل نظام الذكاء الخارق الذي يختار أفضل موديل متاح حالياً.
+                                    
+                                    {/* Conditional Custom Input */}
+                                    {modelName !== "auto" && modelName !== "تلقائي" && !["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro"].includes(modelName) && (
+                                        <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <input 
+                                                value={modelName === "custom" ? "" : modelName} 
+                                                onChange={e => setModelName(e.target.value)} 
+                                                className="w-full bg-slate-900/50 border border-dashed border-slate-700 rounded-xl p-3 text-blue-400 font-mono text-xs focus:border-blue-500 outline-none" 
+                                                placeholder="أدخل اسم الموديل يدوياً هنا..." 
+                                            />
+                                        </div>
+                                    )}
+
+                                    <p className="text-[10px] text-slate-600 mt-4 px-2 italic leading-relaxed">
+                                        * وضع <span className="text-blue-500 font-black">التلقائي</span> يقوم باختيار الموديل الأمثل وتغييره لحظياً في حالة الضغط أو انتهاء الكوتا لضمان عدم توقف الخدمة.
                                     </p>
                                 </div>
                                 <div className="flex-1 bg-blue-500/5 p-6 rounded-[2rem] border border-blue-500/10 relative overflow-hidden group">

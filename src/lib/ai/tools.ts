@@ -51,6 +51,20 @@ export const aiTools = [
             },
             required: ["query"]
         }
+    },
+    {
+        name: "collect_lead",
+        description: "Registers a potential customer's contact information when they express interest in a service or hiring جمال.",
+        parameters: {
+            type: "OBJECT",
+            properties: {
+                name: { type: "STRING", description: "The caller's name" },
+                phone: { type: "STRING", description: "Phone number or WhatsApp" },
+                field: { type: "STRING", description: "Their business field or project focus" },
+                service: { type: "STRING", description: "The specific service they want (e.g. 'E-commerce', 'SEO')" }
+            },
+            required: ["name", "phone"]
+        }
     }
 ];
 
@@ -112,5 +126,20 @@ export const toolHandlers = {
         ).forEach((s: any) => results.push({ type: 'skill', content: s }));
 
         return results.slice(0, 10);
+    },
+    collect_lead: async (args: any) => {
+        try {
+            const { db } = await import("@/lib/firebase");
+            const { addDoc, collection, serverTimestamp } = await import("firebase/firestore");
+            const docRef = await addDoc(collection(db, "leads"), {
+                ...args,
+                capturedAt: serverTimestamp(),
+                source: "ai_tool_calling"
+            });
+            return { success: true, leadId: docRef.id, message: "تم تسجيل اهتمامك بنجاح، فريق جمال سيتواصل معك قريباً." };
+        } catch (e: any) {
+            console.error("Tool capture failed:", e);
+            return { success: false, error: e.message };
+        }
     }
 };
