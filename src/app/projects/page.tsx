@@ -5,15 +5,15 @@ import { getDocument } from "@/lib/server-utils";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "أعمالي | جمال عبد العاطي - جمال تك",
-    description: "استعراض لأبرز المشاريع والتطبيقات (جمال مواقع ويب) التي قمت بتطويرها باستخدام Next.js و React و CMS.",
-    keywords: ["جمال عبد العاطي", "جمال تك", "أعمالي", "مشاريع ويب", "جمال مواقع ويب", "جمال cms"],
+    title: "Portfolio | Gamal Abdelaty - Gamal Tech",
+    description: "A review of the most prominent projects and applications I have developed using Next.js, React, and CMS.",
+    keywords: ["Gamal Abdelaty", "Gamal Tech", "Portfolio", "Web Projects", "Websites", "CMS"],
     alternates: {
         canonical: './',
     },
     openGraph: {
-        title: "أعمالي | جمال عبد العاطي - جمال تك",
-        description: "استعراض لأبرز المشاريع والتطبيقات التي قمت بتطويرها باستخدام أحدث التقنيات.",
+        title: "Portfolio | Gamal Abdelaty - Gamal Tech",
+        description: "A review of the most prominent projects and applications I have developed using the latest technologies.",
         images: ["/og-image.png"],
         url: 'https://gamaltech.info/projects',
     },
@@ -40,12 +40,12 @@ export default async function ProjectsPage() {
                         "itemListElement": [{
                             "@type": "ListItem",
                             "position": 1,
-                            "name": "الرئيسية",
+                            "name": "Home",
                             "item": "https://gamaltech.info"
                         }, {
                             "@type": "ListItem",
                             "position": 2,
-                            "name": "أعمالي",
+                            "name": "Portfolio",
                             "item": "https://gamaltech.info/projects"
                         }]
                     })

@@ -5,15 +5,15 @@ import { getDocument } from "@/lib/server-utils";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "مهاراتي | جمال عبد العاطي - جمال ويب",
-    description: "تعرف على الأدوات والتقنيات (جمال ويب) التي أتقنها في تطوير المهارات والـ SEO، من الويبسايت إلى تحليل البيانات.",
-    keywords: ["جمال عبد العاطي", "جمال تك", "مهارات ويب", "جمال ويب", "تحليل بيانات", "مقالات seo"],
+    title: "My Skills | Gamal Abdelaty - Gamal Web",
+    description: "Learn about the tools and technologies I master in building websites, e-commerce stores, Shopify, and WordPress.",
+    keywords: ["Gamal Abdelaty", "Gamal Tech", "Web Skills", "Gamal Web", "Building Websites", "Shopify Stores", "WhatsApp API"],
     alternates: {
         canonical: './',
     },
     openGraph: {
-        title: "مهاراتي | جمال عبد العاطي - جمال ويب",
-        description: "تعرف على الأدوات والتقنيات التي أتقنها في تطوير المواقع والتطبيقات.",
+        title: "My Skills | Gamal Abdelaty - Gamal Web",
+        description: "Learn about the tools and technologies I master in developing websites and applications.",
         images: ["/og-image.png"],
         url: 'https://gamaltech.info/skills',
     },
@@ -40,12 +40,12 @@ export default async function SkillsPage() {
                         "itemListElement": [{
                             "@type": "ListItem",
                             "position": 1,
-                            "name": "الرئيسية",
+                            "name": "Home",
                             "item": "https://gamaltech.info"
                         }, {
                             "@type": "ListItem",
                             "position": 2,
-                            "name": "مهاراتي",
+                            "name": "My Skills",
                             "item": "https://gamaltech.info/skills"
                         }]
                     })

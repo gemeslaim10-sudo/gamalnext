@@ -14,27 +14,27 @@ import 'swiper/css/navigation';
 const defaultProjectsData = {
     items: [
         {
-            title: 'تصميم هوية بصرية',
+            title: 'Brand Identity Design',
             image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800',
             tags: 'Branding, UI/UX',
             link: '#',
-            description: 'تصميم هوية كاملة لشركة ناشئة',
+            description: 'Complete identity design for a startup',
             category: 'design'
         },
         {
-            title: 'تطبيق المتجر الذكي',
+            title: 'Smart Store App',
             image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800',
             tags: 'Next.js, Tailwind',
             link: '#',
-            description: 'برمجيات متقدمة لإدارة المتاجر',
+            description: 'Advanced store management software',
             category: 'software'
         },
         {
-            title: 'فيديو تسويقي موشن',
+            title: 'Motion Graphics Promo',
             image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800',
             tags: 'Motion Graphics, AE',
             link: '#',
-            description: 'إعلان احترافي للمنتجات الرقمية',
+            description: 'Professional ad for digital products',
             category: 'video'
         }
     ]
@@ -84,12 +84,12 @@ const ProjectSlide = ({ project }: { project: any }) => {
                 <div className="absolute top-5 right-5">
                     <div className="bg-blue-600/90 backdrop-blur-md text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-xl uppercase tracking-widest flex items-center gap-2">
                         <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                        مشروع مميز
+                        FEATURED
                     </div>
                 </div>
             </div>
 
-            <div className="p-8 flex flex-col flex-grow text-right relative">
+            <div className="p-8 flex flex-col flex-grow text-left relative">
                 <div className="flex gap-2 flex-wrap mb-4">
                     {tags.slice(0, 3).map((tag: string) => (
                         <span key={tag} className="text-[10px] font-bold text-blue-400/80 uppercase tracking-wider">{tag}</span>
@@ -104,7 +104,7 @@ const ProjectSlide = ({ project }: { project: any }) => {
 
                 <div className="flex items-center justify-between pt-6 border-t border-slate-800/50 mt-auto">
                     <a href={project.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-500 font-bold text-sm tracking-tight group/link">
-                        تفاصيل المشروع
+                        View Details
                         <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center group-hover/link:bg-blue-500 group-hover/link:text-white transition-all">
                             <ExternalLink className="w-4 h-4" />
                         </div>
@@ -125,9 +125,9 @@ export default function Projects({ initialData }: { initialData?: any }) {
     }, []);
 
     const categories = [
-        { id: 'design', title: 'التصميمات', subtitle: 'إبداع بصري يجسد هويتك', icon: Paintbrush },
-        { id: 'video', title: 'الفيديوهات', subtitle: 'قصص تروى بعدسات احترافية', icon: Video },
-        { id: 'software', title: 'البرمجيات', subtitle: 'أنظمة ذكية لمستقبل رقمي', icon: Layout }
+        { id: 'design', title: 'Designs', subtitle: 'Visual creativity that embodies your identity', icon: Paintbrush },
+        { id: 'video', title: 'Videos', subtitle: 'Stories told through professional lenses', icon: Video },
+        { id: 'software', title: 'Software', subtitle: 'Advanced web systems and stores', icon: Layout }
     ];
 
     const getItemsByCategory = (catId: string) => {
@@ -146,14 +146,14 @@ export default function Projects({ initialData }: { initialData?: any }) {
                 <Reveal className="text-center mb-24">
                     <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-5 py-2.5 mb-8 shadow-xl">
                         <Sparkles className="w-4 h-4 text-blue-400" />
-                        <span className="text-blue-400 text-xs md:text-sm font-bold tracking-widest uppercase">معرض أعمالنا الإبداعي</span>
+                        <span className="text-blue-400 text-xs md:text-sm font-bold tracking-widest uppercase">Our Creative Portfolio</span>
                     </div>
                     <h2 className="text-4xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-tight">
-                        نحول الخيال إلى <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500">واقع رقمي ملموس</span>
+                        We turn imagination into <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500">tangible websites and stores</span>
                     </h2>
                     <p className="text-slate-400 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-                        نخبة من أبرز المشاريع التي تم تنفيذها بأعلى معايير الجودة والاحترافية في مختلف المجالات التقنية والإبداعية.
+                        A selection of prominent projects executed with the highest standards of quality and professionalism in various technical and creative fields.
                     </p>
                 </Reveal>
 
@@ -173,7 +173,7 @@ export default function Projects({ initialData }: { initialData?: any }) {
                                 <div className="relative group/swiper">
                                     <Swiper
                                         modules={[Pagination, Autoplay, Navigation]}
-                                        dir="rtl"
+                                        dir="ltr"
                                         spaceBetween={24}
                                         slidesPerView={1}
                                         navigation={{

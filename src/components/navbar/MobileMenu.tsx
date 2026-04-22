@@ -20,33 +20,33 @@ export default function MobileMenu({ isOpen, setIsOpen, user, logout, isActive, 
         <div className="lg:hidden bg-slate-900 border-b border-slate-800 absolute w-full top-14 left-0 transition-all duration-300 shadow-xl z-40">
             <div className="px-4 py-6 space-y-3">
                 {/* Mobile Nav Links */}
-                <div className="space-y-1 text-right">
-                    <Link href="/" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
-                        الرئيسية
+                <div className="space-y-1 text-left">
+                    <Link href="/" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-start gap-3 flex-row-reverse ${isActive('/') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
+                        Home
                         <span className="bg-slate-800 p-1.5 rounded-lg text-blue-400"><Terminal className="w-4 h-4" /></span>
                     </Link>
-                    <Link href="/skills" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/skills') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
-                        التخصصات
+                    <Link href="/skills" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-start gap-3 flex-row-reverse ${isActive('/skills') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
+                        Specialties
                         <span className="bg-slate-800 p-1.5 rounded-lg text-yellow-400"><Zap className="w-4 h-4" /></span>
                     </Link>
-                    <Link href="/projects" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/projects') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
-                        المشاريع
+                    <Link href="/projects" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-start gap-3 flex-row-reverse ${isActive('/projects') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
+                        Projects
                         <span className="bg-slate-800 p-1.5 rounded-lg text-green-400"><FolderGit2 className="w-4 h-4" /></span>
                     </Link>
-                    <Link href="/articles" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/articles') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
-                        المدونة
+                    <Link href="/articles" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-start gap-3 flex-row-reverse ${isActive('/articles') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
+                        Blog
                         <span className="bg-slate-800 p-1.5 rounded-lg text-pink-400"><FileText className="w-4 h-4" /></span>
                     </Link>
-                    <Link href="/tools" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/tools') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
-                        الأدوات
+                    <Link href="/tools" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-start gap-3 flex-row-reverse ${isActive('/tools') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
+                        Tools
                         <span className="bg-slate-800 p-1.5 rounded-lg text-blue-400"><Zap className="w-4 h-4" /></span>
                     </Link>
-                    <a href="https://packages.gamaltech.info" target="_blank" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 text-slate-300 hover:text-white hover:bg-slate-800/80`}>
-                        الباقات
+                    <a href="https://packages.gamaltech.info" target="_blank" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-start gap-3 flex-row-reverse text-slate-300 hover:text-white hover:bg-slate-800/80`}>
+                        Pricing
                         <span className="bg-slate-800 p-1.5 rounded-lg text-orange-400"><Package className="w-4 h-4" /></span>
                     </a>
-                    <Link href="/contact" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-end gap-3 ${isActive('/contact') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
-                        اتصل بنا
+                    <Link href="/contact" onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-bold transition-all flex items-center justify-start gap-3 flex-row-reverse ${isActive('/contact') ? 'text-white bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800/80'}`}>
+                        Contact
                         <span className="bg-slate-800 p-1.5 rounded-lg text-cyan-400"><MessageSquare className="w-4 h-4" /></span>
                     </Link>
                 </div>
@@ -55,23 +55,23 @@ export default function MobileMenu({ isOpen, setIsOpen, user, logout, isActive, 
 
                 {/* User Section Mobile */}
                 {user ? (
-                    <div className="bg-slate-800/30 rounded-2xl p-4 border border-slate-700/50 text-right">
-                        <div className="flex items-center justify-end gap-4 mb-4 pb-4 border-b border-slate-700/50">
-                            <div>
+                    <div className="bg-slate-800/30 rounded-2xl p-4 border border-slate-700/50 text-left">
+                        <div className="flex items-center justify-start gap-4 mb-4 pb-4 border-b border-slate-700/50 flex-row-reverse">
+                            <div className="text-right">
                                 <div className="text-white font-bold">{user.displayName || user.email}</div>
-                                <div className="text-xs text-slate-400">عضوية مفعلة</div>
+                                <div className="text-xs text-slate-400">Active Member</div>
                             </div>
                             <Image src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`} width={48} height={48} className="w-12 h-12 rounded-full border-2 border-blue-500/30" alt={user.displayName || "User"} />
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            <Link href={`/users/${user.uid}`} onClick={() => setIsOpen(false)} className="text-center py-2.5 rounded-xl bg-slate-800 text-slate-300 text-sm font-medium hover:bg-slate-700 hover:text-white transition-colors">ملفي الشخصي</Link>
-                            <Link href="/settings" onClick={() => setIsOpen(false)} className="text-center py-2.5 rounded-xl bg-slate-800 text-slate-300 text-sm font-medium hover:bg-slate-700 hover:text-white transition-colors">الإعدادات</Link>
+                            <Link href={`/users/${user.uid}`} onClick={() => setIsOpen(false)} className="text-center py-2.5 rounded-xl bg-slate-800 text-slate-300 text-sm font-medium hover:bg-slate-700 hover:text-white transition-colors">Profile</Link>
+                            <Link href="/settings" onClick={() => setIsOpen(false)} className="text-center py-2.5 rounded-xl bg-slate-800 text-slate-300 text-sm font-medium hover:bg-slate-700 hover:text-white transition-colors">Settings</Link>
                         </div>
                         <button
                             onClick={() => { logout(); setIsOpen(false); }}
                             className="w-full mt-2 text-center py-2.5 rounded-xl bg-red-500/10 text-red-400 text-sm font-bold hover:bg-red-500/20 transition-colors border border-red-500/20"
                         >
-                            تسجيل الخروج
+                            Logout
                         </button>
                     </div>
                 ) : (
@@ -79,7 +79,7 @@ export default function MobileMenu({ isOpen, setIsOpen, user, logout, isActive, 
                         onClick={() => { setIsAuthModalOpen(true); setIsOpen(false); }}
                         className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-lg shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all transform hover:scale-[1.02]"
                     >
-                        الدخول للنظام / تسجيل جديد
+                        Login / Sign up
                     </button>
                 )}
             </div>

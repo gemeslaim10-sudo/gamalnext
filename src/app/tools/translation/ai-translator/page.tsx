@@ -117,7 +117,7 @@ export default function AiTranslatorPage() {
                 </div>
 
                 {/* Input/Output Area */}
-                <div className="grid grid-cols-1 md:grid-cols-2 min-h-[400px]">
+                <div className="grid grid-cols-2 md:grid-cols-2 min-h-[400px]">
                     <div className="p-4 border-b md:border-b-0 md:border-l border-slate-800 bg-slate-900/50">
                         <textarea
                             value={text}

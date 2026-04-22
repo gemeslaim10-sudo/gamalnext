@@ -53,19 +53,19 @@ export default function RelatedArticles({ currentArticleId }: { currentArticleId
     const formatDate = (timestamp: any) => {
         if (!timestamp) return '';
         if (typeof timestamp?.toDate === 'function') {
-            return timestamp.toDate().toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+            return timestamp.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
         if (timestamp?.seconds) {
-            return new Date(timestamp.seconds * 1000).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+            return new Date(timestamp.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
-        return new Date(timestamp).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+        return new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
 
     if (loading) {
         return (
             <section className="py-16 bg-slate-950 border-t border-slate-800">
                 <div className="max-w-7xl mx-auto px-4">
-                    <div className="text-center text-slate-500">جاري التحميل...</div>
+                    <div className="text-center text-slate-500">Loading...</div>
                 </div>
             </section>
         );
@@ -85,16 +85,16 @@ export default function RelatedArticles({ currentArticleId }: { currentArticleId
                 <div className="text-center mb-12">
                     <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-6">
                         <Sparkles className="w-4 h-4 text-blue-400" />
-                        <span className="text-blue-400 text-sm font-semibold">مقالات مقترحة</span>
+                        <span className="text-blue-400 text-sm font-semibold">Suggested Articles</span>
                     </div>
                     <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                        استمر في <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">القراءة</span>
+                        Keep <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Reading</span>
                     </h2>
-                    <p className="text-slate-400 text-lg">اكتشف المزيد من المحتوى المميز</p>
+                    <p className="text-slate-400 text-lg">Discover more featured content</p>
                 </div>
 
                 {/* Articles Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
                     {articles.map((article) => {
                         const coverMedia = article.media?.[0]?.url;
                         const isVideo = article.media?.[0]?.type === 'video';
@@ -148,7 +148,7 @@ export default function RelatedArticles({ currentArticleId }: { currentArticleId
                                     </p>
 
                                     <div className="flex items-center text-blue-400 text-sm font-medium group-hover:gap-2 transition-all">
-                                        اقرأ المزيد <ArrowRight className="w-4 h-4" />
+                                        Read More <ArrowRight className="w-4 h-4" />
                                     </div>
                                 </div>
                             </Link>
@@ -162,7 +162,7 @@ export default function RelatedArticles({ currentArticleId }: { currentArticleId
                         href="/articles"
                         className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold px-8 py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:scale-105"
                     >
-                        عرض جميع المقالات <ArrowRight className="w-5 h-5" />
+                        View All Articles <ArrowRight className="w-5 h-5" />
                     </Link>
                 </div>
             </div>

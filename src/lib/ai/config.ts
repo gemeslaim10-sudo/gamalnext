@@ -26,7 +26,7 @@ export async function getAiConfig(): Promise<AiConfig> {
             systemRole: data.systemRole || "",
             stylePrompt: data.stylePrompt || "",
             welcomeMessage: data.welcomeMessage || "",
-            modelName: data.modelName || "gemini-1.5-flash",
+            modelName: data.modelName || "gemini-2.5-flash",
             // Priority: DB Key > ENV Key
             geminiKey: data.geminiKey || process.env.GEMINI_API_KEY,
             groqKey: data.groqKey || process.env.GROQ_API_KEY,
@@ -39,7 +39,7 @@ export async function getAiConfig(): Promise<AiConfig> {
         return {
             prompt: "",
             welcomeMessage: "",
-            modelName: "gemini-1.5-flash",
+            modelName: "gemini-2.5-flash",
             geminiKey: process.env.GEMINI_API_KEY,
         };
     }

@@ -32,9 +32,9 @@ export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
 
             <div className="max-w-7xl mx-auto px-4 relative z-10">
                 <Reveal className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">آراء العملاء</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Client Reviews</h2>
                     {!reviews.length && (
-                        <p className="text-slate-400">يسعدني أن تشاركني رأيك وتقييمك حول تجربتك معي</p>
+                        <p className="text-slate-400">I would be happy if you share your opinion and rating about your experience with me.</p>
                     )}
                 </Reveal>
 
@@ -79,7 +79,7 @@ export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
                                             <div>
                                                 <h4 className="text-white font-bold text-base group-hover:text-blue-400 transition-colors">{review.userName}</h4>
                                                 <span className="text-slate-500 text-xs flex items-center gap-1">
-                                                    عميل موثق <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                                    Verified Client <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                                                 </span>
                                             </div>
                                         </div>

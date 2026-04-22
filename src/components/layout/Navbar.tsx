@@ -52,22 +52,22 @@ export default function Navbar() {
                         {/* Desktop Menu */}
                         <div className="hidden lg:block">
                             <div className="ml-10 flex items-center gap-6">
-                                <Link href="/" className={`text-sm font-medium transition-colors ${isActive('/') ? 'text-blue-400' : 'text-white hover:text-blue-400'}`}>الرئيسية</Link>
+                                <Link href="/" className={`text-sm font-medium transition-colors ${isActive('/') ? 'text-blue-400' : 'text-white hover:text-blue-400'}`}>Home</Link>
 
                                 {/* MEGA MENU COMPONENT */}
                                 <MegaMenu />
 
-                                <Link href="/articles" className={`text-sm font-medium transition-colors ${isActive('/articles') ? 'text-blue-400' : 'text-white hover:text-blue-400'}`}>المدونة التقنية</Link>
+                                <Link href="/articles" className={`text-sm font-medium transition-colors ${isActive('/articles') ? 'text-blue-400' : 'text-white hover:text-blue-400'}`}>Blog</Link>
 
                                 <Link href="/tools" className={`text-sm font-medium transition-colors relative group ${isActive('/tools') ? 'text-blue-400' : 'text-white hover:text-blue-400'}`}>
-                                    الأدوات
+                                    Tools
                                     <span className="absolute -top-3 -right-3 flex h-2.5 w-2.5">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
                                     </span>
                                 </Link>
-                                <Link href="https://packages.gamaltech.info" target="_blank" rel="noopener noreferrer" className="text-sm font-medium transition-colors text-white hover:text-blue-400">الباقات</Link>
-                                <Link href="/contact" className="px-4 py-2 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all text-sm font-bold">اتصل بنا</Link>
+                                <Link href="https://packages.gamaltech.info" target="_blank" rel="noopener noreferrer" className="text-sm font-medium transition-colors text-white hover:text-blue-400">Pricing</Link>
+                                <Link href="/contact" className="px-4 py-2 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all text-sm font-bold">Contact</Link>
 
                                 <div className="h-6 w-px bg-slate-800 mx-2"></div>
 
@@ -82,7 +82,7 @@ export default function Navbar() {
                                         onClick={() => setIsAuthModalOpen(true)}
                                         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-lg shadow-blue-500/20"
                                     >
-                                        الدخول للنظام
+                                        Login
                                     </button>
                                 )}
                             </div>

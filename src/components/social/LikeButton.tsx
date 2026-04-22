@@ -59,7 +59,7 @@ export default function LikeButton({ articleId }: { articleId: string }) {
 
     const handleToggle = async () => {
         if (!user) {
-            toast.error("يجب تسجيل الدخول للإعجاب بالمقال");
+            toast.error("You must log in to like this article");
             return;
         }
 
@@ -84,7 +84,7 @@ export default function LikeButton({ articleId }: { articleId: string }) {
         } catch (e) {
             // Revert
             setLiked(prevLiked);
-            toast.error("فشل التحديث");
+            toast.error("Update failed");
         }
     };
 

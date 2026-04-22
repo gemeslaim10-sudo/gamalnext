@@ -83,40 +83,7 @@ export default function UserProfilePage() {
         fetchData();
     }, [id]);
 
-    const handleDeleteAccount = async () => {
-        if (!user || user.uid !== id) return;
 
-        if (!confirm("هل أنت متأكد أنك تريد حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه.")) {
-            return;
-        }
-
-        if (!confirm("تحذير أخير: سيتم حذف جميع بياناتك ومقالاتك. هل أنت متأكد تماماً؟")) {
-            return;
-        }
-
-        try {
-            setLoading(true);
-            // 1. Delete Firestore Document
-            await deleteDoc(doc(db, "users", user.uid));
-
-            // 2. Delete Auth User
-            await deleteUser(user);
-
-            // 3. Redirect
-            router.push("/");
-            // Force reload to clear any state
-            setTimeout(() => window.location.reload(), 500);
-
-        } catch (error: any) {
-            console.error("Error deleting account:", error);
-            if (error.code === 'auth/requires-recent-login') {
-                alert("لحذف الحساب، يرجى تسجيل الخروج وتسجيل الدخول مرة أخرى للتحقق من هويتك.");
-            } else {
-                alert("حدث خطأ أثناء حذف الحساب. يرجى المحاولة مرة أخرى.");
-            }
-            setLoading(false);
-        }
-    };
 
     if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white"><Loader2 className="animate-spin w-8 h-8" /></div>;
 
@@ -214,15 +181,7 @@ export default function UserProfilePage() {
                                     </>
                                 )}
 
-                                {/* Delete Account - Only for Owner */}
-                                {user && user.uid === id && (
-                                    <button
-                                        onClick={handleDeleteAccount}
-                                        className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                    >
-                                        حذف الحساب
-                                    </button>
-                                )}
+
                             </div>
 
                         </div>

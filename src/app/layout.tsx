@@ -16,21 +16,19 @@ const cairo = Cairo({
 
 export const metadata: Metadata = {
   title: {
-    default: "جمال عبد العاطي | SEO Optimization & Data Analyst",
-    template: "%s | جمال عبد العاطي"
+    default: "Gamal Abdelaty | Web Developer & E-commerce Expert",
+    template: "%s | Gamal Abdelaty"
   },
-  description: "محلل بيانات وخبير تحسين محركات البحث (SEO). متخصص في تطوير المتاجر الإلكترونية (WordPress & Shopify) وصناعة حلول البيانات الذكية.",
+  description: "Expert in building websites, e-commerce stores, WhatsApp API integration. Specializing in WordPress and Shopify.",
   keywords: [
-    "جمال تك", "gamaltech", "gamal teck", "جمال ويب", "جمال مواقع ويب",
-    "جمال seo", "seo", "websites", "ازاي اعمل ويبسايت", "خدمات مواقع",
-    "جمال عبد العاطي", "جمال سليم", "مقالات seo", "كيفية عمل google ads",
-    "جمال عبد العاطي ويب", "جمال تحليل بيانات", "جمال cms", "SEO Optimization",
-    "Data Analyst", "WordPress Developer", "Shopify Expert", "تصدر نتائج البحث",
-    "تحسين سرعة المواقع", "إدارة متاجر ووردبريس", "تحليل المنافسين", "أرشفة جوجل"
+    "Gamal Tech", "gamaltech", "Gamal Web", "Web Development",
+    "Website Creation", "E-commerce Development", "WhatsApp API", "WordPress Management", "Shopify Stores",
+    "Gamal Abdelaty", "Web Developer", "E-commerce Stores",
+    "Dynamic Websites", "Web Design", "Store Programming", "WhatsApp Business"
   ],
-  authors: [{ name: "جمال عبد العاطي", url: "https://gamaltech.info" }],
-  creator: "جمال عبد العاطي",
-  publisher: "جمال عبد العاطي",
+  authors: [{ name: "Gamal Abdelaty", url: "https://gamaltech.info" }],
+  creator: "Gamal Abdelaty",
+  publisher: "Gamal Abdelaty",
   metadataBase: new URL('https://gamaltech.info'),
   alternates: {
     canonical: './',
@@ -39,22 +37,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ar_EG",
     url: "https://gamaltech.info",
-    siteName: "جمال عبد العاطي - Portfolio",
-    title: "جمال عبد العاطي | SEO Optimization & Data Analyst",
-    description: "محلل بيانات وخبير تحسين محركات البحث (SEO). تطوير المتاجر وحلول البيانات.",
+    siteName: "Gamal Abdelaty - Portfolio",
+    title: "Gamal Abdelaty | Web Developer & E-commerce Expert",
+    description: "Expert in Web Development, E-commerce (WordPress & Shopify), and WhatsApp API solutions.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "جمال عبد العاطي - SEO & Data Analyst",
+        alt: "Gamal Abdelaty - Web Developer",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "جمال عبد العاطي | SEO Optimization & Data Analyst",
-    description: "محلل بيانات وخبير تحسين محركات البحث (SEO).",
+    title: "Gamal Abdelaty | Web Developer & E-commerce Expert",
+    description: "Expert in Web Development, E-commerce (WordPress & Shopify), and WhatsApp API solutions.",
     images: ["/og-image.png"],
     creator: "@gamaldev", // Update with your Twitter handle if you have one
   },
@@ -89,7 +87,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="en" dir="ltr">
       <body className={`${cairo.variable} font-sans bg-slate-950 text-slate-200 antialiased`}>
         <AuthProvider>
           <script
@@ -98,10 +96,10 @@ export default function RootLayout({
               __html: JSON.stringify({
                 "@context": "https://schema.org",
                 "@type": "Person",
-                "name": "جمال عبد العاطي",
-                "alternateName": ["جمال تك", "Gamal Tech", "جمال سليم", "جمال ويب"],
+                "name": "Gamal Abdelaty",
+                "alternateName": ["Gamal Tech", "Gamal Web"],
                 "url": "https://gamaltech.info",
-                "jobTitle": "SEO Optimization & Data Analyst",
+                "jobTitle": "Web Developer & E-commerce Expert",
                 "sameAs": [
                   // Add your real social media links here:
                   // "https://github.com/your-username",

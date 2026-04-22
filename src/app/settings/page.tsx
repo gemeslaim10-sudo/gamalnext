@@ -2,17 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Navbar from "@/components/layout/Navbar";
 import { toast, Toaster } from "react-hot-toast";
-import { User, MapPin, Briefcase, Heart, Camera, Loader2, Save } from "lucide-react";
-// Reusing MediaUpload logic but simplified for single image or just using the hook directly?
-// Let's implement a simple Cloudinary widget opener for the profile based on existing code.
+import { User, MapPin, Briefcase, Heart, Camera, Loader2, Save, Trash2, AlertTriangle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { deleteUser } from "firebase/auth";
 import { openCloudinaryWidget } from "@/lib/cloudinary";
 
 export default function SettingsPage() {
     const { user } = useAuth();
+    const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState({
@@ -76,6 +77,41 @@ export default function SettingsPage() {
             toast.error("حدث خطأ أثناء الحفظ.");
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (!user) return;
+
+        if (!confirm("هل أنت متأكد أنك تريد حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه.")) {
+            return;
+        }
+
+        if (!confirm("تحذير أخير: سيتم حذف جميع بياناتك ومقالاتك. هل أنت متأكد تماماً؟")) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            // 1. Delete Firestore Document
+            await deleteDoc(doc(db, "users", user.uid));
+
+            // 2. Delete Auth User
+            await deleteUser(user);
+
+            // 3. Redirect
+            router.push("/");
+            // Force reload to clear any state
+            setTimeout(() => window.location.reload(), 500);
+
+        } catch (error: any) {
+            console.error("Error deleting account:", error);
+            if (error.code === 'auth/requires-recent-login') {
+                toast.error("لحذف الحساب، يرجى تسجيل الخروج وتسجيل الدخول مرة أخرى للتحقق من هويتك.");
+            } else {
+                toast.error("حدث خطأ أثناء حذف الحساب. يرجى المحاولة مرة أخرى.");
+            }
+            setLoading(false);
         }
     };
 
@@ -191,6 +227,23 @@ export default function SettingsPage() {
                             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5" /> حفظ التغييرات</>}
                         </button>
                     </form>
+
+                    {/* Danger Zone */}
+                    <div className="mt-12 pt-8 border-t border-red-500/20">
+                        <h2 className="text-xl font-bold text-red-500 mb-4 flex items-center gap-2">
+                            <AlertTriangle className="w-5 h-5" /> منطقة الخطر
+                        </h2>
+                        <p className="text-slate-400 text-sm mb-6">
+                            بمجرد حذف حسابك، لا يمكن التراجع عن هذا الإجراء. سيتم حذف جميع بياناتك نهائياً.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={handleDeleteAccount}
+                            className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+                        >
+                            <Trash2 className="w-4 h-4" /> حذف الحساب نهائياً
+                        </button>
+                    </div>
                 </div>
             </div>
             <Toaster />

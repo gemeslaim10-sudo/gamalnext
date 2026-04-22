@@ -1,5 +1,5 @@
 
-import { Wrench, ArrowLeft, Video, Mic, Languages, Coins, Table, QrCode, Lock, FileText, Image, Youtube, Code, Ruler, Calendar, Timer, LucideIcon } from 'lucide-react';
+import { Wrench, ArrowRight, Video, Mic, Languages, Coins, Table, QrCode, Lock, FileText, Image, Youtube, Code, Ruler, Calendar, Timer, LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import Reveal from './Reveal';
 import { getCollection } from '@/lib/server-utils';
@@ -10,8 +10,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
 
 const DEFAULT_TOOLS = [
     {
-        name: 'تحويل فيديو لصوت',
-        description: 'استخرج الصوت MP3 من أي فيديو.',
+        name: 'Video to Audio',
+        description: 'Extract MP3 audio from any video.',
         icon: 'Video',
         href: '/tools/media/video-to-audio',
         color: 'text-pink-400',
@@ -19,8 +19,8 @@ const DEFAULT_TOOLS = [
         border: 'border-pink-400/20'
     },
     {
-        name: 'مترجم AI الذكي',
-        description: 'ترجمة فورية دقيقة وسياقية.',
+        name: 'Smart AI Translator',
+        description: 'Accurate and contextual instant translation.',
         icon: 'Languages',
         href: '/tools/translation/ai-translator',
         color: 'text-blue-400',
@@ -28,8 +28,8 @@ const DEFAULT_TOOLS = [
         border: 'border-blue-400/20'
     },
     {
-        name: 'محول العملات',
-        description: 'أسعار صرف لحظية لجميع العملات.',
+        name: 'Currency Converter',
+        description: 'Real-time exchange rates for all currencies.',
         icon: 'Coins',
         href: '/tools/finance/currency',
         color: 'text-green-400',
@@ -37,8 +37,8 @@ const DEFAULT_TOOLS = [
         border: 'border-green-400/20'
     },
     {
-        name: 'صانع الجداول',
-        description: 'تنظيم البيانات في جداول تلقائياً.',
+        name: 'Table Generator',
+        description: 'Automatically organize data into tables.',
         icon: 'Table',
         href: '/tools/data/table-generator',
         color: 'text-orange-400',
@@ -83,37 +83,48 @@ export default async function FeaturedTools() {
                         <div>
                             <div className="flex items-center gap-2 text-blue-400 font-bold mb-2">
                                 <Wrench className="w-5 h-5" />
-                                <span className="uppercase tracking-wider">أدوات ذكية</span>
+                                <span className="uppercase tracking-wider">SMART TOOLS</span>
                             </div>
                             <h2 className="text-3xl md:text-5xl font-bold text-white">
-                                أدوات <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">تسهل عملك</span>
+                                Tools <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">to ease your work</span>
                             </h2>
                         </div>
                         <Link href="/tools" className="hidden md:flex items-center gap-2 text-slate-400 hover:text-white transition-colors group">
-                            جميع الأدوات
-                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                            All Tools
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
                 </Reveal>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     {tools.map((tool, index) => {
                         const Icon = ICON_MAP[tool.icon] || Wrench;
                         return (
                             <Reveal key={tool.href} className={`stagger-${index + 1}`}>
                                 <Link
                                     href={tool.href}
-                                    className={`block group bg-slate-900 border ${tool.border || 'border-slate-800'} p-6 rounded-2xl hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl`}
+                                    className="relative block group h-full bg-[#0b1121]/80 backdrop-blur-xl border border-white/5 p-7 rounded-[2rem] hover:border-blue-500/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.2)] overflow-hidden"
                                 >
-                                    <div className={`w-12 h-12 rounded-xl ${tool.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                                        <Icon className={`w-6 h-6 ${tool.color}`} />
+                                    {/* Glossy Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                    
+                                    {/* Glowing top line */}
+                                    <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                                    <div className={`w-14 h-14 rounded-2xl ${tool.bg || 'bg-slate-800/50'} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
+                                        <Icon className={`w-7 h-7 ${tool.color || 'text-slate-300'}`} />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-300 leading-tight">
                                         {tool.name}
                                     </h3>
-                                    <p className="text-slate-400 text-sm">
+                                    <p className="text-slate-400 text-sm leading-relaxed">
                                         {tool.description}
                                     </p>
+                                    
+                                    {/* Arrow icon appearing on hover */}
+                                    <div className="absolute bottom-6 right-6 w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center opacity-0 transform -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 text-blue-400">
+                                        <ArrowRight className="w-4 h-4" />
+                                    </div>
                                 </Link>
                             </Reveal>
                         );
@@ -122,8 +133,8 @@ export default async function FeaturedTools() {
 
                 <div className="mt-8 text-center md:hidden">
                     <Link href="/tools" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors group">
-                        استعراض كل الأدوات
-                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                        Browse all tools
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
             </div>

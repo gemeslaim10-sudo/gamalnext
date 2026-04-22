@@ -106,100 +106,93 @@ export default function ProjectsPage() {
                     </button>
                 </div>
 
-                <div className="space-y-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                     {fields.map((field, index) => {
                         const currentCategory = watch(`items.${index}.category`);
                         return (
-                            <div key={field.id} className="p-8 bg-slate-950/50 rounded-[2rem] border border-slate-800 relative group transition-all hover:border-blue-500/30 shadow-inner overflow-hidden">
-                                <div className="absolute top-0 right-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-all"></div>
+                            <div key={field.id} className="p-5 bg-slate-950/50 rounded-3xl border border-slate-800 relative group transition-all hover:border-blue-500/30 shadow-inner flex flex-col gap-5">
+                                <div className="absolute top-0 right-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-all rounded-r-3xl"></div>
                                 
                                 <button 
                                     type="button" 
                                     onClick={() => remove(index)} 
-                                    className="absolute top-4 left-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white p-2.5 rounded-xl transition-all z-10 border border-red-500/20"
+                                    className="absolute top-3 left-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white p-2 rounded-xl transition-all z-10 border border-red-500/20 shadow-md"
                                     title="حذف المشروع"
                                 >
-                                    <Trash className="w-5 h-5" />
+                                    <Trash className="w-4 h-4" />
                                 </button>
 
-                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                                    {/* Image Column */}
-                                    <div className="lg:col-span-4">
-                                        <ImageUpload
-                                            value={watch(`items.${index}.image`)}
-                                            onChange={(val) => setValue(`items.${index}.image`, val)}
-                                            label={currentCategory === 'video' ? "صورة مصغرة (Thumbnail)" : "صورة المشروع"}
-                                        />
+                                {/* Image Column */}
+                                <div>
+                                    <ImageUpload
+                                        value={watch(`items.${index}.image`)}
+                                        onChange={(val) => setValue(`items.${index}.image`, val)}
+                                        label={currentCategory === 'video' ? "صورة مصغرة (Thumbnail)" : "صورة المشروع"}
+                                    />
+                                </div>
+
+                                {/* Details Column */}
+                                <div className="flex flex-col gap-4">
+                                    <div>
+                                        <label className="block text-[10px] font-black text-slate-500 mb-1.5 uppercase tracking-widest">عنوان المشروع</label>
+                                        <input {...register(`items.${index}.title`)} className="bg-slate-900/50 border border-slate-800 p-3 rounded-xl text-white w-full focus:border-blue-500 outline-none transition-all font-bold placeholder:text-slate-700 text-sm" placeholder="مثال: تطبيق متجر إلكتروني احترافي" />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-[10px] font-black text-slate-500 mb-1.5 uppercase tracking-widest">التصنيف الرئيسي</label>
+                                        <div className="relative">
+                                            <select 
+                                                {...register(`items.${index}.category`)} 
+                                                className="bg-slate-900/50 border border-slate-800 p-3 rounded-xl text-white w-full focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer font-bold text-sm"
+                                            >
+                                                <option value="design">تصميمات (Design)</option>
+                                                <option value="video">فيديوهات (Video)</option>
+                                                <option value="software">برمجيات (Software)</option>
+                                            </select>
+                                            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 text-xs">▼</div>
+                                        </div>
                                     </div>
 
-                                    {/* Details Column */}
-                                    <div className="lg:col-span-8 space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="md:col-span-2">
-                                                <label className="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-[0.2em]">عنوان المشروع</label>
-                                                <input {...register(`items.${index}.title`)} className="bg-slate-900/50 border border-slate-800 p-4 rounded-2xl text-white w-full focus:border-blue-500 outline-none transition-all font-bold placeholder:text-slate-700" placeholder="مثال: تطبيق متجر إلكتروني احترافي" />
-                                            </div>
-                                            
-                                            <div>
-                                                <label className="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-[0.2em]">التصنيف الرئيسي</label>
-                                                <div className="relative">
-                                                    <select 
-                                                        {...register(`items.${index}.category`)} 
-                                                        className="bg-slate-900/50 border border-slate-800 p-4 rounded-2xl text-white w-full focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer font-bold"
-                                                    >
-                                                        <option value="design">تصميمات (Design)</option>
-                                                        <option value="video">فيديوهات (Video)</option>
-                                                        <option value="software">برمجيات (Software)</option>
-                                                    </select>
-                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">▼</div>
-                                                </div>
-                                            </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-slate-500 mb-1.5 uppercase tracking-widest">التقنيات المستخدمة (Tags)</label>
+                                        <input {...register(`items.${index}.tags`)} className="bg-slate-900/50 border border-slate-800 p-3 rounded-xl text-white w-full focus:border-blue-500 outline-none transition-all placeholder:text-slate-700 text-sm" placeholder="React, UI/UX, Firebase" />
+                                    </div>
 
-                                            <div>
-                                                <label className="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-[0.2em]">التقنيات المستخدمة (Tags)</label>
-                                                <input {...register(`items.${index}.tags`)} className="bg-slate-900/50 border border-slate-800 p-4 rounded-2xl text-white w-full focus:border-blue-500 outline-none transition-all placeholder:text-slate-700" placeholder="React, UI/UX, Firebase" />
-                                            </div>
-
-                                            {/* Conditional Fields for Software */}
-                                            {currentCategory === 'software' && (
-                                                <div className="md:col-span-2">
-                                                    <label className="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">رابط المشروع (المبرمجين فقط)</label>
-                                                    <div className="relative">
-                                                        <input {...register(`items.${index}.link`)} className="bg-blue-500/5 border border-blue-500/20 p-4 pr-12 rounded-2xl text-white w-full focus:border-blue-500 outline-none transition-all font-mono text-sm" placeholder="https://..." />
-                                                        <Plus className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 w-5 h-5 p-1 bg-blue-500/10 rounded-full" />
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Conditional Fields for Video */}
-                                            {currentCategory === 'video' && (
-                                                <div className="md:col-span-2 space-y-4 bg-purple-500/5 p-6 rounded-2xl border border-purple-500/10">
-                                                    <h4 className="text-xs font-black text-purple-400 mb-4 uppercase flex items-center gap-2">
-                                                        <Video className="w-4 h-4" /> إعدادات الفيديو
-                                                    </h4>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div>
-                                                            <label className="block text-[10px] font-bold text-slate-500 mb-2">رابط الفيديو (Direct Link)</label>
-                                                            <input {...register(`items.${index}.videoUrl`)} className="bg-slate-900 border border-slate-800 p-3 rounded-xl text-white w-full focus:border-purple-500 outline-none transition-all text-sm" placeholder="YouTube, Drive, etc." />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-[10px] font-bold text-slate-500 mb-2">كود التضمين (Embed Code)</label>
-                                                            <textarea {...register(`items.${index}.embedCode`)} className="bg-slate-900 border border-slate-800 p-3 rounded-xl text-white w-full h-11 focus:border-purple-500 outline-none transition-all text-xs resize-none" placeholder="<iframe>...</iframe>" />
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-[10px] text-slate-600 italic">* يمكنك رفع الفيديو لـ Cloudinary عبر أيقونة الرفع في خانة الصورة إذا كنت تفضل ذلك.</p>
-                                                </div>
-                                            )}
-
-                                            <div className="md:col-span-2">
-                                                <label className="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-[0.2em]">وصف المشروع الإبداعي</label>
-                                                <textarea 
-                                                    {...register(`items.${index}.description`)} 
-                                                    className="bg-slate-900/50 border border-slate-800 p-4 rounded-2xl text-white w-full h-32 focus:border-blue-500 outline-none transition-all resize-none leading-relaxed" 
-                                                    placeholder="صف رؤيتك للمشروع وكيف حققت أهداف العميل..."
-                                                />
+                                    {/* Conditional Fields for Software */}
+                                    {currentCategory === 'software' && (
+                                        <div>
+                                            <label className="block text-[10px] font-black text-slate-400 mb-1.5 uppercase tracking-widest">رابط المشروع</label>
+                                            <div className="relative">
+                                                <input {...register(`items.${index}.link`)} className="bg-blue-500/5 border border-blue-500/20 p-3 pr-10 rounded-xl text-white w-full focus:border-blue-500 outline-none transition-all font-mono text-xs" placeholder="https://..." />
+                                                <Plus className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-500 w-4 h-4 p-0.5 bg-blue-500/10 rounded-full" />
                                             </div>
                                         </div>
+                                    )}
+
+                                    {/* Conditional Fields for Video */}
+                                    {currentCategory === 'video' && (
+                                        <div className="space-y-3 bg-purple-500/5 p-4 rounded-xl border border-purple-500/10">
+                                            <h4 className="text-[10px] font-black text-purple-400 uppercase flex items-center gap-1.5">
+                                                <Video className="w-3 h-3" /> إعدادات الفيديو
+                                            </h4>
+                                            <div>
+                                                <label className="block text-[9px] font-bold text-slate-500 mb-1">رابط الفيديو (Direct Link)</label>
+                                                <input {...register(`items.${index}.videoUrl`)} className="bg-slate-900 border border-slate-800 p-2.5 rounded-lg text-white w-full focus:border-purple-500 outline-none transition-all text-xs" placeholder="YouTube, Drive, etc." />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[9px] font-bold text-slate-500 mb-1">كود التضمين (Embed Code)</label>
+                                                <textarea {...register(`items.${index}.embedCode`)} className="bg-slate-900 border border-slate-800 p-2.5 rounded-lg text-white w-full h-10 focus:border-purple-500 outline-none transition-all text-[10px] resize-none" placeholder="<iframe>...</iframe>" />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div>
+                                        <label className="block text-[10px] font-black text-slate-500 mb-1.5 uppercase tracking-widest">وصف المشروع</label>
+                                        <textarea 
+                                            {...register(`items.${index}.description`)} 
+                                            className="bg-slate-900/50 border border-slate-800 p-3 rounded-xl text-white w-full h-20 focus:border-blue-500 outline-none transition-all resize-none leading-relaxed text-xs" 
+                                            placeholder="صف رؤيتك للمشروع وكيف حققت أهداف العميل..."
+                                        />
                                     </div>
                                 </div>
                             </div>

@@ -16,6 +16,7 @@ export default function ChatMessage({ role, text }: ChatMessageProps) {
                 {role === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
             </div>
             <div
+                dir="auto"
                 className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed ${role === 'user'
                     ? 'bg-purple-600/20 text-purple-100 rounded-tr-none border border-purple-500/20'
                     : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700'

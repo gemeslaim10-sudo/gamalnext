@@ -123,3 +123,44 @@ body {
 .no-scroll-spy {
   scroll-margin-top: 100px;
 }
+
+/* Hero dot-grid background */
+.hero-grid-bg {
+  background-image: radial-gradient(circle, rgba(59, 130, 246, 0.15) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+/* Floating particles */
+@keyframes float-particle {
+  0%, 100% { transform: translateY(0px) scale(1); opacity: 0.3; }
+  50% { transform: translateY(-18px) scale(1.15); opacity: 0.7; }
+}
+.animate-float-particle {
+  animation: float-particle 4s ease-in-out infinite;
+}
+
+/* Hero highlight underline for subtitle */
+.hero-highlight-blue {
+  background: linear-gradient(120deg, #60a5fa 0%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-highlight-purple {
+  background: linear-gradient(120deg, #c084fc 0%, #f472b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Stats card subtle shine on hover */
+.hero-stats-grid > div::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}

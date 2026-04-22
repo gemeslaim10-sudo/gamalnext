@@ -21,9 +21,9 @@ export default function GlobalErrorListener() {
             console.error("Unhandled Promise Rejection:", reason);
 
             if (message.includes("requires an index")) {
-                toast.error("مطلوب إنشاء Index! (راجع الكونسول)", { duration: 8000, icon: '🔥' });
+                toast.error("Index creation required! (Check console)", { duration: 8000, icon: '🔥' });
             } else if (message.includes("permission-denied")) {
-                toast.error("فشل الوصول للبيانات: تأكد من الصلاحيات (Rules)", { duration: 5000 });
+                toast.error("Data access failed: Check permissions (Rules)", { duration: 5000 });
             } else {
                 // General unknown errors
                 if (!message.includes("ResizeObserver")) {

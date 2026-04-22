@@ -18,7 +18,7 @@ export default function FinanceToolsPage() {
     return (
         <div>
             <h1 className="text-3xl font-bold text-white mb-8">المالية والعملات</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
                 {tools.map((tool) => {
                     const Icon = tool.icon;
                     return (

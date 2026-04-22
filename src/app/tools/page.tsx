@@ -10,8 +10,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
 const DEFAULT_TOOLS = [
     {
         id: 'video-to-audio',
-        name: 'تحويل فيديو لصوت',
-        description: 'استخرج الصوت MP3 من أي مقطع فيديو بسهولة وسرعة.',
+        name: 'Video to Audio',
+        description: 'Extract MP3 audio from any video easily and quickly.',
         category: 'media',
         icon: 'Video',
         href: '/tools/media/video-to-audio',
@@ -21,8 +21,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'text-to-speech',
-        name: 'تحويل النص لصوت',
-        description: 'حول أي نص إلى تعليق صوتي احترافي باستخدام AI أو Google.',
+        name: 'Text to Speech',
+        description: 'Convert any text into a professional voiceover using AI or Google.',
         category: 'audio',
         icon: 'Mic',
         href: '/tools/audio/text-to-speech',
@@ -32,8 +32,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'ai-translator',
-        name: 'مترجم AI الذكي',
-        description: 'ترجمة دقيقة وسياقية بين اللغات باستخدام الذكاء الاصطناعي.',
+        name: 'Smart AI Translator',
+        description: 'Accurate and contextual translation between languages using AI.',
         category: 'translation',
         icon: 'Languages',
         href: '/tools/translation/ai-translator',
@@ -43,8 +43,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'currency-converter',
-        name: 'محول العملات',
-        description: 'أسعار صرف لحظية للجنيه، الدولار، الريال، والمزيد.',
+        name: 'Currency Converter',
+        description: 'Real-time exchange rates for EGP, USD, SAR, and more.',
         category: 'finance',
         icon: 'Coins',
         href: '/tools/finance/currency',
@@ -54,8 +54,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'table-generator',
-        name: 'صانع الجداول',
-        description: 'أنشئ جداول بيانات منظمة من أي نص عشوائي حالاً.',
+        name: 'Table Generator',
+        description: 'Create organized data tables from any random text instantly.',
         category: 'data',
         icon: 'Table',
         href: '/tools/data/table-generator',
@@ -65,8 +65,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'qr-generator',
-        name: 'منشئ QR Code',
-        description: 'حول أي رابط أو نص لرمز QR قابل للمسح.',
+        name: 'QR Code Generator',
+        description: 'Convert any link or text into a scannable QR code.',
         category: 'utils',
         icon: 'QrCode',
         href: '/tools/utils/qr-generator',
@@ -76,8 +76,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'password-generator',
-        name: 'مولد كلمات مرور',
-        description: 'أنشئ كلمات مرور قوية ومعقدة لحماية حساباتك.',
+        name: 'Password Generator',
+        description: 'Create strong and complex passwords to protect your accounts.',
         category: 'security',
         icon: 'Lock',
         href: '/tools/security/password-generator',
@@ -87,8 +87,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'text-analyzer',
-        name: 'محلل النصوص',
-        description: 'احسب عدد الكلمات والحروف وحلل النصوص.',
+        name: 'Text Analyzer',
+        description: 'Count words and characters, and analyze text easily.',
         category: 'data',
         icon: 'FileText',
         href: '/tools/data/text-analyzer',
@@ -98,8 +98,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'image-compressor',
-        name: 'ضغط الصور',
-        description: 'تقليل حجم الصور مع الحفاظ على الجودة للويب.',
+        name: 'Image Compressor',
+        description: 'Reduce image size while maintaining quality for the web.',
         category: 'media',
         icon: 'Image',
         href: '/tools/media/image-compressor',
@@ -109,8 +109,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'youtube-thumbnail',
-        name: 'تحميل صور يوتيوب',
-        description: 'تنزيل الصور المصغرة (Thumbnails) بجودة عالية.',
+        name: 'YouTube Thumbnail Downloader',
+        description: 'Download high-quality video thumbnails.',
         category: 'media',
         icon: 'Youtube',
         href: '/tools/media/youtube-thumbnail',
@@ -120,8 +120,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'json-formatter',
-        name: 'منسق JSON',
-        description: 'تنسيق وتصحيح أكواد JSON للمطورين.',
+        name: 'JSON Formatter',
+        description: 'Format and validate JSON codes for developers.',
         category: 'data',
         icon: 'Code',
         href: '/tools/data/json-formatter',
@@ -131,8 +131,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'unit-converter',
-        name: 'محول الوحدات',
-        description: 'تحويل الأطوال، الأوزان، والمساحات بسهولة.',
+        name: 'Unit Converter',
+        description: 'Convert lengths, weights, and areas easily.',
         category: 'utils',
         icon: 'Ruler',
         href: '/tools/utils/unit-converter',
@@ -142,8 +142,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'age-calculator',
-        name: 'حاسبة العمر',
-        description: 'احسب عمرك بدقة بالسنين والشهور والأيام.',
+        name: 'Age Calculator',
+        description: 'Calculate your exact age in years, months, and days.',
         category: 'utils',
         icon: 'Calendar',
         href: '/tools/utils/age-calculator',
@@ -153,8 +153,8 @@ const DEFAULT_TOOLS = [
     },
     {
         id: 'stopwatch',
-        name: 'ساعة إيقاف',
-        description: 'مؤقت وساعة إيقاف للمهام والرياضة.',
+        name: 'Stopwatch',
+        description: 'Timer and stopwatch for tasks and sports.',
         category: 'utils',
         icon: 'Timer',
         href: '/tools/utils/stopwatch',
@@ -165,7 +165,7 @@ const DEFAULT_TOOLS = [
 ];
 
 export const metadata = {
-    title: "مركز الأدوات | جمال تك",
+    title: "Tools Center | Gamal Tech",
     alternates: {
         canonical: './',
     },
@@ -203,14 +203,14 @@ export default async function ToolsPage() {
             <div className="mb-10">
                 <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
                     <Wrench className="w-8 h-8 text-blue-500" />
-                    مركز الأدوات الذكية
+                    Smart Tools Center
                 </h1>
                 <p className="text-slate-400 text-lg">
-                    مجموعة مختارة من الأدوات الرقمية التي تساعدك على إنجاز مهامك اليومية بسرعة وكفاءة.
+                    A selection of tools that help you accomplish web and e-commerce development tasks efficiently.
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {tools.map((tool: any) => {
                     const Icon = ICON_MAP[tool.icon] || Wrench;
                     return (
@@ -229,7 +229,7 @@ export default async function ToolsPage() {
                                 {tool.description}
                             </p>
                             <div className="mt-4 flex items-center text-sm font-medium text-slate-500 group-hover:text-slate-300 transition-colors">
-                                استخدام الأداة <span className="mr-auto">→</span>
+                                Use Tool <span className="ml-auto">→</span>
                             </div>
                         </Link>
                     )

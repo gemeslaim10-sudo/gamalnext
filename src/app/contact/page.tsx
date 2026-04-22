@@ -4,15 +4,15 @@ import Footer from "@/components/layout/Footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "اتصل بي | جمال عبد العاطي - خدمات مواقع",
-    description: "تواصل معي لمناقشة مشروعك القادم، خدمات الـ SEO، أو لأي استفسارات تقنية حول كيفية عمل ويبسايت.",
-    keywords: ["جمال عبد العاطي", "جمال تك", "خدمات مواقع", "ازاي اعمل ويبسايت", "اتصل بي", "مطور ويب"],
+    title: "Contact Me | Gamal Abdelaty - Web Services",
+    description: "Contact me to discuss your next project, build a website, a Shopify store, or for any technical inquiries.",
+    keywords: ["Gamal Abdelaty", "Gamal Tech", "Web Services", "How to create a website", "Contact Me", "Web Developer"],
     alternates: {
         canonical: './',
     },
     openGraph: {
-        title: "اتصل بي | جمال عبد العاطي - جمال ويب",
-        description: "تواصل معي لمناقشة مشروعك القادم، خدمات الـ SEO، أو لأي استفسارات تقنية.",
+        title: "Contact Me | Gamal Abdelaty - Gamal Web",
+        description: "Contact me to discuss your next project, web development and e-commerce services, or any technical inquiries.",
         images: ["/og-image.png"],
         url: 'https://gamaltech.info/contact',
     },

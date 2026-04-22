@@ -17,7 +17,7 @@ export default function ChatInput({ input, setInput, onSubmit, loading }: ChatIn
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="اكتب رسالتك هنا..."
+                    placeholder="Type your message here..."
                     className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 px-4 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
                     dir="auto"
                 />

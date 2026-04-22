@@ -36,7 +36,7 @@ export default function CommentSection({ articleId }: { articleId: string }) {
         }, (error) => {
             console.error("Comments subscription error:", error);
             if (error.code === 'failed-precondition') {
-                toast.error("مطلوب إنشاء Index للتعليقات (راجع الكونسول)");
+                toast.error("Comments Index creation required (check console)");
             }
         });
 
@@ -46,7 +46,7 @@ export default function CommentSection({ articleId }: { articleId: string }) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) {
-            toast.error("يجب تسجيل الدخول للتعليق");
+            toast.error("You must log in to comment");
             return;
         }
         if (!newComment.trim()) return;
@@ -62,13 +62,13 @@ export default function CommentSection({ articleId }: { articleId: string }) {
                 createdAt: serverTimestamp()
             });
             setNewComment("");
-            toast.success("تم إضافة تعليقك");
+            toast.success("Comment added successfully");
         } catch (e: any) {
             console.error("Error submitting comment:", e);
             if (e.code === 'permission-denied') {
-                toast.error("آسف، ليس لديك صلاحية للتعليق. يرجى تسجيل الدخول مرة أخرى.");
+                toast.error("Sorry, you don't have permission to comment. Please log in again.");
             } else {
-                toast.error("حدث خطأ أثناء نشر التعليق.");
+                toast.error("An error occurred while posting the comment.");
             }
         } finally {
             setSubmitting(false);
@@ -76,18 +76,18 @@ export default function CommentSection({ articleId }: { articleId: string }) {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("حذف هذا التعليق؟")) return;
+        if (!confirm("Delete this comment?")) return;
         try {
             await deleteDoc(doc(db, "comments", id));
-            toast.success("تم الحذف");
+            toast.success("Deleted");
         } catch (e) {
-            toast.error("خطأ في الحذف");
+            toast.error("Error deleting");
         }
     };
 
     return (
         <div className="mt-16 border-t border-slate-800 pt-10">
-            <h3 className="text-2xl font-bold text-white mb-8">التعليقات ({comments.length})</h3>
+            <h3 className="text-2xl font-bold text-white mb-8">Comments ({comments.length})</h3>
 
             {/* Input */}
             {user ? (
@@ -104,7 +104,7 @@ export default function CommentSection({ articleId }: { articleId: string }) {
                         <textarea
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
-                            placeholder="شاركنا رأيك..."
+                            placeholder="Share your thoughts..."
                             className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none min-h-[100px]"
                             required
                         />
@@ -119,9 +119,9 @@ export default function CommentSection({ articleId }: { articleId: string }) {
                 </form>
             ) : (
                 <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 text-center mb-12">
-                    <p className="text-slate-400 mb-4">سجل الدخول للمشاركة في النقاش</p>
+                    <p className="text-slate-400 mb-4">Log in to join the discussion</p>
                     {/* Trigger Auth Modal logic needs context or parent passing. For now strictly informational or rely on Navbar login */}
-                    <span className="text-sm text-slate-500">استخدم زر تسجيل الدخول في القائمة العلوية</span>
+                    <span className="text-sm text-slate-500">Use the login button in the top menu</span>
                 </div>
             )}
 
@@ -152,7 +152,7 @@ export default function CommentSection({ articleId }: { articleId: string }) {
                                 <p className="text-slate-300 text-sm leading-relaxed">{comment.content}</p>
                             </div>
                             <span className="text-xs text-slate-600 mt-1 block mr-2">
-                                {comment.createdAt?.toDate ? comment.createdAt.toDate().toLocaleDateString('ar-EG') : 'Just now'}
+                                {comment.createdAt?.toDate ? comment.createdAt.toDate().toLocaleDateString('en-US') : 'Just now'}
                             </span>
                         </div>
                     </div>

@@ -9,10 +9,10 @@ const iconMap: any = {
 
 const defaultSkillsData = {
     mainSkills: [
-        { title: "CMS & Solution Architect", description: "بناء وتطوير المتاجر الإلكترونية (جمال ويب) والأنظمة البرمجية باستخدام WordPress و Shopify مع حلول متكاملة لمن يتساءل ازاي اعمل ويبسايت احترافي.", tags: "WordPress, Shopify, Data Structures", icon: "Code" },
-        { title: "SEO Optimization", description: "تقديم أفضل خدمات مواقع (جمال SEO) واستراتيجيات متقدمة للتصدر في محركات البحث وتحسين الظهور الرقمي.", tags: "Search Engine Optimization, Technical SEO", icon: "Search" },
-        { title: "AI Agents & Automation", description: "استخدام وكلاء الذكاء الاصطناعي (AI Agents) والتحليل الذكي لإدارة المهام الرقمية المعقدة بآلية عالية.", tags: "AI Agents, Automation, Intelligence", icon: "LineChart" },
-        { title: "Data Analysis & UI/UX", description: "تحليل البيانات وسلوك المنصات مع توجيه تجربة المستخدم لتحقيق أفضل أثر رقمي ممكن.", tags: "Data Analytics, User Experience, UI/UX", icon: "Database" }
+        { title: "Websites Development", description: "Building modern, responsive websites that meet all needs and provide an exceptional user experience.", tags: "Web Development, Frontend, Backend", icon: "Code" },
+        { title: "E-commerce Stores", description: "Developing integrated e-commerce stores with payment gateways and product management at the highest quality standards.", tags: "E-commerce, Online Store, Payment Integration", icon: "Database" },
+        { title: "WordPress & Shopify", description: "Professionally building and managing WordPress sites and Shopify stores to facilitate your business and grow your sales.", tags: "WordPress, Shopify, CMS", icon: "BarChart3" },
+        { title: "WhatsApp API Integration", description: "Connecting and integrating WhatsApp API services to automate messaging and improve communication with your customers effectively.", tags: "WhatsApp API, Chatbots, Integration", icon: "LineChart" }
     ],
     techStack: [
         { name: 'React.js', val: '95%' },
@@ -23,11 +23,11 @@ const defaultSkillsData = {
         { name: 'Laravel', val: '70%' },
     ],
     software: [
-        { name: 'Google Search Console', level: 'مستوى متقدم', color: 'text-orange-500' },
-        { name: 'Google Analytics', level: 'مستوى متقدم', color: 'text-yellow-500' },
-        { name: 'VS Code', level: 'مستوى متقدم', color: 'text-blue-400' },
-        { name: 'Excel/Sheets', level: 'مستوى متقدم', color: 'text-green-400' },
-        { name: 'WordPress', level: 'مستوى ممارس', color: 'text-white' },
+        { name: 'Shopify', level: 'Advanced', color: 'text-green-500' },
+        { name: 'WordPress', level: 'Advanced', color: 'text-blue-500' },
+        { name: 'VS Code', level: 'Advanced', color: 'text-blue-400' },
+        { name: 'WhatsApp API', level: 'Advanced', color: 'text-green-400' },
+        { name: 'Postman', level: 'Intermediate', color: 'text-orange-400' },
     ]
 };
 
@@ -40,15 +40,15 @@ export default function Skills({ initialData }: { initialData?: any }) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <Reveal className="text-center mb-12 md:mb-16">
                     <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                        الخبرات <span className="text-blue-500">والكفاءات التقنية</span>
+                        Technical <span className="text-blue-500">Expertise</span>
                     </h2>
                     <p className="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
-                        تخصص دقيق في بناء الويب واستراتيجيات التصدر في محركات البحث
+                        Specialized in web development, e-commerce stores, and WhatsApp API solutions
                     </p>
                 </Reveal>
 
                 {/* Main Skills Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-16 md:mb-20">
+                <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8 mb-16 md:mb-20">
                     {skills.mainSkills?.map((skill: any, idx: number) => {
                         const Icon = iconMap[skill.icon] || Code;
                         const tags = skill.tags.split(',').map((t: string) => t.trim());
@@ -76,7 +76,7 @@ export default function Skills({ initialData }: { initialData?: any }) {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
                     {/* Tech Stack Progress */}
                     <Reveal className="glass p-6 md:p-8 rounded-2xl border-slate-700">
-                        <h3 className="text-xl md:text-2xl font-bold text-white mb-8 border-r-4 border-blue-500 pr-4">حزمة التقنيات البرمجية</h3>
+                        <h3 className="text-xl md:text-2xl font-bold text-white mb-8 border-l-4 border-blue-500 pl-4">Tech Stack</h3>
                         <div className="space-y-6">
                             {skills.techStack?.map((item: any) => (
                                 <div key={item.name}>
@@ -95,7 +95,7 @@ export default function Skills({ initialData }: { initialData?: any }) {
                     {/* Software Levels */}
                     <div className="space-y-6 md:space-y-8">
                         <Reveal className="glass p-6 md:p-8 rounded-2xl border-slate-700">
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-6 border-r-4 border-purple-500 pr-4">إتقان البرمجيات التطبيقية</h3>
+                            <h3 className="text-xl md:text-2xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">Software Proficiency</h3>
                             <div className="flex flex-wrap gap-3">
                                 {skills.software?.map((tool: any) => (
                                     <div key={tool.name} className="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 flex-grow text-center">
@@ -108,7 +108,7 @@ export default function Skills({ initialData }: { initialData?: any }) {
 
                         {/* Static Chart for Visual Balance */}
                         <Reveal className="glass p-6 md:p-8 rounded-2xl border-slate-700">
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-4 border-r-4 border-cyan-500 pr-4">أدوات الإنتاجية اليومية</h3>
+                            <h3 className="text-xl md:text-2xl font-bold text-white mb-4 border-l-4 border-cyan-500 pl-4">Daily Productivity Tools</h3>
                             <div className="space-y-4">
                                 <div>
                                     <div className="flex justify-between text-sm mb-1">

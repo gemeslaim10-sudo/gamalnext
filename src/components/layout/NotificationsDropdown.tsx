@@ -125,12 +125,12 @@ export default function NotificationsDropdown() {
 
     const getText = (n: Notification) => {
         switch (n.type) {
-            case 'like': return `${n.senderName} أعجب بمقالك`;
-            case 'comment': return `${n.senderName} علق على مقالك`;
-            case 'welcome': return `مرحباً بك ${n.senderName} في موقعنا!`;
-            case 'review_request': return `${n.senderName} أرسل مقالاً للمراجعة`;
-            case 'article_approved': return `تمت الموافقة على مقالك ونشره!`;
-            default: return 'إشعار جديد';
+            case 'like': return `${n.senderName} liked your article`;
+            case 'comment': return `${n.senderName} commented on your article`;
+            case 'welcome': return `Welcome ${n.senderName} to our website!`;
+            case 'review_request': return `${n.senderName} submitted an article for review`;
+            case 'article_approved': return `Your article was approved and published!`;
+            default: return 'New notification';
         }
     };
 
@@ -153,13 +153,13 @@ export default function NotificationsDropdown() {
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-                    <div className="absolute left-0 mt-2 w-80 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden max-h-96 overflow-y-auto">
+                    <div className="absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden max-h-96 overflow-y-auto">
                         <div className="p-3 border-b border-slate-800 bg-slate-950/50 backdrop-blur-sm sticky top-0">
-                            <h3 className="font-bold text-white text-sm">الإشعارات</h3>
+                            <h3 className="font-bold text-white text-sm">Notifications</h3>
                         </div>
 
                         {notifications.length === 0 ? (
-                            <div className="p-8 text-center text-slate-500 text-sm">لا توجد إشعارات حالياً</div>
+                            <div className="p-8 text-center text-slate-500 text-sm">No notifications currently</div>
                         ) : (
                             <div className="divide-y divide-slate-800">
                                 {notifications.map(n => (
@@ -172,7 +172,7 @@ export default function NotificationsDropdown() {
                                         <div>
                                             <p className="text-sm text-slate-200 leading-snug">{getText(n)}</p>
                                             <span className="text-xs text-slate-500 mt-1 block">
-                                                {n.createdAt?.toDate ? n.createdAt.toDate().toLocaleDateString('ar-EG') : 'الآن'}
+                                                {n.createdAt?.toDate ? n.createdAt.toDate().toLocaleDateString('en-US') : 'Now'}
                                             </span>
                                         </div>
                                         {!n.read && (

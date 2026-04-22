@@ -14,10 +14,10 @@ export default function ChatHeader({ onClose }: ChatHeaderProps) {
                     <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                    <h3 className="font-bold text-white text-sm">المساعد الذكي</h3>
+                    <h3 className="font-bold text-white text-sm">Smart Assistant</h3>
                     <p className="text-xs text-blue-300 flex items-center gap-1">
                         <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                        متاح الآن
+                        Online Now
                     </p>
                 </div>
             </div>

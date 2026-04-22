@@ -45,7 +45,7 @@ export default function AiChatWidget() {
 
             try {
                 // 1. Fetch AI Settings (Welcome Message)
-                let welcomeText = "أهلًا وسهلًا بك في منصة جمال 👋 منوّر موقعنا!\nأنا المساعد الافتراضي هنا، ومتحمس أعرّفك على جمال وخدماته الرائعة: تطوير مواقع ديناميكية، متاجر إلكترونية، لوحات تحكم، وتحسين SEO باستخدام أحدث التقنيات، وأيضًا دمج الذكاء الاصطناعي (Gemini AI)! 🚀\n\nممكن أعرف حضرتك يسعدني جداً مساعدتك، ما هو اسمك الكريم؟ 😊";
+                let welcomeText = "Welcome to Gamal's platform 👋 Glad to have you here!\nI am the virtual assistant here, excited to introduce you to Gamal and his amazing services: building websites, creating e-commerce stores (WordPress & Shopify), and providing integrated WhatsApp API solutions. 🚀\n\nMay I know your name? I'd be very happy to assist you! 😊";
                 const aiDoc = await getDoc(doc(db, "settings", "ai"));
                 if (aiDoc.exists() && aiDoc.data().welcomeMessage) {
                     welcomeText = aiDoc.data().welcomeMessage;
@@ -72,7 +72,7 @@ export default function AiChatWidget() {
                 if (userName !== "Guest") {
                     welcomeText = welcomeText.replace("{name}", userName);
                 } else {
-                    welcomeText = welcomeText.replace("{name}", "يا صديقي");
+                    welcomeText = welcomeText.replace("{name}", "my friend");
                 }
 
                 setMessages([{ role: 'model', text: welcomeText }]);
@@ -134,7 +134,7 @@ export default function AiChatWidget() {
 
             if (!res.ok) {
                 // Use backend error message if available
-                const errorMessage = data.error || data.details || "فشل الاتصال بالخادم";
+                const errorMessage = data.error || data.details || "Failed to connect to the server";
                 throw new Error(errorMessage);
             }
 
@@ -143,11 +143,11 @@ export default function AiChatWidget() {
         } catch (error: any) {
             console.error("Chat Error:", error);
 
-            let userFriendlyError = `⚠️ عذراً، حدث خطأ: ${error.message || "حدث خطأ غير متوقع"}`;
+            let userFriendlyError = `⚠️ Sorry, an error occurred: ${error.message || "An unexpected error occurred"}`;
 
             // Handle Network/Server Down errors specifically
             if (error.message && (error.message.includes("Failed to fetch") || error.message.includes("NetworkError"))) {
-                userFriendlyError = "⚠️ عذراً، لا يمكن الاتصال بالخادم حالياً. قد يكون الخادم قيد التحديث أو إعادة التشغيل. الرجاء المحاولة مرة أخرى بعد ثوانٍ.";
+                userFriendlyError = "⚠️ Sorry, cannot connect to the server right now. The server might be updating or restarting. Please try again in a few seconds.";
             }
 
             setMessages(prev => [...prev, {
@@ -169,7 +169,7 @@ export default function AiChatWidget() {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-lg shadow-blue-500/20 text-white cursor-pointer group"
+                    className="fixed bottom-[104px] right-6 z-50 p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-lg shadow-blue-500/20 text-white cursor-pointer group"
                 >
                     <Bot className="w-8 h-8 group-hover:rotate-12 transition-transform" />
                     <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full animate-pulse border-2 border-slate-900"></span>
@@ -193,7 +193,7 @@ export default function AiChatWidget() {
                             {messages.length === 0 && loading && (
                                 <div className="text-center mt-10 space-y-4">
                                     <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto" />
-                                    <p className="text-slate-400 text-sm">جاري التجهيز...</p>
+                                    <p className="text-slate-400 text-sm">Preparing...</p>
                                 </div>
                             )}
 
@@ -204,7 +204,7 @@ export default function AiChatWidget() {
                             {loading && messages.length > 0 && (
                                 <div className="flex items-center gap-2 text-slate-500 text-sm p-2">
                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                    <span>جاري الكتابة...</span>
+                                    <span>Typing...</span>
                                 </div>
                             )}
                             <div ref={messagesEndRef} />

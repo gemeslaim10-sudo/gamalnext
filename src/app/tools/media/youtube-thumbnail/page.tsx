@@ -77,7 +77,7 @@ export default function YoutubeThumbnailPage() {
             </div>
 
             {videoId && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4">
+                <div className="grid grid-cols-2 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4">
                     {[
                         { label: 'أعلى جودة (Max Res)', q: 'maxresdefault' },
                         { label: 'جودة عالية (High)', q: 'hqdefault' },

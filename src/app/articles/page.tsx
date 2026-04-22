@@ -12,7 +12,7 @@ import { Metadata } from "next";
 // SEO Metadata
 export const metadata: Metadata = {
     title: "المقالات التقنية | جمال عبد العاطي",
-    description: "مقالات حصرية في تطوير الويب، الذكاء الاصطناعي، وتحليل البيانات.",
+    description: "مقالات حصرية في إنشاء مواقع الويب وتطوير المتاجر الإلكترونية.",
     alternates: {
         canonical: './',
     },

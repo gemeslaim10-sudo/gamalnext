@@ -28,7 +28,7 @@ export class AiAgent {
 
             // 3. Initialize Model with Tools
             const model = this.genAI.getGenerativeModel({
-                model: this.config.modelName || "gemini-1.5-flash",
+                model: this.config.modelName || "gemini-2.5-flash",
                 tools: [{ 
                     // @ts-ignore
                     functionDeclarations: aiTools 
@@ -75,7 +75,7 @@ export class AiAgent {
     }
 
     private buildInstruction(rag: string, ctx?: any) {
-        return (this.config.systemRole || STRICT_INSTRUCTION) + 
+        return STRICT_INSTRUCTION + 
                "\n\n[ADMIN]:\n" + (this.config.prompt || "") + 
                "\n\n[STYLE]:\n" + (this.config.stylePrompt || "") + 
                rag + 
@@ -140,8 +140,9 @@ export class AiAgent {
             { url: "https://openrouter.ai/api/v1/chat/completions", key: this.config.openRouterKey, model: "google/gemini-2.0-flash-exp:free" }
         ];
 
+        const instruction = this.buildInstruction("", { name: "Guest" });
         const fallbackMsgs = [
-            { role: "system", content: "Agentic Failover Mode Active." },
+            { role: "system", content: instruction },
             ...history.map(m => ({ role: m.role === 'model' ? 'assistant' : 'user', content: m.text || "" })),
             { role: "user", content: message }
         ];

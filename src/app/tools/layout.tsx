@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import ToolsClientLayout from "./ToolsClientLayout";
 
 export const metadata: Metadata = {
-    title: "الأدوات الذكية | جمال عبد العاطي",
-    description: "مجموعة من الأدوات الرقمية المجانية: تحويل نصوص، تحميل من يوتيوب، أدوات ميديا، والمزيد.",
+    title: "أدوات مساعدة | جمال عبد العاطي",
+    description: "مجموعة من الأدوات المجانية لتسهيل أعمال الويب والمتاجر الإلكترونية.",
     alternates: {
         canonical: './',
     },

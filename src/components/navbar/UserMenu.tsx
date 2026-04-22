@@ -23,21 +23,21 @@ export default function UserMenu({ user, logout }: UserMenuProps) {
             </button>
 
             {/* Dropdown */}
-            <div className="absolute left-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl overflow-hidden opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all transform translate-y-2 group-hover/user:translate-y-0 text-right">
+            <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl overflow-hidden opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all transform translate-y-2 group-hover/user:translate-y-0 text-left">
                 <a href={`/users/${user.uid}`} className="block px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors border-b border-slate-800">
-                    ملفي الشخصي
+                    Profile
                 </a>
                 <a href="/settings" className="block px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors border-b border-slate-800">
-                    الإعدادات
+                    Settings
                 </a>
                 <a href="/write" className="block px-4 py-3 text-sm text-blue-400 font-bold hover:bg-slate-800 hover:text-blue-300 transition-colors border-b border-slate-800">
-                    كتابة مقال
+                    Write an Article
                 </a>
                 <button
                     onClick={logout}
                     className="w-full text-right px-4 py-3 text-sm text-red-400 hover:bg-red-950/20 hover:text-red-300 transition-colors flex items-center gap-2"
                 >
-                    <LogOut className="w-4 h-4" /> تسجيل الخروج
+                    <LogOut className="w-4 h-4" /> Logout
                 </button>
             </div>
         </div>

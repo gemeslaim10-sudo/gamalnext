@@ -41,7 +41,7 @@ export default function QrGeneratorPage() {
                 منشئ رمز الاستجابة السريعة (QR Code)
             </h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-8">
                 {/* Controls */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
                     <div>
