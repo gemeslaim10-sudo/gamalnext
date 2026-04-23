@@ -1,33 +1,35 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { getCollection, getDocument } from "@/lib/server-utils";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
     try {
-        // Fetch latest articles (title + id only)
-        const articlesSnap = await getDocs(
-            query(collection(db, "articles"), orderBy("createdAt", "desc"), limit(20))
-        );
-        const articles = articlesSnap.docs.map(d => ({
-            id: d.id,
-            title: d.data().title || "Untitled",
-        }));
+        // Fetch latest articles
+        const rawArticles: any[] = await getCollection("articles");
+        const articles = rawArticles
+            .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+            .slice(0, 20)
+            .map(d => ({
+                id: d.id,
+                title: d.title || "Untitled",
+            }));
 
-        // Fetch projects (title + id + thumbnail)
-        const projectsSnap = await getDocs(
-            query(collection(db, "projects"), limit(20))
-        );
-        const projects = projectsSnap.docs.map(d => ({
-            id: d.id,
-            title: d.data().title || d.data().name || "Untitled",
-            imageUrl: d.data().imageUrl || d.data().images?.[0] || "",
-        }));
+        // Fetch projects from site_content document
+        const projectsDoc: any = await getDocument("site_content", "projects");
+        const projectsList = projectsDoc?.items || [];
+        const projects = projectsList
+            .slice(0, 20)
+            .map((p: any, idx: number) => ({
+                id: p.id || `proj-${idx}`,
+                title: p.title || p.name || "Untitled",
+                imageUrl: p.image || p.imageUrl || p.images?.[0] || "",
+                slug: p.slug || p.id || `proj-${idx}`,
+            }));
 
         return NextResponse.json({ articles, projects });
     } catch (error) {
         console.error("Sidebar data API error:", error);
-        return NextResponse.json({ articles: [], projects: [] });
+        return NextResponse.json({ error: error instanceof Error ? error.message : String(error), articles: [], projects: [] });
     }
 }

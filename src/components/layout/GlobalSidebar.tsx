@@ -324,7 +324,7 @@ export default function GlobalSidebar() {
                                 {randomProjects.map(p => (
                                     <Link
                                         key={p.id}
-                                        href={`/projects`}
+                                        href={`/projects/${(p as any).slug || p.id}`}
                                         className="flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-slate-800/40 transition-colors group"
                                     >
                                         {p.imageUrl ? (

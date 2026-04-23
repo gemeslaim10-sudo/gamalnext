@@ -75,7 +75,7 @@ export default function Navbar({ isStatic = false }: { isStatic?: boolean }) {
                         </Link>
 
                         {/* Desktop Menu */}
-                        <div className="hidden lg:block">
+                        <div className="hidden xl:block">
                             <div className="ml-10 flex items-center gap-6">
                                 <Link href="/" className={`text-sm font-medium transition-colors ${isActive('/') ? 'text-blue-400' : 'text-white hover:text-blue-400'}`}>Home</Link>
 
@@ -114,7 +114,7 @@ export default function Navbar({ isStatic = false }: { isStatic?: boolean }) {
                         </div>
 
                         {/* Mobile Button and Notifications */}
-                        <div className="flex lg:hidden items-center gap-4 z-50">
+                        <div className="flex xl:hidden items-center gap-4 z-50">
                             <NotificationsDropdown />
 
                             <button

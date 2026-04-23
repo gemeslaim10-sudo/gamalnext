@@ -57,7 +57,7 @@ export default function HeroClient({ initialData }: { initialData?: any }) {
     const hero = data || defaultHeroData;
 
     return (
-        <section id="home" className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[#020617] pt-28 pb-12 lg:pt-32 lg:pb-20">
+        <section id="home" className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[#020617] pt-20 pb-12 lg:pt-24 lg:pb-16">
             {/* Animated dot grid background */}
             <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-10 pointer-events-none" />
 
@@ -70,7 +70,7 @@ export default function HeroClient({ initialData }: { initialData?: any }) {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[calc(100vh-5rem)]">
                     
                     {/* Left Column: Text & Content */}
-                    <div className="flex flex-col items-center text-center lg:items-start lg:text-left pt-10 lg:pt-0">
+                    <div className="flex flex-col items-center text-center lg:items-start lg:text-left pt-4 lg:pt-0">
                         
                         {/* Status Badge */}
                         <Reveal className="mb-8 relative z-20">
@@ -151,7 +151,7 @@ export default function HeroClient({ initialData }: { initialData?: any }) {
                                 <div className="absolute bottom-[5%] left-[5%] w-[60%] h-[60%] bg-cyan-500/20 rounded-[40px] -rotate-6 blur-2xl transition-transform duration-700 pointer-events-none"></div>
 
                                 {/* Main Composition Wrapper */}
-                                <div className="relative w-full flex flex-col xl:flex-row items-center justify-center xl:justify-end gap-6 lg:gap-8 mt-10 sm:mt-12 lg:mt-0">
+                                <div className="relative w-full flex flex-col 2xl:flex-row items-center justify-center 2xl:justify-end gap-6 lg:gap-8 mt-10 sm:mt-12 lg:mt-0">
                                     
                                     {/* Subtle Ambient Motion Background (Fills empty space without breaking balance) */}
                                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] lg:w-[450px] lg:h-[450px] pointer-events-none z-0 opacity-30">
@@ -166,7 +166,7 @@ export default function HeroClient({ initialData }: { initialData?: any }) {
                                         <div className="absolute -inset-1 bg-gradient-to-tr from-blue-500/40 via-cyan-400/20 to-emerald-500/40 rounded-[2.8rem] blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out"></div>
 
                                         {/* The Actual Image Container (Small on mobile, large on desktop) */}
-                                        <div className="relative w-[180px] h-[180px] sm:w-[260px] sm:h-[260px] lg:w-[320px] lg:h-[320px] xl:w-[340px] xl:h-[340px] rounded-[2.5rem] overflow-hidden border-2 border-slate-700/50 hover:border-blue-500/50 bg-[#0f172a] shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 relative z-10">
+                                        <div className="relative w-[180px] h-[180px] sm:w-[260px] sm:h-[260px] lg:w-[320px] lg:h-[320px] 2xl:w-[340px] 2xl:h-[340px] rounded-[2.5rem] overflow-hidden border-2 border-slate-700/50 hover:border-blue-500/50 bg-[#0f172a] shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 relative z-10">
                                             <Image
                                                 src={hero.avatarImage || "/gamal.jpg"}
                                                 alt={hero.heroTitle}
@@ -180,8 +180,8 @@ export default function HeroClient({ initialData }: { initialData?: any }) {
                                         </div>
                                     </div>
 
-                                    {/* Stats Grid - Perfectly Vertically Aligned, NO OVERLAP (Desktop XL) */}
-                                    <div className="hidden xl:grid grid-cols-2 gap-4 z-10 relative self-center flex-shrink-0">
+                                    {/* Stats Grid - Perfectly Vertically Aligned, NO OVERLAP (Desktop 2XL) */}
+                                    <div className="hidden 2xl:grid grid-cols-2 gap-4 z-10 relative self-center flex-shrink-0">
                                         {STATS.map(({ label, value, suffix, icon: Icon }, index) => (
                                             <div 
                                                 key={label} 
@@ -201,7 +201,7 @@ export default function HeroClient({ initialData }: { initialData?: any }) {
                         </Reveal>
                         
                         {/* Stats Row for Mobile & Tablet & LG Screens */}
-                        <Reveal className="stagger-5 w-full mt-10 xl:hidden relative z-20">
+                        <Reveal className="stagger-5 w-full mt-10 2xl:hidden relative z-20">
                             <div className="grid grid-cols-2 gap-3 px-2">
                                 {STATS.map(({ label, value, suffix, icon: Icon }) => (
                                     <div key={label} className="bg-gradient-to-b from-[#0b1120] to-[#040814] border border-slate-800 p-4 sm:p-5 rounded-[1.5rem] flex flex-col items-center text-center shadow-2xl">
