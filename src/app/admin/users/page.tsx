@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Download, User } from "lucide-react";
 import { CSVLink } from "react-csv";
@@ -18,7 +18,7 @@ export default function UsersPage() {
     const [users, setUsers] = useState<UserData[]>([]);
 
     useEffect(() => {
-        const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
+        const q = query(collection(db, "users"), orderBy("createdAt", "desc"), limit(50));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({
                 id: doc.id,

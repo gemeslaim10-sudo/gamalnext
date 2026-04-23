@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, orderBy, onSnapshot, doc, deleteDoc } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, doc, deleteDoc, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import ChatSidebar from "@/components/admin/chat/ChatSidebar";
 import ChatView from "@/components/admin/chat/ChatView";
@@ -33,7 +33,7 @@ export default function AiChatsPage() {
 
     // Fetch Sessions (Real-time)
     useEffect(() => {
-        const q = query(collection(db, "chat_sessions"), orderBy("lastMessageAt", "desc"));
+        const q = query(collection(db, "chat_sessions"), orderBy("lastMessageAt", "desc"), limit(50));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const fetchedSessions = snapshot.docs.map(doc => ({
                 id: doc.id,

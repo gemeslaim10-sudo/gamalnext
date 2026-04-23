@@ -64,7 +64,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 onClose={() => setIsSidebarOpen(false)}
             />
 
-            <main className="flex-1 p-4 md:p-8 overflow-y-auto h-screen w-full">
+            <main className="flex-1 p-3 md:p-6 overflow-y-auto h-screen w-full">
                 {children}
             </main>
         </div>

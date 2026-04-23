@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { useForm } from "react-hook-form";
 import { Save } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface ContentForm {
     heroTitle: string;
@@ -13,10 +14,11 @@ interface ContentForm {
     heroDescription: string;
     whatsappNumber: string;
     resumeLink: string;
+    avatarImage: string;
 }
 
 export default function ContentPage() {
-    const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<ContentForm>();
+    const { register, handleSubmit, setValue, watch, formState: { isSubmitting } } = useForm<ContentForm>();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -31,6 +33,7 @@ export default function ContentPage() {
                     setValue("heroDescription", data.heroDescription || "");
                     setValue("whatsappNumber", data.whatsappNumber || "201024531452");
                     setValue("resumeLink", data.resumeLink || "#projects");
+                    setValue("avatarImage", data.avatarImage || "/gamal.jpg");
                 } else {
                     // Set Defaults if nothing in DB
                     setValue("heroTitle", "جمال عبد العاطي");
@@ -38,6 +41,7 @@ export default function ContentPage() {
                     setValue("heroDescription", "أحول البيانات المعقدة إلى رؤى واضحة، وأبني مواقع ويب ديناميكية تتحدث مع قواعد البيانات وتفهم العملاء باستخدام أحدث تقنيات Gemini AI.");
                     setValue("whatsappNumber", "201024531452");
                     setValue("resumeLink", "#projects");
+                    setValue("avatarImage", "/gamal.jpg");
                 }
             } catch (err) {
                 console.error(err);
@@ -72,6 +76,14 @@ export default function ContentPage() {
                 {/* Hero Section */}
                 <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-6">
                     <h2 className="text-xl font-semibold text-white mb-4">Hero Section</h2>
+
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-slate-400 mb-2">Profile Avatar Image</label>
+                        <ImageUpload
+                            value={watch("avatarImage")}
+                            onChange={(url) => setValue("avatarImage", url)}
+                        />
+                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>

@@ -66,28 +66,28 @@ export default function AdminDashboard() {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-white mb-8">Dashboard Overview</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-6">Dashboard Overview</h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {cards.map((card, idx) => {
                     const Icon = card.icon;
                     return (
-                        <div key={idx} className="p-6 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-4">
-                            <div className={`p-4 rounded-lg ${card.color} bg-opacity-10 text-white`}>
-                                <Icon className={`w-8 h-8 ${card.color.replace('bg-', 'text-')}`} />
+                        <div key={idx} className="p-4 md:p-5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-3">
+                            <div className={`p-3 rounded-lg ${card.color} bg-opacity-10 text-white`}>
+                                <Icon className={`w-6 h-6 md:w-7 md:h-7 ${card.color.replace('bg-', 'text-')}`} />
                             </div>
                             <div>
-                                <p className="text-slate-400 text-sm">{card.label}</p>
-                                <p className="text-3xl font-bold text-white">{card.value}</p>
+                                <p className="text-slate-400 text-xs">{card.label}</p>
+                                <p className="text-2xl md:text-3xl font-bold text-white">{card.value}</p>
                             </div>
                         </div>
                     );
                 })}
             </div>
 
-            <div className="mt-12 p-8 rounded-xl bg-slate-900 border border-slate-800">
-                <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
-                <div className="text-slate-400">
+            <div className="mt-8 p-6 rounded-xl bg-slate-900 border border-slate-800">
+                <h2 className="text-lg font-bold text-white mb-3">Quick Actions</h2>
+                <div className="text-slate-400 text-sm">
                     Select a category from the sidebar to start managing your dynamic content.
                     Everything you edit will be instantly updated on the live website.
                 </div>

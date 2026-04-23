@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
-import { collection, query, where, getDocs, addDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, getCountFromServer } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-hot-toast";
@@ -16,17 +16,16 @@ export default function LikeButton({ articleId }: { articleId: string }) {
 
     // Fetch Like Status
     useEffect(() => {
-        // Real-time count
-        const qCount = query(collection(db, "likes"), where("articleId", "==", articleId));
-        const unsubscribe = onSnapshot(qCount, (snap) => {
-            setLikeCount(snap.size);
-
-            // Check if user liked from the snapshot? 
-            // Better to do a separate check for the exact document if possible or filter client side quickly if small scale.
-            // For separate user check:
-        });
-
-        return () => unsubscribe();
+        async function fetchCount() {
+            try {
+                const qCount = query(collection(db, "likes"), where("articleId", "==", articleId));
+                const snapshot = await getCountFromServer(qCount);
+                setLikeCount(snapshot.data().count);
+            } catch (e) {
+                console.error("Error fetching likes count", e);
+            }
+        }
+        fetchCount();
     }, [articleId]);
 
     // Check if CURRENT user liked (one-time check on auth change)
@@ -66,6 +65,7 @@ export default function LikeButton({ articleId }: { articleId: string }) {
         // Optimistic UI
         const prevLiked = liked;
         setLiked(!liked);
+        setLikeCount(prevCount => prevLiked ? prevCount - 1 : prevCount + 1);
 
         try {
             if (prevLiked && userLikeId) {

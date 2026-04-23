@@ -5,6 +5,9 @@ import ChatWrapper from "@/components/chat/ChatWrapper";
 import { Toaster } from "react-hot-toast";
 import Script from 'next/script';
 import GlobalErrorListener from '@/components/providers/GlobalErrorListener';
+import GlobalSidebar from '@/components/layout/GlobalSidebar';
+import { BrandingProvider } from '@/components/providers/BrandingProvider';
+import { getDocument } from '@/lib/server-utils';
 import "./globals.css";
 
 
@@ -81,11 +84,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch branding settings on the server
+  let branding = await getDocument("site_content", "settings");
+  if (!branding) {
+      branding = await getDocument("site_content", "hero") || {};
+  }
+
   return (
     <html lang="en" dir="ltr">
       <body className={`${cairo.variable} font-sans bg-slate-950 text-slate-200 antialiased`}>
@@ -109,7 +118,14 @@ export default function RootLayout({
             }}
           />
           <GlobalErrorListener />
-          {children}
+          <BrandingProvider initialBranding={branding}>
+            <div className="flex min-h-screen w-full relative">
+              <GlobalSidebar />
+              <main className="flex-1 min-w-0 flex flex-col">
+                {children}
+              </main>
+            </div>
+          </BrandingProvider>
           <ChatWrapper />
           <Toaster position="bottom-center" toastOptions={{
             style: {

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
@@ -43,6 +45,15 @@ export default function ArticleView({ article }: { article: Article }) {
 
     const isAuthor = user && article.authorId === user.uid;
 
+    // Detect content direction: if >30% of alpha chars are Arabic/Hebrew → RTL
+    const contentDir = useMemo(() => {
+        const text = (article.title + ' ' + article.content).replace(/[^\p{L}]/gu, '');
+        if (!text) return 'ltr';
+        const rtlChars = text.match(/[\p{Script=Arabic}\p{Script=Hebrew}]/gu);
+        const ratio = (rtlChars?.length || 0) / text.length;
+        return ratio > 0.3 ? 'rtl' : 'ltr';
+    }, [article.title, article.content]);
+
     const handleDelete = async () => {
         if (!confirm("Are you sure you want to delete this article? This action cannot be undone.")) {
             return;
@@ -59,6 +70,25 @@ export default function ArticleView({ article }: { article: Article }) {
             console.error("Delete error:", error);
             toast.error("Failed to delete article", { id: "delete" });
             setDeleting(false);
+        }
+    };
+
+    const handleShare = async () => {
+        const shareData = {
+            title: article.title,
+            text: article.summary,
+            url: window.location.href,
+        };
+
+        try {
+            if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                toast.success('Link copied to clipboard! 📋');
+            }
+        } catch (err) {
+            toast.error('Failed to copy link.');
         }
     };
 
@@ -134,7 +164,7 @@ export default function ArticleView({ article }: { article: Article }) {
                     <span className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-full text-slate-300 text-sm font-medium backdrop-blur-md">
                         <Calendar className="w-4 h-4 text-blue-400" /> {formattedDate}
                     </span>
-                    <button className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-full text-slate-300 hover:text-white hover:border-slate-700 transition-all text-sm font-medium backdrop-blur-md">
+                    <button onClick={handleShare} className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-full text-slate-300 hover:text-white hover:border-slate-700 transition-all text-sm font-medium backdrop-blur-md">
                         <Share2 className="w-4 h-4 text-purple-400" /> Share
                     </button>
                     <div className="bg-slate-900/60 border border-slate-800 px-2 py-1 rounded-full backdrop-blur-md">
@@ -193,7 +223,7 @@ export default function ArticleView({ article }: { article: Article }) {
             {/* Content Body */}
             <article className="max-w-4xl mx-auto px-4 pb-24 relative z-10">
                 <div className="bg-slate-900/40 backdrop-blur-2xl border border-slate-800/50 rounded-[2.5rem] p-6 md:p-12 lg:p-16 shadow-2xl">
-                    <div className="prose prose-lg md:prose-xl prose-invert mx-auto leading-loose text-slate-300 prose-p:text-slate-300 prose-headings:text-white prose-a:text-blue-400 prose-strong:text-white prose-strong:font-bold">
+                    <div dir={contentDir} className={`article-content prose prose-lg md:prose-xl prose-invert mx-auto leading-loose text-slate-300 prose-p:text-slate-300 prose-headings:text-white prose-a:text-blue-400 prose-strong:text-white prose-strong:font-bold ${contentDir === 'rtl' ? 'article-rtl' : ''}`}>
                         <ReactMarkdown
                             components={{
                                 a: ({ node, ...props }) => (
@@ -207,21 +237,23 @@ export default function ArticleView({ article }: { article: Article }) {
                                 ),
                                 p: ({ children }) => <p dir="auto" className="mb-6 leading-relaxed md:leading-loose text-[1.1rem] md:text-[1.2rem]">{children}</p>,
                                 h1: ({ children }) => <h1 dir="auto" className="text-3xl md:text-4xl font-black mb-6 mt-12 text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">{children}</h1>,
-                                h2: ({ children }) => <h2 dir="auto" className="text-2xl md:text-3xl font-bold mb-6 mt-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-cyan-300 inline-block">{children}</h2>,
+                                h2: ({ children }) => <h2 dir="auto" className="text-2xl md:text-3xl font-bold mb-6 mt-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-cyan-300">{children}</h2>,
                                 h3: ({ children }) => <h3 dir="auto" className="text-xl md:text-2xl font-bold mb-4 mt-8 text-slate-200">{children}</h3>,
-                                ul: ({ children }) => <ul dir="auto" className="list-none space-y-3 mb-8">{children}</ul>,
-                                ol: ({ children }) => <ol dir="auto" className="list-decimal list-outside ml-6 space-y-3 mb-8">{children}</ol>,
+                                ul: ({ children }) => <ul dir="auto" className="article-ul list-none space-y-3 mb-8">{children}</ul>,
+                                ol: ({ children }) => <ol dir="auto" className="article-ol space-y-3 mb-8">{children}</ol>,
                                 li: ({ children }) => (
-                                    <li dir="auto" className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-3 before:w-2 before:h-2 before:bg-blue-500 before:rounded-full before:shadow-[0_0_10px_rgba(59,130,246,0.8)]">
+                                    <li dir="auto" className="article-li relative">
                                         <span className="text-slate-300">{children}</span>
                                     </li>
                                 ),
                                 blockquote: ({ children }) => (
-                                    <blockquote dir="auto" className="border-l-4 border-blue-500 bg-blue-500/10 text-blue-100 italic px-6 py-5 my-8 rounded-r-2xl shadow-inner text-lg">
+                                    <blockquote dir="auto" className="article-blockquote bg-blue-500/10 text-blue-100 italic px-6 py-5 my-8 shadow-inner text-lg">
                                         {children}
                                     </blockquote>
                                 ),
-                                strong: ({ children }) => <strong dir="auto" className="text-white font-extrabold bg-white/5 px-1 rounded">{children}</strong>
+                                strong: ({ children }) => <strong dir="auto" className="text-white font-extrabold bg-white/5 px-1 rounded">{children}</strong>,
+                                hr: () => <hr className="border-slate-700/50 my-10" />,
+                                code: ({ children }) => <code dir="ltr" className="bg-slate-800 text-blue-300 px-2 py-0.5 rounded text-sm font-mono">{children}</code>,
                             }}
                         >
                             {article.content}

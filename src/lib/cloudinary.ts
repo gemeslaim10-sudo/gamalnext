@@ -1,7 +1,9 @@
 export const cloudinaryConfig = {
     cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-    uploadPreset: "ml_default", // We might need to ask user to create this or use signed uploads
+    // Go to Cloudinary Dashboard > Settings > Upload > Upload Presets
+    // Set "ml_default" Signing Mode to "Unsigned", or create a new unsigned preset
+    uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "ml_default",
 };
 
 /**
@@ -47,8 +49,9 @@ function waitForCloudinary(): Promise<any> {
  *                  console.
  */
 export const openCloudinaryWidget = async (
-    onUpload: (url: string) => void,
-    onError?: (error: Error) => void
+    onUpload: (url: string | string[]) => void,
+    onError?: (error: Error) => void,
+    options?: { multiple?: boolean }
 ) => {
     try {
         const cloudinary = await waitForCloudinary();
@@ -56,9 +59,9 @@ export const openCloudinaryWidget = async (
         cloudinary.openUploadWidget(
             {
                 cloudName: cloudinaryConfig.cloudName,
-                uploadPreset: "unsigned_preset",
+                uploadPreset: cloudinaryConfig.uploadPreset,
                 sources: ["local", "url", "camera"],
-                multiple: false,
+                multiple: options?.multiple || false,
                 resourceType: "auto", // Allow images, videos, etc.
                 clientAllowedFormats: ["image", "video"], // Specific allowed types
             },
@@ -73,6 +76,12 @@ export const openCloudinaryWidget = async (
                 }
                 if (result && result.event === "success") {
                     onUpload(result.info.secure_url);
+                } else if (result && result.event === "queues-end" && options?.multiple) {
+                    // Collect all URLs if multiple is true
+                    const urls = result.info.files.map((f: any) => f.uploadInfo.secure_url);
+                    if (urls.length > 0) {
+                        onUpload(urls);
+                    }
                 }
             }
         );

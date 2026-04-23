@@ -53,7 +53,8 @@ export default function SettingsPage() {
         openCloudinaryWidget(
             (url) => {
                 if (url) {
-                    setFormData(prev => ({ ...prev, photoURL: url }));
+                    const singleUrl = Array.isArray(url) ? url[0] : url;
+                    setFormData(prev => ({ ...prev, photoURL: singleUrl }));
                 }
             },
             (error) => {

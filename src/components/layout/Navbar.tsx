@@ -7,33 +7,48 @@ import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import NotificationsDropdown from './NotificationsDropdown';
 import { usePathname } from 'next/navigation';
+import { useContent } from '@/hooks/useContent';
+import Image from 'next/image';
 
 // Extracted Sub-components
 import MegaMenu from '../navbar/MegaMenu';
 import UserMenu from '../navbar/UserMenu';
 import MobileMenu from '../navbar/MobileMenu';
+import { useBrandingContext } from '../providers/BrandingProvider';
 
-export default function Navbar() {
+export default function Navbar({ isStatic = false }: { isStatic?: boolean }) {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const { user, logout } = useAuth();
     const pathname = usePathname();
+    const initialBranding = useBrandingContext();
+    const { data: branding } = useContent("site_content", "settings", initialBranding);
 
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 50);
         };
 
+        // Listen for sidebar auth modal trigger
+        const handleOpenAuth = () => setIsAuthModalOpen(true);
+        document.addEventListener('open-auth-modal', handleOpenAuth);
+
         window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            document.removeEventListener('open-auth-modal', handleOpenAuth);
+        };
     }, []);
 
     const isActive = (path: string) => pathname === path;
 
     return (
         <>
-            <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled || isMobileMenuOpen ? 'glass border-b-0 shadow-2xl' : 'bg-transparent border-b border-transparent'}`}>
+            {/* Spacer is only needed if the navbar is fixed */}
+            {!isStatic && <div className="h-14 w-full shrink-0"></div>}
+
+            <nav className={`${isStatic ? 'relative' : 'fixed top-0 left-0'} w-full z-[90] transition-all duration-300 ${isScrolled || isMobileMenuOpen ? 'glass border-b-0 shadow-2xl' : 'bg-[#030712] border-b border-white/5'}`}>
                 {/* Active Gradient Border Bottom */}
                 <div className={`absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent transition-opacity duration-300 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
 
@@ -41,11 +56,21 @@ export default function Navbar() {
                     <div className="flex items-center justify-between h-14">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2 cursor-pointer z-50 group no-scroll-spy">
-                            <div className="bg-gradient-to-tr from-blue-500 to-cyan-400 p-1 rounded-lg group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
-                                <Terminal className="text-white w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                            </div>
+                            {branding?.siteLogo ? (
+                                <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-lg overflow-hidden group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
+                                    <Image src={branding.siteLogo} alt="Logo" fill className="object-cover" />
+                                </div>
+                            ) : (
+                                <div className="bg-gradient-to-tr from-blue-500 to-cyan-400 p-1 rounded-lg group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
+                                    <Terminal className="text-white w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                </div>
+                            )}
                             <span className="font-bold text-sm sm:text-lg tracking-wider text-white">
-                                GAMAL<span className="text-blue-400">TECH</span>
+                                {branding?.siteName ? (
+                                    branding.siteName
+                                ) : (
+                                    <>GAMAL<span className="text-blue-400">TECH</span></>
+                                )}
                             </span>
                         </Link>
 
@@ -111,6 +136,7 @@ export default function Navbar() {
                     logout={logout}
                     isActive={isActive}
                     setIsAuthModalOpen={setIsAuthModalOpen}
+                    branding={branding}
                 />
             </nav>
 

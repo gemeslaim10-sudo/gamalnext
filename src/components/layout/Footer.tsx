@@ -1,8 +1,15 @@
+'use client';
+
 import { MessageCircle, Zap, FolderGit2, Mail, Phone, MapPin, Github, Linkedin, Twitter, Facebook, ArrowRight, Terminal, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { useContent } from '@/hooks/useContent';
+import Image from 'next/image';
+import { useBrandingContext } from '../providers/BrandingProvider';
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
+    const initialBranding = useBrandingContext();
+    const { data: branding } = useContent("site_content", "settings", initialBranding);
 
     return (
         <>
@@ -35,11 +42,21 @@ export default function Footer() {
                         {/* Column 1: Brand */}
                         <div className="space-y-6">
                             <Link href="/" className="flex items-center gap-2 cursor-pointer group w-fit">
-                                <div className="bg-gradient-to-tr from-blue-500 to-cyan-400 p-1.5 rounded-xl group-hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all">
-                                    <Terminal className="text-white w-5 h-5" />
-                                </div>
+                                {branding?.siteLogo ? (
+                                    <div className="relative w-8 h-8 rounded-xl overflow-hidden group-hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all">
+                                        <Image src={branding.siteLogo} alt="Logo" fill className="object-cover" />
+                                    </div>
+                                ) : (
+                                    <div className="bg-gradient-to-tr from-blue-500 to-cyan-400 p-1.5 rounded-xl group-hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all">
+                                        <Terminal className="text-white w-5 h-5" />
+                                    </div>
+                                )}
                                 <span className="font-bold text-xl tracking-wider text-white">
-                                    GAMAL<span className="text-blue-400">TECH</span>
+                                    {branding?.siteName ? (
+                                        branding.siteName
+                                    ) : (
+                                        <>GAMAL<span className="text-blue-400">TECH</span></>
+                                    )}
                                 </span>
                             </Link>
                             <p className="text-slate-400 leading-relaxed text-sm">
@@ -132,7 +149,7 @@ export default function Footer() {
                     {/* Bottom Section */}
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4 pb-8 text-center md:text-left">
                         <p className="text-slate-500 text-sm">
-                            © {currentYear} <span className="text-white font-bold tracking-wider">GAMALTECH</span>. All rights reserved.
+                            © {currentYear} <span className="text-white font-bold tracking-wider">{branding?.siteName || "GAMALTECH"}</span>. All rights reserved.
                         </p>
                         <div className="flex items-center gap-6 text-sm text-slate-500 font-mono">
                             <span>Built with Next.js & TailwindCSS</span>

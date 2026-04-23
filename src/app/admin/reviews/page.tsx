@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Check, X, Trash, Star, EyeOff } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
@@ -19,7 +19,7 @@ export default function ReviewsPage() {
     const [reviews, setReviews] = useState<Review[]>([]);
 
     useEffect(() => {
-        const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
+        const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"), limit(50));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Review));
             setReviews(data);

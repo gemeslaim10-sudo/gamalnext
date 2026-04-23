@@ -136,15 +136,78 @@ const INITIAL_TOOLS = [
     }
 ];
 
+// A local component to prevent full page re-render on every keystroke
+function ToolRow({ tool, onSave }: { tool: any, onSave: (toolData: any) => void }) {
+    const [localTool, setLocalTool] = useState(tool);
+
+    const handleChange = (field: string, value: any) => {
+        const updated = { ...localTool, [field]: value };
+        setLocalTool(updated);
+        onSave(updated); // Parent will handle debounce and firestore
+    };
+
+    return (
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col md:flex-row gap-6 items-start">
+            <div className="flex-1 space-y-4 w-full">
+                <div className="flex gap-4">
+                    <div className="flex-1">
+                        <label className="text-xs text-slate-500 uppercase font-bold block mb-1">Tool Name</label>
+                        <input
+                            value={localTool.name}
+                            onChange={(e) => handleChange('name', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white"
+                        />
+                    </div>
+                    <div className="w-1/3">
+                        <label className="text-xs text-slate-500 uppercase font-bold block mb-1">Category</label>
+                        <input
+                            value={localTool.category}
+                            onChange={(e) => handleChange('category', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label className="text-xs text-slate-500 uppercase font-bold block mb-1">Description</label>
+                    <textarea
+                        value={localTool.description}
+                        onChange={(e) => handleChange('description', e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white h-20"
+                    />
+                </div>
+            </div>
+
+            <div className="flex flex-col gap-3 min-w-[150px]">
+                <label className="flex items-center gap-2 cursor-pointer bg-slate-950 p-2 rounded border border-slate-800">
+                    <input
+                        type="checkbox"
+                        checked={localTool.isActive}
+                        onChange={(e) => handleChange('isActive', e.target.checked)}
+                        className="w-4 h-4 rounded"
+                    />
+                    <span className={localTool.isActive ? "text-green-400" : "text-slate-500"}>
+                        {localTool.isActive ? "Active" : "Disabled"}
+                    </span>
+                </label>
+
+                <button
+                    onClick={() => onSave(localTool)}
+                    className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition-colors"
+                >
+                    <Save className="w-4 h-4" /> Save
+                </button>
+            </div>
+        </div>
+    );
+}
+
 export default function AdminToolsPage() {
     const [tools, setTools] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     // ── Debounce map: one timer per tool ID ──
-    // Prevents concurrent Firestore writes when a checkbox is toggled rapidly.
     const debounceTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-    // Cleanup all pending timers on unmount
     useEffect(() => {
         return () => {
             debounceTimers.current.forEach(timer => clearTimeout(timer));
@@ -183,39 +246,26 @@ export default function AdminToolsPage() {
         }
     };
 
-    const handleUpdate = (id: string, field: string, value: any) => {
-        setTools(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t)); // Optimistic update
-    };
-
-    const saveChanges = async (id: string) => {
-        const tool = tools.find(t => t.id === id);
-        if (!tool) return;
+    const saveChanges = async (updatedTool: any) => {
         try {
-            await updateDoc(doc(db, 'tools', id), tool);
-            toast.success("Tool updated!");
+            await updateDoc(doc(db, 'tools', updatedTool.id), updatedTool);
+            // Optionally show toast, but maybe noisy if auto-saving
         } catch (e) {
             toast.error("Failed to update");
-            fetchTools(); // Revert
         }
     };
 
-    /**
-     * Debounced save: cancels any pending save for the same tool ID,
-     * then schedules a new one after 500ms. This prevents Firestore
-     * read/write conflicts from rapid double-clicks.
-     */
-    const debouncedSave = useCallback((id: string) => {
-        // Cancel any previous pending save for this tool
-        const existing = debounceTimers.current.get(id);
+    const debouncedSave = useCallback((updatedTool: any) => {
+        const existing = debounceTimers.current.get(updatedTool.id);
         if (existing) clearTimeout(existing);
 
         const timer = setTimeout(() => {
-            debounceTimers.current.delete(id);
-            saveChanges(id);
-        }, 500);
+            debounceTimers.current.delete(updatedTool.id);
+            saveChanges(updatedTool);
+        }, 1000); // Wait 1s after last keystroke
 
-        debounceTimers.current.set(id, timer);
-    }, [tools]);
+        debounceTimers.current.set(updatedTool.id, timer);
+    }, []);
 
     return (
         <div>
@@ -243,61 +293,7 @@ export default function AdminToolsPage() {
             ) : (
                 <div className="grid gap-6">
                     {tools.map((tool) => (
-                        <div key={tool.id} className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col md:flex-row gap-6 items-start">
-                            <div className="flex-1 space-y-4 w-full">
-                                <div className="flex gap-4">
-                                    <div className="flex-1">
-                                        <label className="text-xs text-slate-500 uppercase font-bold block mb-1">Tool Name</label>
-                                        <input
-                                            value={tool.name}
-                                            onChange={(e) => handleUpdate(tool.id, 'name', e.target.value)}
-                                            className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white"
-                                        />
-                                    </div>
-                                    <div className="w-1/3">
-                                        <label className="text-xs text-slate-500 uppercase font-bold block mb-1">Category</label>
-                                        <input
-                                            value={tool.category}
-                                            onChange={(e) => handleUpdate(tool.id, 'category', e.target.value)}
-                                            className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="text-xs text-slate-500 uppercase font-bold block mb-1">Description</label>
-                                    <textarea
-                                        value={tool.description}
-                                        onChange={(e) => handleUpdate(tool.id, 'description', e.target.value)}
-                                        className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white h-20"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-3 min-w-[150px]">
-                                <label className="flex items-center gap-2 cursor-pointer bg-slate-950 p-2 rounded border border-slate-800">
-                                    <input
-                                        type="checkbox"
-                                        checked={tool.isActive}
-                                        onChange={(e) => {
-                                            handleUpdate(tool.id, 'isActive', e.target.checked);
-                                            // Debounced auto-save: safe against rapid double-clicks
-                                            debouncedSave(tool.id);
-                                        }}
-                                        className="w-4 h-4 rounded"
-                                    />
-                                    <span className={tool.isActive ? "text-green-400" : "text-slate-500"}>
-                                        {tool.isActive ? "Active" : "Disabled"}
-                                    </span>
-                                </label>
-
-                                <button
-                                    onClick={() => saveChanges(tool.id)}
-                                    className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition-colors"
-                                >
-                                    <Save className="w-4 h-4" /> Save
-                                </button>
-                            </div>
-                        </div>
+                        <ToolRow key={tool.id} tool={tool} onSave={debouncedSave} />
                     ))}
                 </div>
             )}

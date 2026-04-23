@@ -22,9 +22,11 @@ export function MediaUpload({ items, onChange }: MediaUploadProps) {
         setLoading(true);
         openCloudinaryWidget(
             (url) => {
-                const isVideo = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes("/video/upload/");
+                const singleUrl = Array.isArray(url) ? url[0] : url;
+                if (!singleUrl) return;
+                const isVideo = singleUrl.match(/\.(mp4|webm|ogg|mov)$/i) || singleUrl.includes("/video/upload/");
                 const newItem: MediaItem = {
-                    url,
+                    url: singleUrl,
                     type: isVideo ? 'video' : 'image'
                 };
                 onChange([...items, newItem]);
@@ -71,14 +73,14 @@ export function MediaUpload({ items, onChange }: MediaUploadProps) {
                         {item.type === 'video' ? (
                             <div className="w-full h-full flex items-center justify-center bg-slate-800">
                                 <Video className="w-8 h-8 text-slate-500" />
-                                <video src={item.url} className="absolute inset-0 w-full h-full object-cover opacity-50" muted />
+                                <video src={item.url} className="absolute inset-0 w-full h-full object-contain opacity-50" muted />
                             </div>
                         ) : (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                                 src={item.url}
                                 alt="Media"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                                 referrerPolicy="no-referrer"
                             />
                         )}

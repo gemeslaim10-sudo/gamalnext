@@ -46,6 +46,21 @@ body {
   background: #475569;
 }
 
+/* Sidebar thin scrollbar */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
 /* Animation Utility Classes */
 .reveal {
   opacity: 0;
@@ -164,3 +179,132 @@ body {
   background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%);
   pointer-events: none;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Article Content – RTL/LTR Aware Styling
+   Uses CSS logical properties so Arabic (RTL) and English (LTR) both work.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Unordered Lists (Bullet Points) ─────────────────────────────────────── */
+.article-ul .article-li {
+  padding-inline-start: 1.5rem;
+}
+
+.article-ul .article-li::before {
+  content: '';
+  position: absolute;
+  top: 0.75rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #3b82f6;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+}
+
+/* RTL: bullet on the right */
+.article-ul .article-li:dir(rtl)::before,
+[dir="rtl"] .article-ul .article-li::before {
+  right: 0;
+  left: auto;
+}
+
+/* LTR: bullet on the left */
+.article-ul .article-li:dir(ltr)::before,
+[dir="ltr"] .article-ul .article-li::before {
+  left: 0;
+  right: auto;
+}
+
+/* Fallback for dir="auto" – detect by checking parent direction */
+.article-content[dir="auto"] .article-ul .article-li::before {
+  inset-inline-start: 0;
+}
+
+/* ── Ordered Lists (Numbered) ────────────────────────────────────────────── */
+.article-ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  padding-inline-start: 0.5rem;
+}
+
+.article-ol .article-li {
+  padding-inline-start: 0.5rem;
+}
+
+.article-ol .article-li::before {
+  display: none; /* No custom bullet for numbered lists */
+}
+
+/* ── Blockquotes ─────────────────────────────────────────────────────────── */
+.article-blockquote {
+  border-inline-start: 4px solid #3b82f6;
+  border-radius: 0;
+  border-start-end-radius: 1rem;
+  border-end-end-radius: 1rem;
+}
+
+/* ── General Article Text ────────────────────────────────────────────────── */
+.article-content {
+  text-align: start;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+  text-align: start;
+}
+
+/* ── Mixed Content (Arabic with English terms) ───────────────────────────── */
+.article-content p,
+.article-content li,
+.article-content blockquote {
+  unicode-bidi: plaintext;
+}
+
+/* ── Better Spacing for Arabic typography ────────────────────────────────── */
+.article-content p + p {
+  margin-top: 1rem;
+}
+
+.article-content h2 + p,
+.article-content h3 + p {
+  margin-top: 0.5rem;
+}
+
+/* ── Reset prose overrides that break RTL ─────────────────────────────────── */
+.article-content.prose ul,
+.article-content.prose ol {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ── RTL Article Overrides (Arabic Content) ──────────────────────────────── */
+/* prose forces text-align: left. We override it for RTL articles. */
+.article-rtl,
+.article-rtl p,
+.article-rtl h1,
+.article-rtl h2,
+.article-rtl h3,
+.article-rtl h4,
+.article-rtl li,
+.article-rtl blockquote,
+.article-rtl span {
+  text-align: right !important;
+}
+
+.article-rtl ul,
+.article-rtl ol {
+  text-align: right !important;
+  direction: rtl;
+}
+
+.article-rtl .article-ol {
+  list-style-position: inside;
+  padding-inline-start: 0;
+}
+

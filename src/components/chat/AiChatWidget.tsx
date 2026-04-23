@@ -37,6 +37,13 @@ export default function AiChatWidget() {
         scrollToBottom();
     }, [messages, isOpen]);
 
+    // Listen for external open trigger (from GlobalSidebar)
+    useEffect(() => {
+        const handleOpenChat = () => setIsOpen(true);
+        document.addEventListener('open-chat-widget', handleOpenChat);
+        return () => document.removeEventListener('open-chat-widget', handleOpenChat);
+    }, []);
+
     // Initialize: Fetch Settings & User Profile
     useEffect(() => {
         const initChat = async () => {

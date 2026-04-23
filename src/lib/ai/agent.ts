@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { aiTools, toolHandlers } from "./tools";
 import { getAiConfig } from "./config";
 import { STRICT_INSTRUCTION } from "./instructions";
-import { addDoc, collection, serverTimestamp, setDoc, doc, arrayUnion } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, setDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 /**
@@ -121,14 +121,21 @@ export class AiAgent {
 
     private async logSession(sid: string, msg: string, resp: string, ctx?: any) {
         try {
-            await setDoc(doc(db, "chat_sessions", sid), {
+            const docRef = doc(db, "chat_sessions", sid);
+            const snap = await getDoc(docRef);
+            let messages = snap.exists() ? (snap.data().messages || []) : [];
+            
+            messages.push({ role: 'user', text: msg, timestamp: new Date() });
+            messages.push({ role: 'model', text: resp, timestamp: new Date() });
+            
+            // Limit to 100 messages to prevent document size exhaustion (1MB max)
+            if (messages.length > 100) messages = messages.slice(messages.length - 100);
+
+            await setDoc(docRef, {
                 lastMessageAt: serverTimestamp(),
-                messages: arrayUnion(
-                    { role: 'user', text: msg, timestamp: new Date() },
-                    { role: 'model', text: resp, timestamp: new Date() }
-                )
+                messages
             }, { merge: true });
-        } catch {}
+        } catch (e) { console.error("Session Log Error:", e); }
     }
 
     /**

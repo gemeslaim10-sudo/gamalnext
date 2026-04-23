@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, orderBy, onSnapshot, doc, deleteDoc, addDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, doc, deleteDoc, addDoc, updateDoc, serverTimestamp, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Plus, Trash, Edit, Save, X, Check } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
@@ -74,7 +74,7 @@ export default function ArticlesAdminPage() {
     };
 
     useEffect(() => {
-        const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+        const q = query(collection(db, "articles"), orderBy("createdAt", "desc"), limit(50));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({
                 id: doc.id,

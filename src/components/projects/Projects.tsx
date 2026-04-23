@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { ExternalLink, Code2, Sparkles, Paintbrush, Video, Layout, MoveRight } from 'lucide-react';
 import Image from 'next/image';
 import Reveal from '../sections/Reveal';
+import Link from 'next/link';
+import { slugify } from '@/lib/utils';
 import { useContent } from '@/hooks/useContent';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay, Navigation } from 'swiper/modules';
@@ -64,8 +66,14 @@ const CategoryHeader = ({ icon: Icon, title, subtitle }: { icon: any, title: str
 
 const ProjectSlide = ({ project }: { project: any }) => {
     const tags = project.tags?.split(',').map((t: string) => t.trim()) || [];
+    const projectSlug = slugify(project.title || '');
+    const detailsUrl = `/projects/${projectSlug}`;
+
     return (
         <div className="group h-full flex flex-col bg-[#0f172a]/60 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-slate-800/50 hover:border-blue-500/30 transition-all duration-500 shadow-2xl hover:shadow-blue-500/10 relative">
+            {/* Full Card Clickable Link */}
+            <Link href={detailsUrl} className="absolute inset-0 z-10" aria-label={`View details for ${project.title}`} />
+
             <div className="h-64 overflow-hidden relative shrink-0">
                 {project.image ? (
                     <Image
@@ -89,7 +97,7 @@ const ProjectSlide = ({ project }: { project: any }) => {
                 </div>
             </div>
 
-            <div className="p-8 flex flex-col flex-grow text-left relative">
+            <div className="p-8 flex flex-col flex-grow text-left relative z-20 pointer-events-none">
                 <div className="flex gap-2 flex-wrap mb-4">
                     {tags.slice(0, 3).map((tag: string) => (
                         <span key={tag} className="text-[10px] font-bold text-blue-400/80 uppercase tracking-wider">{tag}</span>
@@ -102,13 +110,22 @@ const ProjectSlide = ({ project }: { project: any }) => {
                     {project.description}
                 </p>
 
-                <div className="flex items-center justify-between pt-6 border-t border-slate-800/50 mt-auto">
-                    <a href={project.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-500 font-bold text-sm tracking-tight group/link">
-                        View Details
-                        <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center group-hover/link:bg-blue-500 group-hover/link:text-white transition-all">
-                            <ExternalLink className="w-4 h-4" />
-                        </div>
-                    </a>
+                <div className="flex items-center justify-between pt-6 border-t border-slate-800/50 mt-auto pointer-events-none">
+                    {project.link ? (
+                        <a href={project.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-500 font-bold text-sm tracking-tight group/link pointer-events-auto relative z-30">
+                            Live Project
+                            <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center group-hover/link:bg-blue-500 group-hover/link:text-white transition-all">
+                                <ExternalLink className="w-4 h-4" />
+                            </div>
+                        </a>
+                    ) : (
+                        <span className="flex items-center gap-2 text-slate-500 font-bold text-sm tracking-tight">
+                            View Details
+                            <div className="w-8 h-8 rounded-full bg-slate-800/50 flex items-center justify-center">
+                                <MoveRight className="w-4 h-4" />
+                            </div>
+                        </span>
+                    )}
                 </div>
             </div>
         </div>
