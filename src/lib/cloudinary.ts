@@ -11,22 +11,47 @@ export const cloudinaryConfig = {
  */
 const CLOUDINARY_LOAD_TIMEOUT = 10_000;
 
+interface CloudinaryResult {
+    event: string;
+    info: {
+        secure_url?: string;
+        files?: Array<{ uploadInfo: { secure_url: string } }>;
+    };
+}
+
+interface CloudinaryError {
+    message: string;
+}
+
+interface CloudinaryWidget {
+    openUploadWidget: (
+        options: Record<string, unknown>,
+        callback: (error: CloudinaryError | null, result: CloudinaryResult | null) => void
+    ) => void;
+}
+
+declare global {
+    interface Window {
+        cloudinary?: CloudinaryWidget;
+    }
+}
+
 /**
  * Wait for window.cloudinary to become available (the script is loaded lazily).
  * Rejects after a timeout if the script never loads (e.g. blocked by an ad-blocker).
  */
-function waitForCloudinary(): Promise<any> {
+function waitForCloudinary(): Promise<CloudinaryWidget> {
     return new Promise((resolve, reject) => {
         // Already available
-        if (typeof window !== "undefined" && (window as any).cloudinary) {
-            return resolve((window as any).cloudinary);
+        if (typeof window !== "undefined" && window.cloudinary) {
+            return resolve(window.cloudinary);
         }
 
         const start = Date.now();
         const interval = setInterval(() => {
-            if ((window as any).cloudinary) {
+            if (window.cloudinary) {
                 clearInterval(interval);
-                return resolve((window as any).cloudinary);
+                return resolve(window.cloudinary);
             }
             if (Date.now() - start > CLOUDINARY_LOAD_TIMEOUT) {
                 clearInterval(interval);
@@ -65,7 +90,7 @@ export const openCloudinaryWidget = async (
                 resourceType: "auto", // Allow images, videos, etc.
                 clientAllowedFormats: ["image", "video"], // Specific allowed types
             },
-            (error: any, result: any) => {
+            (error: CloudinaryError | null, result: CloudinaryResult | null) => {
                 if (error) {
                     const uploadError = new Error(
                         `خطأ في رفع الملف: ${error.message || "خطأ غير معروف"}`
@@ -74,11 +99,11 @@ export const openCloudinaryWidget = async (
                     onError?.(uploadError);
                     return;
                 }
-                if (result && result.event === "success") {
+                if (result && result.event === "success" && result.info.secure_url) {
                     onUpload(result.info.secure_url);
                 } else if (result && result.event === "queues-end" && options?.multiple) {
                     // Collect all URLs if multiple is true
-                    const urls = result.info.files.map((f: any) => f.uploadInfo.secure_url);
+                    const urls = result.info.files?.map((f) => f.uploadInfo.secure_url) || [];
                     if (urls.length > 0) {
                         onUpload(urls);
                     }

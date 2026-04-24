@@ -52,7 +52,16 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
     return <span ref={ref}>{count}{suffix}</span>;
 }
 
-export default function HeroClient({ initialData }: { initialData?: any }) {
+export interface HeroData {
+    heroTitle: string;
+    heroSubtitle: string;
+    heroDescription: string;
+    whatsappNumber: string;
+    resumeLink: string;
+    avatarImage: string;
+}
+
+export default function HeroClient({ initialData }: { initialData?: HeroData }) {
     const { data } = useContent("site_content", "hero", initialData || defaultHeroData);
     const hero = data || defaultHeroData;
 

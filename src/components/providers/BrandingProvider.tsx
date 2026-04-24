@@ -2,9 +2,15 @@
 
 import React, { createContext, useContext } from "react";
 
-const BrandingContext = createContext<any>(null);
+export interface BrandingSettings {
+    siteName?: string;
+    siteLogo?: string;
+    [key: string]: unknown;
+}
 
-export function BrandingProvider({ children, initialBranding }: { children: React.ReactNode, initialBranding: any }) {
+const BrandingContext = createContext<BrandingSettings | null>(null);
+
+export function BrandingProvider({ children, initialBranding }: { children: React.ReactNode, initialBranding: BrandingSettings | null }) {
     return (
         <BrandingContext.Provider value={initialBranding}>
             {children}

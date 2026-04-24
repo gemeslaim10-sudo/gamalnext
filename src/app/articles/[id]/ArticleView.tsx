@@ -34,7 +34,7 @@ type Article = {
     summary: string;
     content: string;
     media: { url: string; type: 'image' | 'video' }[];
-    createdAt: any;
+    createdAt?: { seconds: number; nanoseconds?: number; toDate?: () => Date } | string | Date;
     authorId: string;
 }
 
@@ -94,14 +94,23 @@ export default function ArticleView({ article }: { article: Article }) {
 
     // Handle date formatting (supports Timestamp or serialized props)
     const formattedDate = (() => {
-        if (!article.createdAt) return 'Recently';
-        if (typeof article.createdAt?.toDate === 'function') {
-            return article.createdAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const ca = article.createdAt;
+        if (!ca) return 'Recently';
+        if (ca instanceof Date) {
+            return ca.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         }
-        if (article.createdAt?.seconds) {
-            return new Date(article.createdAt.seconds * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        if (typeof ca === 'string') {
+            return new Date(ca).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         }
-        return new Date(article.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        if (typeof ca === 'object') {
+            if ('toDate' in ca && typeof ca.toDate === 'function') {
+                return ca.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            }
+            if ('seconds' in ca && typeof ca.seconds === 'number') {
+                return new Date(ca.seconds * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            }
+        }
+        return 'Recently';
     })();
 
     return (

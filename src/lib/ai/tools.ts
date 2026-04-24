@@ -68,15 +68,40 @@ export const aiTools = [
     }
 ];
 
+interface AIProject {
+    title?: string;
+    description?: string;
+    tags?: string;
+    category?: string;
+}
+
+interface AIArticle {
+    title?: string;
+    description?: string;
+    slug?: string;
+}
+
+interface AISkill {
+    title?: string;
+    description?: string;
+}
+
+interface CollectLeadArgs {
+    name: string;
+    phone: string;
+    field?: string;
+    service?: string;
+}
+
 /**
  * Implementation of AI Tools
  */
 export const toolHandlers = {
     get_projects: async ({ category }: { category?: string }) => {
-        const data: any = await getDocument("site_content", "projects");
+        const data = await getDocument<{ items?: AIProject[] }>("site_content", "projects");
         let items = data?.items || [];
         if (category) {
-            items = items.filter((i: any) => i.category === category);
+            items = items.filter((i) => i.category === category);
         }
         return items.slice(0, 5); // Return top 5
     },
@@ -98,36 +123,36 @@ export const toolHandlers = {
         const q = query.toLowerCase();
         
         // Parallel fetching
-        const [projectsData, articles, skillsData]: any = await Promise.all([
-            getDocument("site_content", "projects"),
-            getCollection("articles"),
-            getDocument("site_content", "skills")
+        const [projectsData, articles, skillsData] = await Promise.all([
+            getDocument<{ items?: AIProject[] }>("site_content", "projects"),
+            getCollection<AIArticle>("articles"),
+            getDocument<{ items?: AISkill[] }>("site_content", "skills")
         ]);
 
-        const results: any[] = [];
+        const results: Array<{ type: string; content?: unknown; title?: string; link?: string }> = [];
 
         // Search Projects
-        projectsData?.items?.filter((p: any) => 
+        projectsData?.items?.filter((p) => 
             p.title?.toLowerCase().includes(q) || 
             p.description?.toLowerCase().includes(q) || 
             p.tags?.toLowerCase().includes(q)
-        ).forEach((p: any) => results.push({ type: 'project', content: p }));
+        ).forEach((p) => results.push({ type: 'project', content: p }));
 
         // Search Articles
-        articles?.filter((a: any) => 
+        articles?.filter((a) => 
             a.title?.toLowerCase().includes(q) || 
             a.description?.toLowerCase().includes(q)
-        ).forEach((a: any) => results.push({ type: 'article', title: a.title, link: `/articles/${a.slug}` }));
+        ).forEach((a) => results.push({ type: 'article', title: a.title, link: `/articles/${a.slug}` }));
 
         // Search Skills
-        skillsData?.items?.filter((s: any) => 
+        skillsData?.items?.filter((s) => 
             s.title?.toLowerCase().includes(q) || 
             s.description?.toLowerCase().includes(q)
-        ).forEach((s: any) => results.push({ type: 'skill', content: s }));
+        ).forEach((s) => results.push({ type: 'skill', content: s }));
 
         return results.slice(0, 10);
     },
-    collect_lead: async (args: any) => {
+    collect_lead: async (args: CollectLeadArgs) => {
         try {
             const { db } = await import("@/lib/firebase");
             const { addDoc, collection, serverTimestamp } = await import("firebase/firestore");
@@ -137,9 +162,9 @@ export const toolHandlers = {
                 source: "ai_tool_calling"
             });
             return { success: true, leadId: docRef.id, message: "تم تسجيل اهتمامك بنجاح، فريق جمال سيتواصل معك قريباً." };
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error("Tool capture failed:", e);
-            return { success: false, error: e.message };
+            return { success: false, error: e instanceof Error ? e.message : String(e) };
         }
     }
 };

@@ -3,9 +3,33 @@ import { Code, Search, BarChart3, Database, LineChart } from 'lucide-react';
 import Reveal from './Reveal';
 import { useContent } from '@/hooks/useContent';
 
-const iconMap: any = {
+const iconMap: Record<string, React.ElementType> = {
     Code, Search, BarChart3, Database, LineChart
 };
+
+interface SkillItem {
+    title: string;
+    description: string;
+    tags: string;
+    icon: string;
+}
+
+interface TechStackItem {
+    name: string;
+    val: string;
+}
+
+interface SoftwareItem {
+    name: string;
+    level: string;
+    color: string;
+}
+
+interface SkillsData {
+    mainSkills?: SkillItem[];
+    techStack?: TechStackItem[];
+    software?: SoftwareItem[];
+}
 
 const defaultSkillsData = {
     mainSkills: [
@@ -31,7 +55,7 @@ const defaultSkillsData = {
     ]
 };
 
-export default function Skills({ initialData }: { initialData?: any }) {
+export default function Skills({ initialData }: { initialData?: SkillsData }) {
     const { data } = useContent("site_content", "skills", defaultSkillsData);
     const skills = initialData || data || defaultSkillsData;
 
@@ -49,7 +73,7 @@ export default function Skills({ initialData }: { initialData?: any }) {
 
                 {/* Main Skills Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8 mb-16 md:mb-20">
-                    {skills.mainSkills?.map((skill: any, idx: number) => {
+                    {skills.mainSkills?.map((skill: SkillItem, idx: number) => {
                         const Icon = iconMap[skill.icon] || Code;
                         const tags = skill.tags.split(',').map((t: string) => t.trim());
                         return (
@@ -78,7 +102,7 @@ export default function Skills({ initialData }: { initialData?: any }) {
                     <Reveal className="glass p-6 md:p-8 rounded-2xl border-slate-700">
                         <h3 className="text-xl md:text-2xl font-bold text-white mb-8 border-l-4 border-blue-500 pl-4">Tech Stack</h3>
                         <div className="space-y-6">
-                            {skills.techStack?.map((item: any) => (
+                            {skills.techStack?.map((item: TechStackItem) => (
                                 <div key={item.name}>
                                     <div className="flex justify-between mb-2 text-sm md:text-base">
                                         <span className="text-slate-300 font-medium">{item.name}</span>
@@ -97,7 +121,7 @@ export default function Skills({ initialData }: { initialData?: any }) {
                         <Reveal className="glass p-6 md:p-8 rounded-2xl border-slate-700">
                             <h3 className="text-xl md:text-2xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">Software Proficiency</h3>
                             <div className="flex flex-wrap gap-3">
-                                {skills.software?.map((tool: any) => (
+                                {skills.software?.map((tool: SoftwareItem) => (
                                     <div key={tool.name} className="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 flex-grow text-center">
                                         <h4 className="text-white text-sm font-bold">{tool.name}</h4>
                                         <span className={`${tool.color} text-xs`}>{tool.level}</span>

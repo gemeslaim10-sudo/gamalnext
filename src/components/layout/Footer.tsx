@@ -160,13 +160,6 @@ export default function Footer() {
                 </div>
             </footer>
 
-            {/* Floating WhatsApp - Preserved perfectly */}
-            <a href="https://wa.me/201024531452" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-[0_0_20px_rgba(37,211,102,0.4)] hover:bg-[#20bd5a] hover:scale-110 transition-all duration-300 border-2 border-slate-900 group flex items-center justify-center">
-                <MessageCircle className="w-7 h-7 md:w-8 md:h-8" />
-                <span className="absolute right-full mr-4 bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none border border-slate-700 shadow-xl hidden md:block z-50 translate-x-4 group-hover:-translate-x-2">
-                    Let&apos;s Chat! 🚀
-                </span>
-            </a>
         </>
     );
 }

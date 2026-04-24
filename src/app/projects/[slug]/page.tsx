@@ -9,26 +9,43 @@ import { ArrowLeft, ExternalLink, ChevronRight, LayoutGrid, Sparkles, MonitorPla
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
+import RelatedProjectsCarousel from "./RelatedProjectsCarousel";
+
 export const revalidate = 3600; // Cache for 1 hour
 
-async function getProjectBySlug(slug: string) {
+async function getProjectData(slug: string) {
     try {
         const snap = await getDoc(doc(db, "site_content", "projects"));
-        if (!snap.exists()) return null;
+        if (!snap.exists()) return { project: null, allProjects: [] };
         const data = snap.data();
         const projects = data.items || [];
         
-        // Find matching project by slug
-        return projects.find((p: any) => slugify(p.title) === slug) || null;
+        const searchSlug = decodeURIComponent(slug);
+        
+        // Handle sidebar generated IDs (e.g. proj-1)
+        const idxMatch = searchSlug.match(/^proj-(\d+)$/);
+        if (idxMatch) {
+            const idx = parseInt(idxMatch[1], 10);
+            if (projects[idx]) return { project: projects[idx], allProjects: projects };
+        }
+        
+        // Find matching project by slug, id, or slugified title
+        const project = projects.find((p: { title?: string; name?: string; slug?: string; id?: string; [key: string]: unknown }) => {
+            const titleSlug = p.title || p.name ? decodeURIComponent(slugify(p.title || p.name || '')) : '';
+            const pSlug = p.slug ? decodeURIComponent(p.slug) : titleSlug;
+            return pSlug === searchSlug || titleSlug === searchSlug || p.id === searchSlug;
+        }) || null;
+
+        return { project, allProjects: projects };
     } catch (e) {
         console.error("Error fetching project:", e);
-        return null;
+        return { project: null, allProjects: [] };
     }
 }
 
 export default async function ProjectDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
     const resolvedParams = await params;
-    const project = await getProjectBySlug(resolvedParams.slug);
+    const { project, allProjects } = await getProjectData(resolvedParams.slug);
 
     if (!project) {
         notFound();
@@ -188,6 +205,9 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                     </div>
                 </section>
             )}
+
+            {/* RELATED PROJECTS CAROUSEL */}
+            <RelatedProjectsCarousel currentProjectSlug={resolvedParams.slug} allProjects={allProjects} />
 
             <Footer />
             </div>

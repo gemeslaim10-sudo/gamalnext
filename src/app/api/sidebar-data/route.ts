@@ -1,12 +1,32 @@
 import { NextResponse } from "next/server";
 import { getCollection, getDocument } from "@/lib/server-utils";
 
+interface ArticleData {
+    id: string;
+    title?: string;
+    createdAt?: { seconds: number; nanoseconds: number };
+}
+
+interface ProjectData {
+    id?: string;
+    title?: string;
+    name?: string;
+    image?: string;
+    imageUrl?: string;
+    images?: string[];
+    slug?: string;
+}
+
+interface ProjectsDoc {
+    items?: ProjectData[];
+}
+
 export const dynamic = "force-dynamic";
 
 export async function GET() {
     try {
         // Fetch latest articles
-        const rawArticles: any[] = await getCollection("articles");
+        const rawArticles = await getCollection<ArticleData>("articles");
         const articles = rawArticles
             .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
             .slice(0, 20)
@@ -16,11 +36,11 @@ export async function GET() {
             }));
 
         // Fetch projects from site_content document
-        const projectsDoc: any = await getDocument("site_content", "projects");
+        const projectsDoc = await getDocument<ProjectsDoc>("site_content", "projects");
         const projectsList = projectsDoc?.items || [];
         const projects = projectsList
             .slice(0, 20)
-            .map((p: any, idx: number) => ({
+            .map((p, idx: number) => ({
                 id: p.id || `proj-${idx}`,
                 title: p.title || p.name || "Untitled",
                 imageUrl: p.image || p.imageUrl || p.images?.[0] || "",

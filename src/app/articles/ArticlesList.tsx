@@ -16,8 +16,8 @@ type Article = {
     content: string;
     summary?: string;
     media: { url: string; type: 'image' | 'video' }[];
-    createdAt: any;
-    updatedAt?: any;
+    createdAt: { seconds: number; nanoseconds?: number; toDate?: () => Date } | string | Date;
+    updatedAt?: { seconds: number; nanoseconds?: number; toDate?: () => Date } | string | Date;
     authorId: string;
 }
 
@@ -146,14 +146,23 @@ export default function ArticlesList({ initialArticles }: { initialArticles?: Ar
                                 <div className="flex items-center gap-2 text-slate-400 text-[10px] sm:text-xs mb-2 sm:mb-3 font-mono">
                                     <Calendar className="w-3 h-3" />
                                     {(() => {
-                                        if (!article.createdAt) return 'الان';
-                                        if (typeof article.createdAt?.toDate === 'function') {
-                                            return article.createdAt.toDate().toLocaleDateString('ar-EG');
+                                        const ca = article.createdAt;
+                                        if (!ca) return 'الان';
+                                        if (ca instanceof Date) {
+                                            return ca.toLocaleDateString('ar-EG');
                                         }
-                                        if (article.createdAt?.seconds) {
-                                            return new Date(article.createdAt.seconds * 1000).toLocaleDateString('ar-EG');
+                                        if (typeof ca === 'string') {
+                                            return new Date(ca).toLocaleDateString('ar-EG');
                                         }
-                                        return new Date(article.createdAt).toLocaleDateString('ar-EG');
+                                        if (typeof ca === 'object') {
+                                            if ('toDate' in ca && typeof ca.toDate === 'function') {
+                                                return ca.toDate().toLocaleDateString('ar-EG');
+                                            }
+                                            if ('seconds' in ca && typeof ca.seconds === 'number') {
+                                                return new Date(ca.seconds * 1000).toLocaleDateString('ar-EG');
+                                            }
+                                        }
+                                        return 'الان';
                                     })()}
                                 </div>
 

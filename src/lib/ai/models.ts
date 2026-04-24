@@ -1,3 +1,8 @@
+interface GeminiModel {
+    name: string;
+    supportedGenerationMethods?: string[];
+}
+
 export async function discoverModels(apiKey: string, preferredModel?: string): Promise<string[]> {
     let candidateModels: string[] = [];
     const isAuto = !preferredModel || preferredModel.toLowerCase() === "auto" || preferredModel.toLowerCase() === "تلقائي";
@@ -13,17 +18,17 @@ export async function discoverModels(apiKey: string, preferredModel?: string): P
         if (modelsRes.ok) {
             const modelsData = await modelsRes.json();
 
-            const allGeminis = modelsData.models?.filter((m: any) =>
+            const allGeminis: GeminiModel[] = modelsData.models?.filter((m: GeminiModel) =>
                 m.name.includes("gemini") &&
                 m.supportedGenerationMethods?.includes("generateContent")
             ) || [];
 
             // Rank strategy: Flash 2.0 > Flash 1.5 > Pro 1.5
-            const flash2 = allGeminis.filter((m: any) => m.name.includes("gemini-2.0-flash"));
-            const flash15 = allGeminis.filter((m: any) => m.name.includes("gemini-1.5-flash"));
-            const pro15 = allGeminis.filter((m: any) => m.name.includes("gemini-1.5-pro"));
-            const otherFlash = allGeminis.filter((m: any) => m.name.includes("flash") && !flash2.length && !flash15.length);
-            const others = allGeminis.filter((m: any) => !m.name.includes("flash"));
+            const flash2 = allGeminis.filter((m) => m.name.includes("gemini-2.0-flash"));
+            const flash15 = allGeminis.filter((m) => m.name.includes("gemini-1.5-flash"));
+            const pro15 = allGeminis.filter((m) => m.name.includes("gemini-1.5-pro"));
+            const otherFlash = allGeminis.filter((m) => m.name.includes("flash") && !flash2.length && !flash15.length);
+            const others = allGeminis.filter((m) => !m.name.includes("flash"));
 
             [...flash2, ...flash15, ...pro15, ...otherFlash, ...others].forEach(m => {
                 const name = m.name.startsWith("models/") ? m.name : `models/${m.name}`;

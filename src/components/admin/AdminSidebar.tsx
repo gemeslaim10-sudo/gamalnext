@@ -12,6 +12,8 @@ const menuItems = [
     { icon: Code, label: "المهارات", href: "/admin/skills" },
     { icon: FileText, label: "معرض الأعمال", href: "/admin/projects" },
     { icon: FileText, label: "المقالات والمدونة", href: "/admin/articles" },
+    { icon: MessageSquare, label: "منشورات المستخدمين (Feed)", href: "/admin/posts" },
+    { icon: MessageSquare, label: "الإعلانات (Explore Ads)", href: "/admin/ads" },
     { icon: MessageSquare, label: "آراء العملاء", href: "/admin/reviews" },
     { icon: Users, label: "المستخدمين", href: "/admin/users" },
     { icon: Bot, label: "إعدادات شات AI", href: "/admin/ai" },

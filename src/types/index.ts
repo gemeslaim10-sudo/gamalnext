@@ -55,7 +55,7 @@ export interface Lead {
     phone: string;
     field?: string;
     service?: string;
-    capturedAt: any;
+    capturedAt: Date | { seconds: number; nanoseconds: number } | string;
     source: string;
     userId?: string;
 }

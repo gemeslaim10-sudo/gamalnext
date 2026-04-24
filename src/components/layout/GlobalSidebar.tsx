@@ -16,7 +16,7 @@ const ADMIN_EMAILS = ["montasrrm@gmail.com", "gemeslaim10@gmail.com"];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type SidebarArticle = { id: string; title: string };
-type SidebarProject = { id: string; title: string; imageUrl?: string };
+type SidebarProject = { id: string; title: string; imageUrl?: string; slug?: string };
 type SidebarTool = { name: string; href: string; icon: string };
 
 // ─── Static Tools Data ────────────────────────────────────────────────────────
@@ -245,6 +245,7 @@ export default function GlobalSidebar() {
                         <nav className="space-y-0.5">
                             {[
                                 { name: 'Home', href: '/', icon: Home },
+                                { name: 'Explore Feed', href: '/explore', icon: Sparkles },
                                 { name: 'Portfolio', href: '/projects', icon: FolderOpen },
                                 { name: 'Blog', href: '/articles', icon: Newspaper },
                                 { name: 'Tools', href: '/tools', icon: Wrench },
@@ -324,7 +325,7 @@ export default function GlobalSidebar() {
                                 {randomProjects.map(p => (
                                     <Link
                                         key={p.id}
-                                        href={`/projects/${(p as any).slug || p.id}`}
+                                        href={`/projects/${p.slug || p.id}`}
                                         className="flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-slate-800/40 transition-colors group"
                                     >
                                         {p.imageUrl ? (

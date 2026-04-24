@@ -14,7 +14,7 @@ type Comment = {
     userName: string;
     userPhoto: string;
     content: string;
-    createdAt: any;
+    createdAt?: { toDate?: () => Date };
 }
 
 export default function CommentSection({ articleId }: { articleId: string }) {
@@ -63,9 +63,10 @@ export default function CommentSection({ articleId }: { articleId: string }) {
             });
             setNewComment("");
             toast.success("Comment added successfully");
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error("Error submitting comment:", e);
-            if (e.code === 'permission-denied') {
+            const errorObj = e as { code?: string };
+            if (errorObj.code === 'permission-denied') {
                 toast.error("Sorry, you don't have permission to comment. Please log in again.");
             } else {
                 toast.error("An error occurred while posting the comment.");
