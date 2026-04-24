@@ -3,15 +3,17 @@
 import { Terminal } from 'lucide-react';
 import { MobileUserSection } from './mobile/MobileUserSection';
 import { MobileNavGrid } from './mobile/MobileNavGrid';
+import type { User } from 'firebase/auth';
+import type { BrandingSettings } from '@/types';
 
 interface MobileMenuProps {
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
-    user: any;
+    user: User | null;
     logout: () => void;
     isActive: (path: string) => boolean;
     setIsAuthModalOpen: (open: boolean) => void;
-    branding?: any;
+    branding?: BrandingSettings | null;
 }
 
 export default function MobileMenu({ isOpen, setIsOpen, user, logout, isActive, setIsAuthModalOpen, branding }: MobileMenuProps) {

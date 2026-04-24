@@ -1,19 +1,12 @@
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import TrendingArticlesClient from "./TrendingArticlesClient";
+import type { ArticleSerialized, ArticleRaw } from "@/types";
+import { getTimestampMs } from "@/types";
 
 export const revalidate = 3600; // Revalidate every hour
 
-type Article = {
-    id: string;
-    title: string;
-    summary?: string;
-    content?: string;
-    media: { url: string; type: 'image' | 'video' }[];
-    createdAt: any;
-}
-
-async function getTrendingArticles(): Promise<any[]> {
+async function getTrendingArticles(): Promise<ArticleSerialized[]> {
     try {
         const q = query(
             collection(db, "articles"),
@@ -22,13 +15,13 @@ async function getTrendingArticles(): Promise<any[]> {
         );
         const snap = await getDocs(q);
         return snap.docs.map(d => {
-            const data = d.data();
+            const data = d.data() as Omit<ArticleRaw, 'id'>;
             return {
                 id: d.id,
                 ...data,
                 // Serialize all timestamps
-                createdAt: data.createdAt?.seconds ? data.createdAt.seconds * 1000 : Date.now(),
-                updatedAt: data.updatedAt?.seconds ? data.updatedAt.seconds * 1000 : null
+                createdAt: getTimestampMs(data.createdAt) || Date.now(),
+                updatedAt: getTimestampMs(data.updatedAt) || null
             };
         });
     } catch (e) {

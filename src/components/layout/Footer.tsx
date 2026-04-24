@@ -24,7 +24,7 @@ export default function Footer() {
 
                 {/* Main Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8 mb-16">
-                    <FooterBrand branding={branding} />
+                    <FooterBrand branding={branding ?? null} />
                     <FooterLinks />
                     <FooterContact />
                 </div>

@@ -2,6 +2,7 @@
 
 import { Bell } from "lucide-react";
 import { useNotifications, Notification } from "./hooks/useNotifications";
+import { formatTimestamp } from "@/types";
 
 export default function NotificationsDropdown() {
     const {
@@ -73,7 +74,7 @@ export default function NotificationsDropdown() {
                                         <div>
                                             <p className="text-sm text-slate-200 leading-snug">{getText(n)}</p>
                                             <span className="text-xs text-slate-500 mt-1 block">
-                                                {n.createdAt?.toDate ? n.createdAt.toDate().toLocaleDateString('en-US') : 'Now'}
+                                                {formatTimestamp(n.createdAt, 'en-US') || 'Now'}
                                             </span>
                                         </div>
                                         {!n.read && (

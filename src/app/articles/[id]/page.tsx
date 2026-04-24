@@ -2,6 +2,8 @@ import { getDocument, getCollection } from "@/lib/server-utils";
 import ArticleView from "./ArticleView";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import type { ArticleRaw } from "@/types";
+import { getTimestampMs } from "@/types";
 
 type Props = {
     params: Promise<{ id: string }>;
@@ -10,7 +12,7 @@ type Props = {
 // Generate SEO Metadata dynamically
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { id } = await params;
-    const article: any = await getDocument("articles", id);
+    const article = await getDocument<ArticleRaw>("articles", id);
 
     if (!article) {
         return {
@@ -30,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             description: article.summary || article.content.substring(0, 150),
             images: article.media?.[0]?.url ? [article.media[0].url] : ["/og-image.png"],
             type: 'article',
-            publishedTime: new Date(article.createdAt?.seconds * 1000).toISOString(),
+            publishedTime: new Date(getTimestampMs(article.createdAt) || Date.now()).toISOString(),
             authors: ['جمال عبد العاطي'],
         },
         twitter: {
@@ -43,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-    const articles = await getCollection<any>('articles');
+    const articles = await getCollection<ArticleRaw>('articles');
     return articles.map((article) => ({
         id: article.id,
     }));
@@ -53,17 +55,19 @@ export const revalidate = 0;
 
 export default async function ArticlePage({ params }: Props) {
     const { id } = await params;
-    const article: any = await getDocument("articles", id);
+    const article = await getDocument<ArticleRaw>("articles", id);
 
     if (!article) {
         notFound();
     }
 
+    const createdAtMs = getTimestampMs(article.createdAt) || Date.now();
+
     // Serialize ID and date
     const serializedArticle = {
         ...article,
         id: id,
-        createdAt: article.createdAt?.seconds ? article.createdAt.seconds * 1000 : Date.now()
+        createdAt: createdAtMs
     };
 
     const jsonLd = {
@@ -71,8 +75,8 @@ export default async function ArticlePage({ params }: Props) {
         '@type': 'BlogPosting',
         headline: article.title,
         image: article.media?.[0]?.url ? [article.media[0].url] : ["https://gamaltech.info/og-image.png"],
-        datePublished: new Date(serializedArticle.createdAt).toISOString(),
-        dateModified: article.updatedAt?.seconds ? new Date(article.updatedAt.seconds * 1000).toISOString() : new Date(serializedArticle.createdAt).toISOString(),
+        datePublished: new Date(createdAtMs).toISOString(),
+        dateModified: getTimestampMs(article.updatedAt) ? new Date(getTimestampMs(article.updatedAt)).toISOString() : new Date(createdAtMs).toISOString(),
         author: {
             '@type': 'Person',
             name: article.authorName || 'جمال عبد العاطي',

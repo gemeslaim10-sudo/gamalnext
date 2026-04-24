@@ -11,7 +11,7 @@ type UserData = {
     name: string;
     email: string;
     role: string;
-    createdAt: any;
+    createdAt: string;
 }
 
 export default function UsersPage() {

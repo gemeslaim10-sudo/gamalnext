@@ -9,6 +9,8 @@ import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast, Toaster } from "react-hot-toast";
 import RelatedArticles from "./RelatedArticles";
+import type { FirebaseTimestamp } from "@/types";
+import { getTimestampMs, formatTimestamp } from "@/types";
 
 import { ArticleHeader } from "./components/ArticleHeader";
 import { ArticleMedia } from "./components/ArticleMedia";
@@ -17,10 +19,10 @@ import { ArticleBody } from "./components/ArticleBody";
 type Article = {
     id: string;
     title: string;
-    summary: string;
+    summary?: string;
     content: string;
     media: { url: string; type: 'image' | 'video' }[];
-    createdAt?: { seconds: number; nanoseconds?: number; toDate?: () => Date } | string | Date;
+    createdAt?: FirebaseTimestamp;
     authorId: string;
 }
 
@@ -60,25 +62,7 @@ export default function ArticleView({ article }: { article: Article }) {
     };
 
     // Handle date formatting
-    const formattedDate = (() => {
-        const ca = article.createdAt;
-        if (!ca) return 'Recently';
-        if (ca instanceof Date) {
-            return ca.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        }
-        if (typeof ca === 'string') {
-            return new Date(ca).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        }
-        if (typeof ca === 'object') {
-            if ('toDate' in ca && typeof ca.toDate === 'function') {
-                return ca.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            }
-            if ('seconds' in ca && typeof ca.seconds === 'number') {
-                return new Date(ca.seconds * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            }
-        }
-        return 'Recently';
-    })();
+    const formattedDate = formatTimestamp(article.createdAt, 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || 'Recently';
 
     return (
         <div className="min-h-screen bg-[#020617] relative selection:bg-blue-500/30 selection:text-blue-200">

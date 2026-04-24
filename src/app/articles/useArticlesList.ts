@@ -2,17 +2,18 @@ import { useEffect, useState } from "react";
 import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "react-hot-toast";
+import type { FirebaseTimestamp, MediaItem } from "@/types";
 
-// Ensure this matches the existing Article type where imported
+// Article type for the articles list (includes slug for URL generation)
 export type Article = {
     id: string;
     title: string;
-    slug: string;
+    slug?: string;
     content: string;
     summary?: string;
-    media: { url: string; type: 'image' | 'video' }[];
-    createdAt: { seconds: number; nanoseconds?: number; toDate?: () => Date } | string | Date;
-    updatedAt?: { seconds: number; nanoseconds?: number; toDate?: () => Date } | string | Date;
+    media: MediaItem[];
+    createdAt: FirebaseTimestamp;
+    updatedAt?: FirebaseTimestamp;
     authorId: string;
 }
 

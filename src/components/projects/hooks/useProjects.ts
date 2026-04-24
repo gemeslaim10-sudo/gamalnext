@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useContent } from '@/hooks/useContent';
+import type { ProjectsData, ProjectItem } from '@/types';
 
-const defaultProjectsData = {
+const defaultProjectsData: ProjectsData = {
     items: [
         {
             title: 'Brand Identity Design',
@@ -30,7 +31,7 @@ const defaultProjectsData = {
     ]
 };
 
-export function useProjects(initialData?: any) {
+export function useProjects(initialData?: ProjectsData) {
     const { data } = useContent("site_content", "projects", defaultProjectsData);
     const projects = initialData || data || defaultProjectsData;
     const [mounted, setMounted] = useState(false);
@@ -39,8 +40,8 @@ export function useProjects(initialData?: any) {
         setMounted(true);
     }, []);
 
-    const getItemsByCategory = (catId: string) => {
-        return projects.items?.filter((item: any) => item.category === catId) || [];
+    const getItemsByCategory = (catId: string): ProjectItem[] => {
+        return projects.items?.filter((item) => item.category === catId) || [];
     };
 
     return {

@@ -3,6 +3,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { getDocument } from "@/lib/server-utils";
 import { Metadata } from "next";
+import type { ProjectsData } from "@/types";
 
 export const metadata: Metadata = {
     title: "Portfolio | Gamal Abdelaty - Gamal Tech",
@@ -22,13 +23,13 @@ export const metadata: Metadata = {
 export const revalidate = 0; // Revalidate immediately (dynamic)
 
 export default async function ProjectsPage() {
-    const projectsData = await getDocument("site_content", "projects");
+    const projectsData = await getDocument<ProjectsData>("site_content", "projects");
 
     return (
         <div className="min-h-screen">
             <Navbar />
             <div className="pt-20">
-                <Projects initialData={projectsData} />
+                <Projects initialData={projectsData ?? undefined} />
             </div>
             <Footer />
             <script

@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Terminal, Github, Linkedin, Facebook } from 'lucide-react';
+import type { BrandingSettings } from '@/types';
 
 interface FooterBrandProps {
-    branding: any;
+    branding: BrandingSettings | null;
 }
 
 export function FooterBrand({ branding }: FooterBrandProps) {

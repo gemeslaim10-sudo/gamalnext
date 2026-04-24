@@ -6,6 +6,8 @@ import { MoveRight, Calendar } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Toaster } from "react-hot-toast";
+import type { ArticleRaw, ArticleSerialized } from "@/types";
+import { getTimestampMs } from "@/types";
 
 import { Metadata } from "next";
 
@@ -22,19 +24,19 @@ export const revalidate = 0; // Helper for dynamic
 
 export default async function ArticlesPage() {
     // Fetch articles on server
-    let articles: any[] = [];
+    let articles: ArticleSerialized[] = [];
     try {
-        const rawArticles = await getCollection("articles");
+        const rawArticles = await getCollection<ArticleRaw>("articles");
         // Sort by createdAt desc
-        articles = rawArticles.sort((a: any, b: any) => {
-            const dateA = a.createdAt?.seconds || 0;
-            const dateB = b.createdAt?.seconds || 0;
+        articles = rawArticles.sort((a, b) => {
+            const dateA = getTimestampMs(a.createdAt);
+            const dateB = getTimestampMs(b.createdAt);
             return dateB - dateA;
-        }).map((article: any) => ({
+        }).map((article) => ({
             ...article,
             // Serialize timestamps to numbers to pass to Client Component
-            createdAt: article.createdAt?.seconds ? article.createdAt.seconds * 1000 : Date.now(),
-            updatedAt: article.updatedAt?.seconds ? article.updatedAt.seconds * 1000 : null
+            createdAt: getTimestampMs(article.createdAt) || 0,
+            updatedAt: getTimestampMs(article.updatedAt) || null
         }));
     } catch (e) {
         console.error("Failed to fetch articles server side", e);

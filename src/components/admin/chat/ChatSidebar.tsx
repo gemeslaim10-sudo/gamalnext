@@ -1,11 +1,13 @@
 'use client';
 
 import { Search, Clock, Trash2 } from 'lucide-react';
+import type { FirebaseTimestamp } from '@/types';
+import { formatTimestamp, getTimestampMs } from '@/types';
 
 interface Message {
     role: 'user' | 'model';
     text: string;
-    timestamp: any;
+    timestamp: FirebaseTimestamp;
 }
 
 interface Session {
@@ -13,11 +15,11 @@ interface Session {
     userId: string;
     sessionId: string;
     userName?: string;
-    lastMessageAt: any;
+    lastMessageAt: FirebaseTimestamp;
     preview: string;
     messages: Message[];
-    startedAt?: any;
-    userContext?: any;
+    startedAt?: FirebaseTimestamp;
+    userContext?: Record<string, string>;
 }
 
 interface ChatSidebarProps {
@@ -85,8 +87,8 @@ export default function ChatSidebar({
                                 </h3>
                                 <span className="text-[10px] text-slate-500 flex items-center gap-1">
                                     <Clock className="w-3 h-3" />
-                                    {session.lastMessageAt?.seconds
-                                        ? new Date(session.lastMessageAt.seconds * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })
+                                    {getTimestampMs(session.lastMessageAt)
+                                        ? formatTimestamp(session.lastMessageAt, 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })
                                         : 'Just now'}
                                 </span>
                             </div>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Calendar, ArrowRight } from 'lucide-react';
 import type { Article } from '../useRelatedArticles';
+import { formatTimestamp } from '@/types';
 
 interface RelatedArticleCardProps {
     article: Article;
@@ -16,16 +17,7 @@ export function RelatedArticleCard({ article }: RelatedArticleCardProps) {
         return article.content.substring(0, 120) + '...';
     };
 
-    const formatDate = (timestamp: any) => {
-        if (!timestamp) return '';
-        if (typeof timestamp?.toDate === 'function') {
-            return timestamp.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }
-        if (timestamp?.seconds) {
-            return new Date(timestamp.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }
-        return new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    };
+    const formattedDate = formatTimestamp(article.createdAt, 'en-US', { month: 'short', day: 'numeric' });
 
     return (
         <Link
@@ -63,7 +55,7 @@ export function RelatedArticleCard({ article }: RelatedArticleCardProps) {
             <div className="p-6">
                 <div className="flex items-center gap-2 text-slate-500 text-xs mb-3">
                     <Calendar className="w-3 h-3" />
-                    {formatDate(article.createdAt)}
+                    {formattedDate}
                 </div>
 
                 <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors line-clamp-2 leading-tight">

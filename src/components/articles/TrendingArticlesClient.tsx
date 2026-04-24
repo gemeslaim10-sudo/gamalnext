@@ -4,17 +4,9 @@ import Link from "next/link";
 import { MoveRight, Sparkles } from "lucide-react";
 import Reveal from "../sections/Reveal";
 import { TrendingSwiper } from "./TrendingSwiper";
+import type { ArticleSerialized } from "@/types";
 
-type Article = {
-    id: string;
-    title: string;
-    summary?: string;
-    content?: string;
-    media: { url: string; type: 'image' | 'video' }[];
-    createdAt: any;
-}
-
-export default function TrendingArticlesClient({ articles }: { articles: Article[] }) {
+export default function TrendingArticlesClient({ articles }: { articles: ArticleSerialized[] }) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {

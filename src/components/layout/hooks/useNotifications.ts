@@ -3,6 +3,8 @@ import { collection, query, where, orderBy, onSnapshot, updateDoc, doc, limit, U
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import type { FirebaseTimestamp } from "@/types";
+import { getTimestampMs } from "@/types";
 
 const ADMIN_EMAILS = ["montasrrm@gmail.com", "gemeslaim10@gmail.com"];
 
@@ -12,7 +14,7 @@ export type Notification = {
     type: 'welcome' | 'like' | 'comment' | 'review_request' | 'article_approved';
     link: string;
     read: boolean;
-    createdAt: any;
+    createdAt: FirebaseTimestamp;
 }
 
 export function useNotifications() {
@@ -37,13 +39,7 @@ export function useNotifications() {
                 merged.set(n.id, n);
             }
             const sorted = Array.from(merged.values()).sort((a, b) => {
-                const getTime = (ts: any): number => {
-                    if (!ts) return 0;
-                    if (typeof ts.toMillis === 'function') return ts.toMillis();
-                    if (typeof ts.seconds === 'number') return ts.seconds * 1000;
-                    return 0;
-                };
-                return getTime(b.createdAt) - getTime(a.createdAt);
+                return getTimestampMs(b.createdAt) - getTimestampMs(a.createdAt);
             }).slice(0, 20);
 
             setNotifications(sorted);

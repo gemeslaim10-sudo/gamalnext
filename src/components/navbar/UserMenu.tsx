@@ -2,9 +2,10 @@
 
 import { UserCircle, LogOut } from 'lucide-react';
 import Image from 'next/image';
+import type { User } from 'firebase/auth';
 
 interface UserMenuProps {
-    user: any;
+    user: User;
     logout: () => void;
 }
 

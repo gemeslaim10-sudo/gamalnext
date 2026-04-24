@@ -109,12 +109,13 @@ export function useAiChat(isOpen: boolean) {
 
             setMessages(prev => [...prev, { role: 'model', text: data.response }]);
 
-        } catch (error: any) {
+        } catch (error) {
             console.error("Chat Error:", error);
 
-            let userFriendlyError = `⚠️ Sorry, an error occurred: ${error.message || "An unexpected error occurred"}`;
+            const errMsg = error instanceof Error ? error.message : "An unexpected error occurred";
+            let userFriendlyError = `⚠️ Sorry, an error occurred: ${errMsg}`;
 
-            if (error.message && (error.message.includes("Failed to fetch") || error.message.includes("NetworkError"))) {
+            if (errMsg.includes("Failed to fetch") || errMsg.includes("NetworkError")) {
                 userFriendlyError = "⚠️ Sorry, cannot connect to the server right now. The server might be updating or restarting. Please try again in a few seconds.";
             }
 

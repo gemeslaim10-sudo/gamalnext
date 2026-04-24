@@ -12,14 +12,7 @@ import { Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { Star, Quote, User } from "lucide-react";
-
-type Review = {
-    id: string;
-    userName: string;
-    rating: number;
-    comment: string;
-    createdAt: any;
-}
+import type { Review } from "@/types";
 
 export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
     return (
@@ -69,7 +62,7 @@ export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
                                         </div>
 
                                         <p className="text-slate-300 mb-8 flex-grow leading-relaxed text-sm md:text-base relative z-10 font-light">
-                                            "{review.comment}"
+                                            &quot;{review.comment}&quot;
                                         </p>
 
                                         <div className="flex items-center gap-4 mt-auto pt-6 border-t border-slate-800/50 relative z-10">

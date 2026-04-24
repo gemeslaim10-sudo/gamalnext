@@ -46,15 +46,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // Only set createdAt if it doesn't exist (merge won't overwrite existing fields but we want to be sure)
             }, { merge: true });
 
-        } catch (error: any) {
+        } catch (error) {
             console.error("Error signing in with Google", error);
             let errorMessage = "Failed to sign in with Google.";
 
-            if (error.code === 'auth/popup-closed-by-user') {
+            const firebaseError = error as { code?: string };
+            if (firebaseError.code === 'auth/popup-closed-by-user') {
                 errorMessage = "Sign-in cancelled by user.";
-            } else if (error.code === 'auth/popup-blocked') {
+            } else if (firebaseError.code === 'auth/popup-blocked') {
                 errorMessage = "Sign-in popup was blocked by the browser.";
-            } else if (error.code === 'auth/unauthorized-domain') {
+            } else if (firebaseError.code === 'auth/unauthorized-domain') {
                 errorMessage = "This domain is not authorized for Google Sign-In. Please contact support.";
             }
 

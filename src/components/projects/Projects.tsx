@@ -11,8 +11,9 @@ import 'swiper/css/navigation';
 import { CategoryHeader } from './CategoryHeader';
 import { ProjectSlide } from './ProjectSlide';
 import { useProjects } from './hooks/useProjects';
+import type { ProjectsData, ProjectItem } from '@/types';
 
-export default function Projects({ initialData }: { initialData?: any }) {
+export default function Projects({ initialData }: { initialData?: ProjectsData }) {
     const { mounted, getItemsByCategory } = useProjects(initialData);
 
     const categories = [
@@ -75,7 +76,7 @@ export default function Projects({ initialData }: { initialData?: any }) {
                                         }}
                                         className="!pb-16"
                                     >
-                                        {filteredItems.map((project: any, index: number) => (
+                                        {filteredItems.map((project: ProjectItem, index: number) => (
                                             <SwiperSlide key={index} className="!h-auto">
                                                 <ProjectSlide project={project} />
                                             </SwiperSlide>

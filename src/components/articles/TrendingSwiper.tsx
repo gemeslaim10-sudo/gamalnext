@@ -5,17 +5,9 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import ArticleCard from "./ArticleCard";
+import type { ArticleSerialized } from "@/types";
 
-type Article = {
-    id: string;
-    title: string;
-    summary?: string;
-    content?: string;
-    media: { url: string; type: 'image' | 'video' }[];
-    createdAt: any;
-}
-
-export function TrendingSwiper({ articles }: { articles: Article[] }) {
+export function TrendingSwiper({ articles }: { articles: ArticleSerialized[] }) {
     return (
         <div className="mb-20 px-2 lg:px-0 relative group/swiper">
             <Swiper

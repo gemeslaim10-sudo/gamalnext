@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { User, Settings, LogOut } from 'lucide-react';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 interface MobileUserSectionProps {
-    user: any;
+    user: FirebaseUser | null;
     setIsOpen: (open: boolean) => void;
     logout: () => void;
     setIsAuthModalOpen: (open: boolean) => void;

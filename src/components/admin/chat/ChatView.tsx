@@ -1,11 +1,13 @@
 'use client';
 
 import { User, Bot, MessageSquare } from 'lucide-react';
+import type { FirebaseTimestamp } from '@/types';
+import { getTimestampMs } from '@/types';
 
 interface Message {
     role: 'user' | 'model';
     text: string;
-    timestamp: any;
+    timestamp: FirebaseTimestamp;
 }
 
 interface Session {
@@ -13,11 +15,11 @@ interface Session {
     userId: string;
     sessionId: string;
     userName?: string;
-    lastMessageAt: any;
+    lastMessageAt: FirebaseTimestamp;
     preview: string;
     messages: Message[];
-    startedAt?: any;
-    userContext?: any;
+    startedAt?: FirebaseTimestamp;
+    userContext?: Record<string, string>;
 }
 
 interface ChatViewProps {
@@ -79,8 +81,8 @@ export default function ChatView({ session, onBack }: ChatViewProps) {
                                     {msg.text}
                                 </div>
                                 <div className={`text-[10px] mt-2 opacity-50 ${isUser ? 'text-right' : 'text-left'}`}>
-                                    {msg.timestamp?.seconds
-                                        ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+                                    {getTimestampMs(msg.timestamp)
+                                        ? new Date(getTimestampMs(msg.timestamp)).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
                                         : ''}
                                 </div>
                             </div>

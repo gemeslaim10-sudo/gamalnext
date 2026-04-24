@@ -2,9 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Code2, ExternalLink, MoveRight } from "lucide-react";
 import { slugify } from "@/lib/utils";
+import type { ProjectItem } from "@/types";
 
 interface ProjectSlideProps {
-    project: any;
+    project: ProjectItem;
 }
 
 export function ProjectSlide({ project }: ProjectSlideProps) {

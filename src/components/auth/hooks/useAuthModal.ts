@@ -14,8 +14,9 @@ export function useAuthModal(onClose: () => void) {
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
 
-    const getFriendlyErrorMessage = (error: any) => {
-        const msg = error.code || error.message || "";
+    const getFriendlyErrorMessage = (error: unknown) => {
+        const err = error as { code?: string; message?: string };
+        const msg = err.code || err.message || "";
         if (msg.includes("auth/invalid-credential") || msg.includes("auth/wrong-password") || msg.includes("auth/user-not-found")) {
             return "Invalid credentials.";
         }
@@ -48,7 +49,7 @@ export function useAuthModal(onClose: () => void) {
                 toast.success("Account created successfully.");
             }
             onClose();
-        } catch (err: any) {
+        } catch (err) {
             console.error("Auth Error:", err);
             toast.error(getFriendlyErrorMessage(err));
         } finally {
@@ -63,9 +64,9 @@ export function useAuthModal(onClose: () => void) {
             await signInWithGoogle();
             onClose();
             toast.success("Logged in with Google successfully.");
-        } catch (e: any) {
+        } catch (e) {
             console.error("Google Signin Error:", e);
-            const errorCode = e.code || e.message || "";
+            const errorCode = (e as { code?: string; message?: string }).code || (e as { message?: string }).message || "";
             if (errorCode.includes("auth/popup-closed-by-user") || errorCode.includes("auth/cancelled-popup-request")) {
                 toast("Login cancelled.", { icon: "ℹ️" });
             } else if (errorCode.includes("auth/unauthorized-domain")) {

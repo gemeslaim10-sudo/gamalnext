@@ -5,6 +5,7 @@ import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, limi
 import { db } from "@/lib/firebase";
 import { Check, X, Trash, Star, EyeOff } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
+import type { FirebaseTimestamp } from "@/types";
 
 type Review = {
     id: string;
@@ -12,7 +13,7 @@ type Review = {
     rating: number;
     comment: string;
     status: 'pending' | 'approved' | 'hidden';
-    createdAt: any;
+    createdAt: FirebaseTimestamp;
 }
 
 export default function ReviewsPage() {

@@ -1,72 +1,164 @@
-/**
- * Core Domain Types
- * Centrally defined to ensure scalability and cross-component consistency.
- */
+import type { User } from 'firebase/auth';
+import type { Timestamp } from 'firebase/firestore';
 
-export type Category = 'design' | 'video' | 'software';
+// ── Firebase Timestamp ──────────────────────────────────────────────────────
+// Firestore timestamps can appear in multiple shapes depending on context
+// (server component, client component, serialized, raw)
+export type FirebaseTimestamp =
+    | Timestamp
+    | { seconds: number; nanoseconds?: number; toDate?: () => Date; toMillis?: () => number }
+    | Date
+    | string
+    | number
+    | null;
 
-export interface Project {
-    id?: string;
-    title: string;
-    description: string;
-    image: string;
-    category: Category;
-    tags: string;
-    link?: string;
-    videoUrl?: string;
-    embedCode?: string;
-    featured?: boolean;
-    createdAt?: string;
+// ── Media ───────────────────────────────────────────────────────────────────
+export interface MediaItem {
+    url: string;
+    type: 'image' | 'video';
 }
 
-export interface Article {
+// ── Article Types ───────────────────────────────────────────────────────────
+/** Raw article from Firestore (before serialization) */
+export interface ArticleRaw {
     id: string;
     title: string;
-    slug: string;
+    summary?: string;
     content: string;
-    description: string;
-    image?: string;
-    category?: string;
+    media: MediaItem[];
+    createdAt?: FirebaseTimestamp;
+    updatedAt?: FirebaseTimestamp;
+    authorId: string;
+    authorName?: string;
     tags?: string[];
-    createdAt: string;
 }
 
-export interface Skill {
+/** Serialized article (timestamps converted to numbers for client components) */
+export interface ArticleSerialized {
     id: string;
     title: string;
-    level: number;
-    category: string;
-    description?: string;
-    icon?: string;
+    summary?: string;
+    content: string;
+    media: MediaItem[];
+    createdAt: number;
+    updatedAt?: number | null;
+    authorId: string;
+    authorName?: string;
+    tags?: string[];
 }
 
+/** Minimal article card type (used in listings, trending, related) */
+export interface ArticleCard {
+    id: string;
+    title: string;
+    summary?: string;
+    content?: string;
+    media?: MediaItem[];
+    createdAt: FirebaseTimestamp;
+}
+
+// ── Review Types ────────────────────────────────────────────────────────────
 export interface Review {
     id: string;
-    name: string;
-    role: string;
-    content: string;
+    userName: string;
     rating: number;
-    avatar?: string;
+    comment: string;
+    createdAt: FirebaseTimestamp;
+    status?: string;
 }
 
-export interface Lead {
-    id?: string;
+// ── Project Types ───────────────────────────────────────────────────────────
+export interface ProjectItem {
+    title: string;
+    image?: string;
+    images?: string[];
+    tags?: string;
+    link?: string;
+    description?: string;
+    category: string;
+    slug?: string;
+}
+
+export interface ProjectsData {
+    items: ProjectItem[];
+    [key: string]: unknown;
+}
+
+// ── Notification Types ──────────────────────────────────────────────────────
+export interface AppNotification {
+    id: string;
+    senderName: string;
+    type: 'welcome' | 'like' | 'comment' | 'review_request' | 'article_approved';
+    link: string;
+    read: boolean;
+    createdAt: FirebaseTimestamp;
+}
+
+// ── User Types ──────────────────────────────────────────────────────────────
+/** Firebase Auth User - re-export for convenience */
+export type AppUser = User;
+
+/** User profile from Firestore */
+export interface UserProfile {
+    uid: string;
     name: string;
-    phone: string;
-    field?: string;
-    service?: string;
-    capturedAt: Date | { seconds: number; nanoseconds: number } | string;
-    source: string;
-    userId?: string;
+    email: string;
+    photoURL?: string;
+    bio?: string;
+    lastLoginAt?: FirebaseTimestamp;
+    createdAt?: FirebaseTimestamp;
 }
 
-export interface AiSettings {
-    systemRole: string;
-    prompt: string;
-    stylePrompt: string;
-    welcomeMessage: string;
-    geminiKey?: string;
-    groqKey?: string;
-    openRouterKey?: string;
-    modelName: string;
+// ── Chat Types ──────────────────────────────────────────────────────────────
+export interface ChatMessage {
+    id: string;
+    text: string;
+    sender: 'user' | 'assistant' | 'ai';
+    timestamp: FirebaseTimestamp;
+}
+
+export interface ChatSession {
+    id: string;
+    userName?: string;
+    userEmail?: string;
+    lastMessage?: string;
+    lastMessageAt: FirebaseTimestamp;
+    messageCount?: number;
+    startedAt?: FirebaseTimestamp;
+    userContext?: Record<string, unknown>;
+}
+
+// ── Branding ────────────────────────────────────────────────────────────────
+export interface BrandingSettings {
+    siteName?: string;
+    siteLogo?: string;
+    [key: string]: unknown;
+}
+
+// ── Utility: Firebase Error ─────────────────────────────────────────────────
+export interface FirebaseError extends Error {
+    code: string;
+}
+
+// ── Timestamp Helpers ───────────────────────────────────────────────────────
+/** Safely extract milliseconds from any Firebase timestamp shape */
+export function getTimestampMs(ts: FirebaseTimestamp | undefined): number {
+    if (!ts) return 0;
+    if (typeof ts === 'number') return ts;
+    if (typeof ts === 'string') return new Date(ts).getTime();
+    if (ts instanceof Date) return ts.getTime();
+    if (typeof ts === 'object') {
+        if ('toMillis' in ts && typeof ts.toMillis === 'function') return ts.toMillis();
+        if ('toDate' in ts && typeof ts.toDate === 'function') return ts.toDate().getTime();
+        if ('seconds' in ts && typeof ts.seconds === 'number') return ts.seconds * 1000;
+    }
+    return 0;
+}
+
+/** Format a Firebase timestamp to a localized date string */
+export function formatTimestamp(ts: FirebaseTimestamp | undefined, locale: string = 'en-US', options?: Intl.DateTimeFormatOptions): string {
+    const ms = getTimestampMs(ts);
+    if (!ms) return '';
+    const defaultOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+    return new Date(ms).toLocaleDateString(locale, options || defaultOptions);
 }

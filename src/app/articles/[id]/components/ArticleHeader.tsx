@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 interface ArticleHeaderProps {
     articleId: string;
     title: string;
-    summary: string;
+    summary?: string;
     isAuthor: boolean;
     deleting: boolean;
     formattedDate: string;

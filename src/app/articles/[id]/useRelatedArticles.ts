@@ -1,15 +1,9 @@
 import { useEffect, useState } from 'react';
 import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import type { ArticleCard } from '@/types';
 
-export type Article = {
-    id: string;
-    title: string;
-    summary?: string;
-    content?: string;
-    media?: { url: string; type: 'image' | 'video' }[];
-    createdAt: any;
-};
+export type Article = ArticleCard;
 
 export function useRelatedArticles(currentArticleId: string) {
     const [articles, setArticles] = useState<Article[]>([]);
