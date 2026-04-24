@@ -1,4 +1,4 @@
-import Skills from "@/components/sections/Skills";
+import Skills, { type SkillsData } from "@/components/sections/Skills";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { getDocument } from "@/lib/server-utils";
@@ -22,13 +22,13 @@ export const metadata: Metadata = {
 export const revalidate = 0; // Revalidate immediately (dynamic)
 
 export default async function SkillsPage() {
-    const skillsData = await getDocument("site_content", "skills");
+    const skillsData = await getDocument<SkillsData>("site_content", "skills");
 
     return (
-        <main className="min-h-screen bg-slate-950 text-slate-200">
+        <div className="min-h-screen">
             <Navbar />
             <div className="pt-20">
-                <Skills initialData={skillsData} />
+                <Skills initialData={skillsData ?? undefined} />
             </div>
             <Footer />
             <script
@@ -51,6 +51,6 @@ export default async function SkillsPage() {
                     })
                 }}
             />
-        </main>
+        </div>
     );
 }

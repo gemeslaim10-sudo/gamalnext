@@ -1,47 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Terminal, Menu, X } from 'lucide-react';
 import { AuthModal } from '../auth/AuthModal';
-import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import NotificationsDropdown from './NotificationsDropdown';
-import { usePathname } from 'next/navigation';
-import { useContent } from '@/hooks/useContent';
 import Image from 'next/image';
 
 // Extracted Sub-components
 import MegaMenu from '../navbar/MegaMenu';
 import UserMenu from '../navbar/UserMenu';
 import MobileMenu from '../navbar/MobileMenu';
-import { useBrandingContext } from '../providers/BrandingProvider';
+
+// Hook
+import { useNavbar } from './hooks/useNavbar';
 
 export default function Navbar({ isStatic = false }: { isStatic?: boolean }) {
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const { user, logout } = useAuth();
-    const pathname = usePathname();
-    const initialBranding = useBrandingContext();
-    const { data: branding } = useContent("site_content", "settings", initialBranding);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
-
-        // Listen for sidebar auth modal trigger
-        const handleOpenAuth = () => setIsAuthModalOpen(true);
-        document.addEventListener('open-auth-modal', handleOpenAuth);
-
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-            document.removeEventListener('open-auth-modal', handleOpenAuth);
-        };
-    }, []);
-
-    const isActive = (path: string) => pathname === path;
+    const {
+        isScrolled,
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+        user,
+        logout,
+        isActive,
+        branding
+    } = useNavbar();
 
     return (
         <>

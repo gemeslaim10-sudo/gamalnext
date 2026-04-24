@@ -25,7 +25,7 @@ export default async function ProjectsPage() {
     const projectsData = await getDocument("site_content", "projects");
 
     return (
-        <main className="min-h-screen bg-slate-950 text-slate-200">
+        <div className="min-h-screen">
             <Navbar />
             <div className="pt-20">
                 <Projects initialData={projectsData} />
@@ -51,6 +51,6 @@ export default async function ProjectsPage() {
                     })
                 }}
             />
-        </main>
+        </div>
     );
 }

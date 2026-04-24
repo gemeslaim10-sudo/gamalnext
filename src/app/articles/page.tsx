@@ -41,7 +41,7 @@ export default async function ArticlesPage() {
     }
 
     return (
-        <main className="min-h-screen bg-slate-950 text-white">
+        <div className="min-h-screen">
             <Navbar />
 
             <section className="pt-32 pb-20 px-4">
@@ -64,7 +64,7 @@ export default async function ArticlesPage() {
 
             <Footer />
             <Toaster />
-        </main>
+        </div>
     );
 }
 

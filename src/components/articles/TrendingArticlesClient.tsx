@@ -1,14 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { MoveRight, TrendingUp, Sparkles } from "lucide-react";
+import { MoveRight, Sparkles } from "lucide-react";
 import Reveal from "../sections/Reveal";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import ArticleCard from "./ArticleCard";
-import { Pagination, Autoplay, Navigation } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
+import { TrendingSwiper } from "./TrendingSwiper";
 
 type Article = {
     id: string;
@@ -31,12 +26,9 @@ export default function TrendingArticlesClient({ articles }: { articles: Article
 
     return (
         <section className="py-24 bg-[#020617] relative overflow-hidden">
-            {/* Rich Background Effects */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(234,179,8,0.05)_0%,_transparent_70%)]"></div>
             <div className="absolute -top-24 -left-20 w-[500px] h-[500px] bg-yellow-500/10 rounded-full blur-[120px] animate-pulse pointer-events-none"></div>
             <div className="absolute -bottom-24 -right-20 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-1000 pointer-events-none"></div>
-            
-            {/* Animated Grid Pattern */}
             <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-10 pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto px-4 relative z-10">
@@ -58,47 +50,7 @@ export default function TrendingArticlesClient({ articles }: { articles: Article
                     </p>
                 </Reveal>
 
-                <div className="mb-20 px-2 lg:px-0 relative group/swiper">
-                    <Swiper
-                        modules={[Pagination, Autoplay, Navigation]}
-                        dir="ltr"
-                        observer={true}
-                        observeParents={true}
-                        spaceBetween={16}
-                        slidesPerView={2}
-                        navigation={{
-                            nextEl: '.swiper-button-next-custom',
-                            prevEl: '.swiper-button-prev-custom',
-                        }}
-                        pagination={{ 
-                            clickable: true, 
-                            dynamicBullets: true,
-                        }}
-                        autoplay={{ delay: 6000, disableOnInteraction: false }}
-                        breakpoints={{
-                            480: { slidesPerView: 2, spaceBetween: 16 },
-                            768: { slidesPerView: 3, spaceBetween: 24 },
-                            1024: { slidesPerView: 4, spaceBetween: 30 },
-                        }}
-                        className="trending-swiper w-full overflow-hidden !pb-20 !pt-4 [&_.swiper-pagination-bullet-active]:bg-yellow-500 [&_.swiper-pagination-bullet-active]:scale-125 [&_.swiper-pagination-bullet]:transition-all [&_.swiper-pagination-bullet]:duration-300"
-                    >
-                        {articles.map((article) => (
-                            <SwiperSlide key={article.id} className="!h-auto">
-                                <ArticleCard article={article} />
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                    
-                    {/* Custom Navigation Buttons */}
-                    <div className="hidden lg:block">
-                        <button className="swiper-button-prev-custom absolute top-1/2 -left-4 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-slate-900/80 border border-slate-700 text-white hover:border-yellow-500 hover:text-yellow-500 transition-all shadow-xl backdrop-blur-md opacity-0 group-hover/swiper:opacity-100 group-hover/swiper:translate-x-0 -translate-x-4">
-                            <MoveRight className="w-6 h-6 rotate-180" />
-                        </button>
-                        <button className="swiper-button-next-custom absolute top-1/2 -right-4 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-slate-900/80 border border-slate-700 text-white hover:border-yellow-500 hover:text-yellow-500 transition-all shadow-xl backdrop-blur-md opacity-0 group-hover/swiper:opacity-100 group-hover/swiper:translate-x-0 translate-x-4">
-                            <MoveRight className="w-6 h-6" />
-                        </button>
-                    </div>
-                </div>
+                <TrendingSwiper articles={articles} />
 
                 <div className="text-center">
                     <Link 

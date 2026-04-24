@@ -1,47 +1,20 @@
 'use client';
 
-import { useState } from 'react';
-import { Table, Wand2, Download, Copy, FileJson, FileType, Check } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { useToolHistory } from '@/hooks/useToolHistory';
+import { Table, Wand2, Copy, Check } from 'lucide-react';
+import { useTableGenerator } from './hooks/useTableGenerator';
 
 export default function TableGeneratorPage() {
-    const [input, setInput] = useState('');
-    const [output, setOutput] = useState('');
-    const [format, setFormat] = useState('html');
-    const [loading, setLoading] = useState(false);
-    const [copied, setCopied] = useState(false);
-    const { addToHistory } = useToolHistory();
-
-    const handleGenerate = async () => {
-        if (!input.trim()) return;
-        setLoading(true);
-        try {
-            const res = await fetch('/api/ai-table', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: input, type: format }),
-            });
-            const data = await res.json();
-            if (res.ok) {
-                setOutput(data.data);
-                addToHistory('table-generator', 'صانع الجداول', `Generated ${format.toUpperCase()} table from text`);
-            } else {
-                toast.error("Failed to generate table");
-            }
-        } catch (e) {
-            toast.error("Error generating table");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(output);
-        setCopied(true);
-        toast.success("تم النسخ!");
-        setTimeout(() => setCopied(false), 2000);
-    };
+    const {
+        input,
+        setInput,
+        output,
+        format,
+        setFormat,
+        loading,
+        copied,
+        handleGenerate,
+        copyToClipboard
+    } = useTableGenerator();
 
     return (
         <div className="max-w-5xl mx-auto">

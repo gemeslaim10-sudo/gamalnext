@@ -1,5 +1,6 @@
 import { getDocument } from "@/lib/server-utils";
-import HeroClient, { HeroData } from "./HeroClient";
+import HeroClient from "./HeroClient";
+import type { HeroData } from "./hero/HeroConfig";
 
 export default async function Hero() {
     // Fetch hero content on the server side

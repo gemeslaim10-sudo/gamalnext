@@ -10,7 +10,7 @@ export const revalidate = 0; // Revalidate immediately (dynamic)
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-200">
+    <div className="min-h-screen">
       <Navbar />
       <Hero />
       <FeaturedProjects />
@@ -18,6 +18,6 @@ export default function Home() {
       <TrendingArticles />
       <Reviews />
       <Footer />
-    </main>
+    </div>
   );
 }

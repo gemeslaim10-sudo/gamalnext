@@ -20,12 +20,12 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
     return (
-        <main className="min-h-screen bg-slate-950 text-slate-200">
+        <div className="min-h-screen">
             <Navbar />
             <div className="pt-20">
                 <Contact />
             </div>
             <Footer />
-        </main>
+        </div>
     );
 }

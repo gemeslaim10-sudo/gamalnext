@@ -1,65 +1,9 @@
 'use client';
-import { MessageCircle, ChevronDown, ArrowRight, Star, Briefcase, Code2, TrendingUp, Sparkles, Globe, Terminal } from 'lucide-react';
-import Image from 'next/image';
+import { MessageCircle, ArrowRight, Sparkles } from 'lucide-react';
 import Reveal from './Reveal';
 import { useContent } from '@/hooks/useContent';
-import { useEffect, useRef, useState } from 'react';
-
-const defaultHeroData = {
-    heroTitle: "Gamal Abdelaty",
-    heroSubtitle: "Web Developer, E-commerce, and WhatsApp API",
-    heroDescription: "Specializing in creating scalable websites, premium e-commerce stores, and intelligent WhatsApp API solutions. I transform complex ideas into elegant digital experiences that drive real business growth.",
-    whatsappNumber: "201024531452",
-    resumeLink: "#projects",
-    avatarImage: "/gamal.jpg"
-};
-
-const STATS = [
-    { label: "Completed Projects", value: 120, suffix: "+", icon: Briefcase },
-    { label: "Happy Clients", value: 98, suffix: "%", icon: Star },
-    { label: "Technologies", value: 30, suffix: "+", icon: Code2 },
-    { label: "Years Exp.", value: 5, suffix: "+", icon: TrendingUp },
-];
-
-function AnimatedCounter({ target, suffix }: { target: number; suffix: string }) {
-    const [count, setCount] = useState(0);
-    const ref = useRef<HTMLSpanElement>(null);
-    const started = useRef(false);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(([entry]) => {
-            if (entry.isIntersecting && !started.current) {
-                started.current = true;
-                let start = 0;
-                const duration = 1800;
-                const step = Math.ceil(target / (duration / 16));
-                const timer = setInterval(() => {
-                    start += step;
-                    if (start >= target) {
-                        setCount(target);
-                        clearInterval(timer);
-                    } else {
-                        setCount(start);
-                    }
-                }, 16);
-            }
-        }, { threshold: 0.5 });
-
-        if (ref.current) observer.observe(ref.current);
-        return () => observer.disconnect();
-    }, [target]);
-
-    return <span ref={ref}>{count}{suffix}</span>;
-}
-
-export interface HeroData {
-    heroTitle: string;
-    heroSubtitle: string;
-    heroDescription: string;
-    whatsappNumber: string;
-    resumeLink: string;
-    avatarImage: string;
-}
+import { defaultHeroData, type HeroData } from './hero/HeroConfig';
+import { HeroVisuals } from './hero/HeroVisuals';
 
 export default function HeroClient({ initialData }: { initialData?: HeroData }) {
     const { data } = useContent("site_content", "hero", initialData || defaultHeroData);
@@ -146,84 +90,10 @@ export default function HeroClient({ initialData }: { initialData?: HeroData }) 
                                 Let&apos;s Talk
                             </a>
                         </Reveal>
-
-
                     </div>
 
                     {/* Right Column: Visuals & Composition */}
-                    <div className="relative flex justify-center items-center lg:justify-end lg:h-full py-10 lg:py-0 mt-8 lg:mt-0">
-                        <Reveal className="relative z-10 w-full max-w-[500px] lg:max-w-[600px] flex items-center justify-center">
-                            <div className="relative w-full h-full flex items-center group">
-                                
-                                {/* Decorative tech background shapes */}
-                                <div className="absolute top-[5%] right-[5%] w-[60%] h-[60%] bg-blue-500/20 rounded-[40px] rotate-12 blur-2xl transition-transform duration-700 pointer-events-none"></div>
-                                <div className="absolute bottom-[5%] left-[5%] w-[60%] h-[60%] bg-cyan-500/20 rounded-[40px] -rotate-6 blur-2xl transition-transform duration-700 pointer-events-none"></div>
-
-                                {/* Main Composition Wrapper */}
-                                <div className="relative w-full flex flex-col 2xl:flex-row items-center justify-center 2xl:justify-end gap-6 lg:gap-8 mt-10 sm:mt-12 lg:mt-0">
-                                    
-                                    {/* Subtle Ambient Motion Background (Fills empty space without breaking balance) */}
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] lg:w-[450px] lg:h-[450px] pointer-events-none z-0 opacity-30">
-                                        <div className="w-full h-full rounded-full border border-dashed border-blue-500/30 animate-[spin_60s_linear_infinite]"></div>
-                                        <div className="absolute inset-4 rounded-full border border-dashed border-cyan-500/20 animate-[spin_40s_linear_infinite_reverse]"></div>
-                                    </div>
-
-                                    {/* Avatar Container Wrapper */}
-                                    <div className="relative z-20 flex-shrink-0 group">
-                                        
-                                        {/* Premium Glowing Outer Ring (Visible on Hover) */}
-                                        <div className="absolute -inset-1 bg-gradient-to-tr from-blue-500/40 via-cyan-400/20 to-emerald-500/40 rounded-[2.8rem] blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out"></div>
-
-                                        {/* The Actual Image Container (Small on mobile, large on desktop) */}
-                                        <div className="relative w-[180px] h-[180px] sm:w-[260px] sm:h-[260px] lg:w-[320px] lg:h-[320px] 2xl:w-[340px] 2xl:h-[340px] rounded-[2.5rem] overflow-hidden border-2 border-slate-700/50 hover:border-blue-500/50 bg-[#0f172a] shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 relative z-10">
-                                            <Image
-                                                src={hero.avatarImage || "/gamal.jpg"}
-                                                alt={hero.heroTitle}
-                                                fill
-                                                priority
-                                                className="object-cover object-center grayscale-[15%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105"
-                                                sizes="(max-width: 768px) 100vw, 350px"
-                                            />
-                                            {/* Advanced Image Gradient Overlay */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/90 via-[#020617]/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
-                                        </div>
-                                    </div>
-
-                                    {/* Stats Grid - Perfectly Vertically Aligned, NO OVERLAP (Desktop 2XL) */}
-                                    <div className="hidden 2xl:grid grid-cols-2 gap-4 z-10 relative self-center flex-shrink-0">
-                                        {STATS.map(({ label, value, suffix, icon: Icon }, index) => (
-                                            <div 
-                                                key={label} 
-                                                className={`group/stat relative bg-gradient-to-b from-[#0b1120] to-[#040814] border border-slate-700/60 p-4 lg:p-5 rounded-[1.5rem] flex flex-col items-center justify-center text-center w-[110px] h-[110px] md:w-[130px] md:h-[130px] xl:w-[140px] xl:h-[140px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all duration-500 hover:-translate-y-1 flex-shrink-0 ${index % 2 !== 0 ? 'translate-y-6 lg:translate-y-8' : ''}`}
-                                            >
-                                                <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover/stat:opacity-100 rounded-[1.5rem] transition-opacity duration-500"></div>
-                                                <Icon className="w-5 h-5 lg:w-6 lg:h-6 text-blue-500 mb-2 lg:mb-3 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] group-hover/stat:scale-110 transition-transform duration-300" />
-                                                <span className="text-xl xl:text-2xl font-black text-white tracking-tight leading-none mb-1">
-                                                    <AnimatedCounter target={value} suffix={suffix} />
-                                                </span>
-                                                <span className="text-[9px] xl:text-[10px] text-slate-400 font-bold uppercase tracking-wider whitespace-nowrap">{label}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </Reveal>
-                        
-                        {/* Stats Row for Mobile & Tablet & LG Screens */}
-                        <Reveal className="stagger-5 w-full mt-10 2xl:hidden relative z-20">
-                            <div className="grid grid-cols-2 gap-3 px-2">
-                                {STATS.map(({ label, value, suffix, icon: Icon }) => (
-                                    <div key={label} className="bg-gradient-to-b from-[#0b1120] to-[#040814] border border-slate-800 p-4 sm:p-5 rounded-[1.5rem] flex flex-col items-center text-center shadow-2xl">
-                                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 mb-2 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                                        <span className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">
-                                            <AnimatedCounter target={value} suffix={suffix} />
-                                        </span>
-                                        <span className="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-wider">{label}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </Reveal>
-                    </div>
+                    <HeroVisuals hero={hero} />
                 </div>
             </div>
 

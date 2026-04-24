@@ -7,7 +7,7 @@ import { FileQuestion, Home, ArrowLeft } from 'lucide-react';
 
 export default function NotFound() {
     return (
-        <main className="min-h-screen bg-slate-950 text-slate-200 flex flex-col">
+        <div className="min-h-screen flex flex-col">
             <Navbar />
 
             <div className="flex-grow flex items-center justify-center relative overflow-hidden pt-20">
@@ -57,6 +57,6 @@ export default function NotFound() {
             </div>
 
             <Footer />
-        </main>
+        </div>
     );
 }

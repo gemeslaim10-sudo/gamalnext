@@ -1,116 +1,17 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { collection, query, where, orderBy, onSnapshot, updateDoc, doc, limit, Unsubscribe } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { useAuth } from "@/context/AuthContext";
-import { Bell, Check } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-
-// Hardcoded Admin emails check to simplify 'ADMIN' recipient logic
-const ADMIN_EMAILS = ["montasrrm@gmail.com", "gemeslaim10@gmail.com"];
-
-type Notification = {
-    id: string;
-    senderName: string;
-    type: 'welcome' | 'like' | 'comment' | 'review_request' | 'article_approved';
-    link: string;
-    read: boolean;
-    createdAt: any;
-}
+import { Bell } from "lucide-react";
+import { useNotifications, Notification } from "./hooks/useNotifications";
 
 export default function NotificationsDropdown() {
-    const { user } = useAuth();
-    const router = useRouter();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
-    const [isOpen, setIsOpen] = useState(false);
-
-    useEffect(() => {
-        if (!user) return;
-
-        const isAdmin = user.email && ADMIN_EMAILS.includes(user.email);
-
-        // ── Strategy ──
-        // Instead of a single query with `where("recipientId", "in", [uid, "ADMIN"])` + `orderBy`
-        // which requires a composite Firestore index that may not exist and can fail silently,
-        // we use **two independent listeners** for admins and merge results client-side.
-        // For regular users only one listener is created (no overhead).
-
-        const unsubscribers: Unsubscribe[] = [];
-
-        // Bucket for merging results from both listeners
-        let userNotifs: Notification[] = [];
-        let adminNotifs: Notification[] = [];
-
-        const mergeAndUpdate = () => {
-            // Combine, deduplicate by id, sort by createdAt descending, and limit to 20
-            const merged = new Map<string, Notification>();
-            for (const n of [...userNotifs, ...adminNotifs]) {
-                merged.set(n.id, n);
-            }
-            const sorted = Array.from(merged.values()).sort((a, b) => {
-                const getTime = (ts: any): number => {
-                    if (!ts) return 0;
-                    if (typeof ts.toMillis === 'function') return ts.toMillis();
-                    if (typeof ts.seconds === 'number') return ts.seconds * 1000;
-                    return 0;
-                };
-                return getTime(b.createdAt) - getTime(a.createdAt);
-            }).slice(0, 20);
-
-            setNotifications(sorted);
-            setUnreadCount(sorted.filter(n => !n.read).length);
-        };
-
-        // Listener 1: User-specific notifications (always active)
-        const userQuery = query(
-            collection(db, "notifications"),
-            where("recipientId", "==", user.uid),
-            orderBy("createdAt", "desc"),
-            limit(15)
-        );
-        unsubscribers.push(
-            onSnapshot(userQuery, (snap) => {
-                userNotifs = snap.docs.map(d => ({ id: d.id, ...d.data() } as Notification));
-                mergeAndUpdate();
-            }, (error) => {
-                console.error("User notifications listener error:", error);
-            })
-        );
-
-        // Listener 2: Admin broadcast notifications (only for admins)
-        if (isAdmin) {
-            const adminQuery = query(
-                collection(db, "notifications"),
-                where("recipientId", "==", "ADMIN"),
-                orderBy("createdAt", "desc"),
-                limit(15)
-            );
-            unsubscribers.push(
-                onSnapshot(adminQuery, (snap) => {
-                    adminNotifs = snap.docs.map(d => ({ id: d.id, ...d.data() } as Notification));
-                    mergeAndUpdate();
-                }, (error) => {
-                    console.error("Admin notifications listener error:", error);
-                })
-            );
-        }
-
-        return () => {
-            unsubscribers.forEach(unsub => unsub());
-        };
-    }, [user]);
-
-    const handleRead = async (notif: Notification) => {
-        if (!notif.read && user) {
-            // Mark as read
-            await updateDoc(doc(db, "notifications", notif.id), { read: true });
-        }
-        setIsOpen(false);
-        if (notif.link) router.push(notif.link);
-    };
+    const {
+        user,
+        notifications,
+        unreadCount,
+        isOpen,
+        setIsOpen,
+        handleRead
+    } = useNotifications();
 
     const getIcon = (type: string) => {
         switch (type) {

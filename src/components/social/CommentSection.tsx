@@ -1,90 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { collection, query, where, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { useAuth } from "@/context/AuthContext";
-import { toast } from "react-hot-toast";
-import { Send, Trash2, User } from "lucide-react";
+import { Send, Trash2 } from "lucide-react";
 import Link from "next/link";
-
-type Comment = {
-    id: string;
-    userId: string;
-    userName: string;
-    userPhoto: string;
-    content: string;
-    createdAt?: { toDate?: () => Date };
-}
+import { useComments } from "./hooks/useComments";
 
 export default function CommentSection({ articleId }: { articleId: string }) {
-    const { user } = useAuth();
-    const [comments, setComments] = useState<Comment[]>([]);
-    const [newComment, setNewComment] = useState("");
-    const [submitting, setSubmitting] = useState(false);
-
-    useEffect(() => {
-        const q = query(
-            collection(db, "comments"),
-            where("articleId", "==", articleId),
-            orderBy("createdAt", "desc")
-        );
-
-        const unsubscribe = onSnapshot(q, (snap) => {
-            const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Comment));
-            setComments(data);
-        }, (error) => {
-            console.error("Comments subscription error:", error);
-            if (error.code === 'failed-precondition') {
-                toast.error("Comments Index creation required (check console)");
-            }
-        });
-
-        return () => unsubscribe();
-    }, [articleId]);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!user) {
-            toast.error("You must log in to comment");
-            return;
-        }
-        if (!newComment.trim()) return;
-
-        setSubmitting(true);
-        try {
-            await addDoc(collection(db, "comments"), {
-                articleId,
-                userId: user.uid,
-                userName: user.displayName || "User",
-                userPhoto: user.photoURL || "",
-                content: newComment,
-                createdAt: serverTimestamp()
-            });
-            setNewComment("");
-            toast.success("Comment added successfully");
-        } catch (e: unknown) {
-            console.error("Error submitting comment:", e);
-            const errorObj = e as { code?: string };
-            if (errorObj.code === 'permission-denied') {
-                toast.error("Sorry, you don't have permission to comment. Please log in again.");
-            } else {
-                toast.error("An error occurred while posting the comment.");
-            }
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const handleDelete = async (id: string) => {
-        if (!confirm("Delete this comment?")) return;
-        try {
-            await deleteDoc(doc(db, "comments", id));
-            toast.success("Deleted");
-        } catch (e) {
-            toast.error("Error deleting");
-        }
-    };
+    const {
+        user,
+        comments,
+        newComment,
+        setNewComment,
+        submitting,
+        handleSubmit,
+        handleDelete
+    } = useComments(articleId);
 
     return (
         <div className="mt-16 border-t border-slate-800 pt-10">
@@ -121,7 +50,6 @@ export default function CommentSection({ articleId }: { articleId: string }) {
             ) : (
                 <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 text-center mb-12">
                     <p className="text-slate-400 mb-4">Log in to join the discussion</p>
-                    {/* Trigger Auth Modal logic needs context or parent passing. For now strictly informational or rely on Navbar login */}
                     <span className="text-sm text-slate-500">Use the login button in the top menu</span>
                 </div>
             )}

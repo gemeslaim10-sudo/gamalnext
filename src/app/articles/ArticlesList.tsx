@@ -1,83 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
-import Link from "next/link";
-import { Calendar, ArrowRight, Edit, Trash2 } from "lucide-react";
-import { toast } from "react-hot-toast";
-import { useRouter } from "next/navigation";
-
-type Article = {
-    id: string;
-    title: string;
-    slug: string;
-    content: string;
-    summary?: string;
-    media: { url: string; type: 'image' | 'video' }[];
-    createdAt: { seconds: number; nanoseconds?: number; toDate?: () => Date } | string | Date;
-    updatedAt?: { seconds: number; nanoseconds?: number; toDate?: () => Date } | string | Date;
-    authorId: string;
-}
+import { useArticlesList, type Article } from "./useArticlesList";
+import { ArticleCard } from "./components/ArticleCard";
 
 export default function ArticlesList({ initialArticles }: { initialArticles?: Article[] }) {
-    const [articles, setArticles] = useState<Article[]>(initialArticles || []);
-    const [loading, setLoading] = useState(!initialArticles);
-    const [deleting, setDeleting] = useState<string | null>(null);
+    const { articles, loading, deleting, handleDelete } = useArticlesList(initialArticles);
     const { user } = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-        const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            } as Article));
-            setArticles(data);
-            setLoading(false);
-        }, (error) => {
-            console.error("Error fetching articles:", error);
-            // toast.error("فشل تحميل المقالات. تأكد من نشر قواعد البيانات (Rules)."); // Optional: less spammy
-            setLoading(false);
-        });
-        return () => unsubscribe();
-    }, [initialArticles]);
-
-    const getSummary = (article: Article) => {
-        if (article.summary) return article.summary;
-        if (!article.content) return "";
-        return article.content.substring(0, 150) + "...";
-    };
-
-    const handleDelete = async (articleId: string, e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!confirm("هل أنت متأكد من حذف هذا المقال؟ لا يمكن التراجع عن هذه العملية.")) {
-            return;
-        }
-
-        setDeleting(articleId);
-        toast.loading("جاري حذف المقال...", { id: "delete-article" });
-
-        try {
-            await deleteDoc(doc(db, "articles", articleId));
-            toast.success("تم حذف المقال بنجاح!", { id: "delete-article" });
-        } catch (error) {
-            console.error("Delete error:", error);
-            toast.error("فشل حذف المقال", { id: "delete-article" });
-        } finally {
-            setDeleting(null);
-        }
-    };
-
-    const handleEdit = (articleId: string, e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        router.push(`/articles/${articleId}/edit`);
-    };
 
     const isAuthor = (article: Article) => {
         return user && article.authorId === user.uid;
@@ -99,110 +28,15 @@ export default function ArticlesList({ initialArticles }: { initialArticles?: Ar
 
     return (
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-            {articles.map((article) => {
-                const coverMedia = article.media?.[0]?.url;
-                const isVideo = article.media?.[0]?.type === 'video';
-                const canEdit = isAuthor(article);
-
-                return (
-                    <div key={article.id} className="relative group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all duration-300 hover:transform hover:-translate-y-2 shadow-lg hover:shadow-2xl">
-                        <Link href={`/articles/${article.id}`} className="block">
-                            <div className="h-56 sm:h-48 overflow-hidden relative">
-                                {coverMedia ? (
-                                    isVideo ? (
-                                        <video src={coverMedia} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" muted />
-                                    ) : (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={coverMedia} alt={article.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
-                                    )
-                                ) : (
-                                    // Beautiful gradient background for articles without images
-                                    <div className="w-full h-full relative overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
-
-                                        {/* Animated background pattern */}
-                                        <div className="absolute inset-0 opacity-20">
-                                            <div className="absolute top-0 left-0 w-full h-full">
-                                                <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white rounded-full blur-3xl animate-pulse"></div>
-                                                <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-blue-300 rounded-full blur-3xl animate-pulse delay-700"></div>
-                                            </div>
-                                        </div>
-
-                                        {/* Icon overlay */}
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="text-white/40 group-hover:text-white/60 transition-colors">
-                                                <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60"></div>
-                            </div>
-
-                            <div className="p-3 sm:p-4 md:p-6 flex flex-col h-full">
-                                <div className="flex items-center gap-2 text-slate-400 text-[10px] sm:text-xs mb-2 sm:mb-3 font-mono">
-                                    <Calendar className="w-3 h-3" />
-                                    {(() => {
-                                        const ca = article.createdAt;
-                                        if (!ca) return 'الان';
-                                        if (ca instanceof Date) {
-                                            return ca.toLocaleDateString('ar-EG');
-                                        }
-                                        if (typeof ca === 'string') {
-                                            return new Date(ca).toLocaleDateString('ar-EG');
-                                        }
-                                        if (typeof ca === 'object') {
-                                            if ('toDate' in ca && typeof ca.toDate === 'function') {
-                                                return ca.toDate().toLocaleDateString('ar-EG');
-                                            }
-                                            if ('seconds' in ca && typeof ca.seconds === 'number') {
-                                                return new Date(ca.seconds * 1000).toLocaleDateString('ar-EG');
-                                            }
-                                        }
-                                        return 'الان';
-                                    })()}
-                                </div>
-
-                                <h3 className="text-sm sm:text-base md:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-blue-400 transition-colors line-clamp-1 sm:line-clamp-2">
-                                    {article.title}
-                                </h3>
-
-                                <p className="text-slate-400 text-[11px] sm:text-xs md:text-sm line-clamp-2 sm:line-clamp-3 mb-3 sm:mb-4 leading-relaxed flex-grow">
-                                    {getSummary(article)}
-                                </p>
-
-                                <span className="text-blue-500 text-[11px] sm:text-sm font-bold flex items-center gap-2 mt-auto pt-3 sm:pt-4 border-t border-slate-800/50 w-full group-hover:text-blue-400">
-                                    عرض المزيد <ArrowRight className="w-4 h-4 group-hover:gap-2 transition-all mr-auto" />
-                                </span>
-                            </div>
-                        </Link>
-
-                        {/* Edit/Delete Buttons for Author */}
-                        {canEdit && (
-                            <div className="absolute top-4 left-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                <button
-                                    onClick={(e) => handleEdit(article.id, e)}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg shadow-lg transition-all backdrop-blur-sm"
-                                    title="تعديل المقال"
-                                >
-                                    <Edit className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onClick={(e) => handleDelete(article.id, e)}
-                                    disabled={deleting === article.id}
-                                    className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg shadow-lg transition-all disabled:opacity-50 backdrop-blur-sm"
-                                    title="حذف المقال"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                );
-            })}
+            {articles.map((article) => (
+                <ArticleCard 
+                    key={article.id} 
+                    article={article} 
+                    canEdit={!!isAuthor(article)} 
+                    isDeleting={deleting === article.id}
+                    onDelete={handleDelete}
+                />
+            ))}
         </div>
     );
 }

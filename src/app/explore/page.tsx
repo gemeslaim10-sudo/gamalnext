@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ExplorePage() {
     return (
-        <main className="min-h-screen bg-[#020617] relative selection:bg-blue-500/30 selection:text-blue-200 flex flex-col">
+        <div className="min-h-screen bg-[#020617] relative selection:bg-blue-500/30 selection:text-blue-200 flex flex-col">
             {/* Background Effects */}
             <div className="fixed inset-0 pointer-events-none">
                 <div className="absolute top-0 inset-x-0 h-[800px] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.1),rgba(255,255,255,0))]" />
@@ -48,6 +48,6 @@ export default function ExplorePage() {
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
     );
 }

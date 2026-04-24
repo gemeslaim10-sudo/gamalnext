@@ -1,52 +1,23 @@
 'use client';
 
-import { useState } from 'react';
 import { Lock, RefreshCw, Copy, Check, ShieldCheck } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { useToolHistory } from '@/hooks/useToolHistory';
+import { usePasswordGenerator } from './hooks/usePasswordGenerator';
 
 export default function PasswordGeneratorPage() {
-    const [password, setPassword] = useState('');
-    const [length, setLength] = useState(16);
-    const [includeUppercase, setIncludeUppercase] = useState(true);
-    const [includeNumbers, setIncludeNumbers] = useState(true);
-    const [includeSymbols, setIncludeSymbols] = useState(true);
-    const [copied, setCopied] = useState(false);
-    const { addToHistory } = useToolHistory();
-
-    const generatePassword = () => {
-        const lower = 'abcdefghijklmnopqrstuvwxyz';
-        const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const numbers = '0123456789';
-        const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-
-        let chars = lower;
-        if (includeUppercase) chars += upper;
-        if (includeNumbers) chars += numbers;
-        if (includeSymbols) chars += symbols;
-
-        let generated = '';
-        for (let i = 0; i < length; i++) {
-            generated += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        setPassword(generated);
-        setCopied(false);
-        // We log the action, but NOT the password itself for security
-        addToHistory('password-generator', 'مولد كلمات المرور', `Generated a ${length}-char password`);
-    };
-
-    const copyToClipboard = () => {
-        if (!password) return;
-        navigator.clipboard.writeText(password);
-        setCopied(true);
-        toast.success("تم النسخ!");
-        setTimeout(() => setCopied(false), 2000);
-    };
-
-    // Auto generate on first load
-    useState(() => {
-        generatePassword();
-    });
+    const {
+        password,
+        length,
+        setLength,
+        includeUppercase,
+        setIncludeUppercase,
+        includeNumbers,
+        setIncludeNumbers,
+        includeSymbols,
+        setIncludeSymbols,
+        copied,
+        generatePassword,
+        copyToClipboard
+    } = usePasswordGenerator();
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -56,7 +27,6 @@ export default function PasswordGeneratorPage() {
             </h1>
 
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
-                {/* Display */}
                 <div className="relative mb-8">
                     <div className="bg-slate-950 border border-slate-700 rounded-xl p-6 text-center">
                         <span className="text-2xl md:text-3xl font-mono font-bold tracking-wider text-white break-all">
@@ -72,7 +42,6 @@ export default function PasswordGeneratorPage() {
                     </button>
                 </div>
 
-                {/* Strength Meter */}
                 <div className="flex gap-1 mb-8">
                     <div className={`h-2 flex-1 rounded-full ${length > 8 ? 'bg-red-500' : 'bg-slate-700'}`}></div>
                     <div className={`h-2 flex-1 rounded-full ${length > 10 ? 'bg-orange-500' : 'bg-slate-700'}`}></div>
@@ -80,7 +49,6 @@ export default function PasswordGeneratorPage() {
                     <div className={`h-2 flex-1 rounded-full ${length >= 14 && includeSymbols ? 'bg-green-500' : 'bg-slate-700'}`}></div>
                 </div>
 
-                {/* Controls */}
                 <div className="space-y-6">
                     <div>
                         <div className="flex justify-between text-sm text-slate-400 mb-2">

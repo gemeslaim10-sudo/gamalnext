@@ -3,31 +3,18 @@
 import { useState, useEffect, useRef } from "react";
 import { Bot, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { useAuth } from "@/context/AuthContext";
 
 // Extracted Sub-components
 import ChatHeader from "../chat/ChatHeader";
 import ChatMessage from "../chat/ChatMessage";
 import ChatInput from "../chat/ChatInput";
 
-type Message = {
-    role: 'user' | 'model';
-    text: string;
-};
+import { useAiChat } from "./useAiChat";
 
 export default function AiChatWidget() {
-    const { user } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [input, setInput] = useState("");
-    const [loading, setLoading] = useState(false);
-
-    // User Context for AI
-    const [userContext, setUserContext] = useState({ name: "Guest", gender: "Unknown" });
+    const { messages, input, setInput, loading, handleSubmit } = useAiChat(isOpen);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const hasInitialized = useRef(false);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -43,128 +30,6 @@ export default function AiChatWidget() {
         document.addEventListener('open-chat-widget', handleOpenChat);
         return () => document.removeEventListener('open-chat-widget', handleOpenChat);
     }, []);
-
-    // Initialize: Fetch Settings & User Profile
-    useEffect(() => {
-        const initChat = async () => {
-            if (hasInitialized.current) return;
-            hasInitialized.current = true;
-
-            try {
-                // 1. Fetch AI Settings (Welcome Message)
-                let welcomeText = "Welcome to Gamal's platform 👋 Glad to have you here!\nI am the virtual assistant here, excited to introduce you to Gamal and his amazing services: building websites, creating e-commerce stores (WordPress & Shopify), and providing integrated WhatsApp API solutions. 🚀\n\nMay I know your name? I'd be very happy to assist you! 😊";
-                const aiDoc = await getDoc(doc(db, "settings", "ai"));
-                if (aiDoc.exists() && aiDoc.data().welcomeMessage) {
-                    welcomeText = aiDoc.data().welcomeMessage;
-                }
-
-                // 2. Fetch User Details if logged in
-                let userName = "Guest";
-                let userGender = "Unknown";
-
-                if (user) {
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        userName = userData.name || user.displayName || "User";
-                        userGender = userData.gender || "Unknown";
-                    } else {
-                        userName = user.displayName || "User";
-                    }
-                }
-
-                setUserContext({ name: userName, gender: userGender });
-
-                // 3. Personalize Welcome Message
-                if (userName !== "Guest") {
-                    welcomeText = welcomeText.replace("{name}", userName);
-                } else {
-                    welcomeText = welcomeText.replace("{name}", "my friend");
-                }
-
-                setMessages([{ role: 'model', text: welcomeText }]);
-
-            } catch (error) {
-                console.error("Chat Init Error:", error);
-            }
-        };
-
-        if (isOpen) {
-            initChat();
-        }
-    }, [isOpen, user]);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!input.trim() || loading) return;
-
-        const userMessage = input.trim();
-        setInput("");
-        setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
-        setLoading(true);
-
-        try {
-            // Transform history for Gemini API (user/model roles)
-            const history = messages.map(m => ({
-                role: m.role,
-                parts: [{ text: m.text }]
-            }));
-
-            // Get or create Session ID:
-            // - Authenticated users get a deterministic ID based on their UID
-            //   (consistent across tabs and devices).
-            // - Guests get a UUID stored in localStorage
-            //   (persists across tabs in the same browser).
-            let sessionId: string;
-            if (user?.uid) {
-                sessionId = `session_${user.uid}`;
-            } else {
-                sessionId = localStorage.getItem("chatSessionId") || "";
-                if (!sessionId) {
-                    sessionId = crypto.randomUUID();
-                    localStorage.setItem("chatSessionId", sessionId);
-                }
-            }
-
-            const res = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: userMessage,
-                    history,
-                    userContext, // Pass user context to API
-                    sessionId // Pass Session ID for archiving
-                }),
-            });
-
-            const data = await res.json().catch(() => ({})); // Safe parse
-
-            if (!res.ok) {
-                // Use backend error message if available
-                const errorMessage = data.error || data.details || "Failed to connect to the server";
-                throw new Error(errorMessage);
-            }
-
-            setMessages(prev => [...prev, { role: 'model', text: data.response }]);
-
-        } catch (error: any) {
-            console.error("Chat Error:", error);
-
-            let userFriendlyError = `⚠️ Sorry, an error occurred: ${error.message || "An unexpected error occurred"}`;
-
-            // Handle Network/Server Down errors specifically
-            if (error.message && (error.message.includes("Failed to fetch") || error.message.includes("NetworkError"))) {
-                userFriendlyError = "⚠️ Sorry, cannot connect to the server right now. The server might be updating or restarting. Please try again in a few seconds.";
-            }
-
-            setMessages(prev => [...prev, {
-                role: 'model',
-                text: userFriendlyError
-            }]);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
         <>
