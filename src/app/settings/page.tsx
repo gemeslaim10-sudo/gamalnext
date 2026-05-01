@@ -8,6 +8,7 @@ import { useSettings } from "./useSettings";
 import { ProfileAvatar } from "./components/ProfileAvatar";
 import { SettingsForm } from "./components/SettingsForm";
 import { DangerZone } from "./components/DangerZone";
+import { LoginPrompt } from "@/components/auth/LoginPrompt";
 
 export default function SettingsPage() {
     const {
@@ -23,7 +24,7 @@ export default function SettingsPage() {
 
     if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white"><Loader2 className="animate-spin" /></div>;
 
-    if (!user) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Please login first.</div>;
+    if (!user) return <LoginPrompt title="Settings Locked" description="Please sign in to manage your account settings." />;
 
     return (
         <div className="min-h-screen pb-20">
@@ -31,7 +32,7 @@ export default function SettingsPage() {
 
             <div className="pt-32 px-4 max-w-2xl mx-auto">
                 <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-                    <h1 className="text-3xl font-bold text-white mb-8 text-center border-b border-slate-800 pb-4">إعدادات الملف الشخصي</h1>
+                    <h1 className="text-3xl font-bold text-white mb-8 text-center border-b border-slate-800 pb-4">Profile Settings</h1>
 
                     <ProfileAvatar
                         photoURL={formData.photoURL}

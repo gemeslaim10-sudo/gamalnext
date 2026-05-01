@@ -11,6 +11,7 @@ export default function AdminLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { user } = useAuth();
     const router = useRouter();
 
@@ -19,8 +20,6 @@ export default function AdminLogin() {
         return null;
     }
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -28,12 +27,17 @@ export default function AdminLogin() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             router.push("/admin");
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
-            if (err.code === "auth/invalid-credential" || err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
-                setError("Incorrect email or password.");
-            } else if (err.code === "auth/too-many-requests") {
-                setError("Too many attempts. Try again later.");
+            if (err instanceof Error && 'code' in err) {
+                const code = err.code as string;
+                if (code === "auth/invalid-credential" || code === "auth/user-not-found" || code === "auth/wrong-password") {
+                    setError("Incorrect email or password.");
+                } else if (code === "auth/too-many-requests") {
+                    setError("Too many attempts. Try again later.");
+                } else {
+                    setError("Failed to login. Please check your connection.");
+                }
             } else {
                 setError("Failed to login. Please check your connection.");
             }

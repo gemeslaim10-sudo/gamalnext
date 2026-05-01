@@ -17,6 +17,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".firebase/**",
+    "firebase-debug.log",
+    "node_modules/**"
   ]),
 ]);
 

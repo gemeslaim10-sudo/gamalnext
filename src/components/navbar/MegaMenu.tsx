@@ -29,7 +29,7 @@ export default function MegaMenu() {
                         </div>
                         <div>
                             <h4 className="font-bold text-white text-sm">My Work</h4>
-                            <p className="text-slate-500 text-xs mt-0.5">A collection of projects I've built</p>
+                            <p className="text-slate-500 text-xs mt-0.5">A collection of projects I&apos;ve built</p>
                         </div>
                     </Link>
                 </div>

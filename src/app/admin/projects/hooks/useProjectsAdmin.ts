@@ -11,7 +11,7 @@ export function useProjectsAdmin() {
         defaultValues: { items: [] }
     });
 
-    const { fields, append, prepend, remove } = useFieldArray({ control, name: "items" });
+    const { fields, prepend, remove } = useFieldArray({ control, name: "items" });
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -62,7 +62,7 @@ export function useProjectsAdmin() {
             await setDoc(doc(db, "site_content", "projects"), data);
             await revalidateProjects();
             toast.success("تم تحديث المشاريع بنجاح!");
-        } catch (e) {
+        } catch {
             toast.error("حدث خطأ أثناء الحفظ.");
         }
     };
@@ -92,7 +92,11 @@ export function useProjectsAdmin() {
     const toggleExpand = (id: string) => {
         setExpandedCards(prev => {
             const next = new Set(prev);
-            next.has(id) ? next.delete(id) : next.add(id);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
             return next;
         });
     };

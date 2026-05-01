@@ -10,7 +10,7 @@ import { db } from "@/lib/firebase";
 import { toast, Toaster } from "react-hot-toast";
 import RelatedArticles from "./RelatedArticles";
 import type { FirebaseTimestamp } from "@/types";
-import { getTimestampMs, formatTimestamp } from "@/types";
+import { formatTimestamp } from "@/types";
 
 import { ArticleHeader } from "./components/ArticleHeader";
 import { ArticleMedia } from "./components/ArticleMedia";

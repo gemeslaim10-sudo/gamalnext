@@ -20,7 +20,7 @@ export default function AdminDashboard() {
                 const { getDoc, doc } = await import("firebase/firestore");
 
                 // Helper to get array length
-                const getArrayCount = async (docName: string, fieldName: string) => {
+                const getArrayCount = async (docName: string) => {
                     const d = await getDoc(doc(db, "site_content", docName));
                     if (d.exists()) {
                         const data = d.data();
@@ -31,8 +31,8 @@ export default function AdminDashboard() {
                     return 0;
                 };
 
-                const skillsCount = await getArrayCount("skills", "mainSkills");
-                const projectsCount = await getArrayCount("projects", "items");
+                const skillsCount = await getArrayCount("skills");
+                const projectsCount = await getArrayCount("projects");
 
                 // Fetch counts from actual collections
                 let reviewCount = 0;

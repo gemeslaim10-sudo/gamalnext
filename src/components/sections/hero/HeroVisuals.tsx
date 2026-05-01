@@ -36,7 +36,7 @@ export function HeroVisuals({ hero }: { hero: HeroData }) {
                                     fill
                                     priority
                                     className="object-cover object-center grayscale-[15%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105"
-                                    sizes="(max-width: 768px) 100vw, 350px"
+                                    sizes="(max-width: 768px) 180px, 350px"
                                 />
                                 {/* Advanced Image Gradient Overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/90 via-[#020617]/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>

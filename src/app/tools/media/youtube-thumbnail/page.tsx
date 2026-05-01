@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Youtube, Search, Download, Image as ImageIcon } from 'lucide-react';
+import { Youtube, Download } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useToolHistory } from '@/hooks/useToolHistory';
 
@@ -40,7 +40,7 @@ export default function YoutubeThumbnailPage() {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        } catch (e) {
+        } catch {
             // Because of CORS, sometimes direct download fails if not proxied.
             // Fallback: Open in new tab
             window.open(imgUrl, '_blank');

@@ -15,7 +15,7 @@ export function useEditArticle(id: string) {
         content: "",
         summary: "",
         tags: "",
-        media: [] as any[]
+        media: [] as { url: string; type: 'image' | 'video' }[]
     });
 
     useEffect(() => {

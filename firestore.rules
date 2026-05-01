@@ -81,14 +81,22 @@ service cloud.firestore {
 
     // 8. AI Chat Sessions
     match /chat_sessions/{sessionId} {
-      allow create, update: if true;
-      allow read, delete: if isAdmin();
+      // Allow anyone to create/update their session.
+      // Reading requires knowing the sessionId (which is a UUID for guests, or session_uid for users).
+      allow create, update, read: if true;
+      allow delete: if isAdmin();
+
+      // Rules for the messages subcollection
+      match /messages/{messageId} {
+        allow read, create: if true;
+        allow update, delete: if isAdmin();
+      }
     }
 
     // 9. Leads
     match /leads/{leadId} {
-      allow create: if true;
-      allow read, update, delete: if isAdmin();
+      allow create, update: if true;
+      allow read, delete: if isAdmin();
     }
 
     // 10. User History (Tools Usage)
@@ -97,6 +105,18 @@ service cloud.firestore {
       allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
       allow delete: if isAuth() && resource.data.userId == request.auth.uid;
       allow update: if false; // لا يُسمح بالتعديل
+    }
+
+    // 11. Ads
+    match /ads/{adId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 12. Tools
+    match /tools/{toolId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

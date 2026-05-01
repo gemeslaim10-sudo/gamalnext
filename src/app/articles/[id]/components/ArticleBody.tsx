@@ -14,7 +14,7 @@ export function ArticleBody({ articleId, content, contentDir }: ArticleBodyProps
                 <div dir={contentDir} className={`article-content prose prose-lg md:prose-xl prose-invert mx-auto leading-loose text-slate-300 prose-p:text-slate-300 prose-headings:text-white prose-a:text-blue-400 prose-strong:text-white prose-strong:font-bold ${contentDir === 'rtl' ? 'article-rtl' : ''}`}>
                     <ReactMarkdown
                         components={{
-                            a: ({ node, ...props }) => (
+                            a: ({ ...props }) => (
                                 <a
                                     {...props}
                                     dir="auto"

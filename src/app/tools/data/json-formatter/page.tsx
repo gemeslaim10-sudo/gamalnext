@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Code, Check, AlertTriangle, Copy, Trash2, FileJson } from 'lucide-react';
+import { Code, AlertTriangle, Copy, Trash2, FileJson } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useToolHistory } from '@/hooks/useToolHistory';
 
@@ -18,8 +18,8 @@ export default function JsonFormatterPage() {
             setError(null);
             toast.success("Valid JSON Formatted");
             addToHistory('json-formatter', 'منسق JSON', 'Formatted JSON Code');
-        } catch (e: any) {
-            setError(e.message);
+        } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : String(e));
             toast.error("Invalid JSON");
         }
     };
@@ -31,8 +31,8 @@ export default function JsonFormatterPage() {
             setInput(JSON.stringify(parsed));
             setError(null);
             toast.success("Minified");
-        } catch (e: any) {
-            setError(e.message);
+        } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : String(e));
         }
     };
 

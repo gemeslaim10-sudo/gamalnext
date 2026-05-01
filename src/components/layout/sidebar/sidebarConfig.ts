@@ -29,6 +29,7 @@ export const EXCLUDED_PREFIXES = ['/admin', '/tools'];
 // ─── Context Info Mapper ──────────────────────────────────────────────────────
 export function getContextInfo(pathname: string) {
     if (pathname === '/') return { title: 'Home', icon: Home };
+    if (pathname.startsWith('/profile')) return { title: 'Profile', icon: Briefcase };
     if (pathname.startsWith('/articles')) return { title: 'Blog', icon: Newspaper };
     if (pathname.startsWith('/projects')) return { title: 'Portfolio', icon: FolderOpen };
     if (pathname.startsWith('/skills')) return { title: 'Skills', icon: Sparkles };
@@ -42,7 +43,7 @@ export function getContextInfo(pathname: string) {
 // ─── Nav Items ────────────────────────────────────────────────────────────────
 export const NAV_ITEMS = [
     { name: 'Home', href: '/', icon: Home },
-    { name: 'Explore Feed', href: '/explore', icon: Sparkles },
+    { name: 'Profile', href: '/profile', icon: Briefcase },
     { name: 'Portfolio', href: '/projects', icon: FolderOpen },
     { name: 'Blog', href: '/articles', icon: Newspaper },
     { name: 'Tools', href: '/tools', icon: Wrench },

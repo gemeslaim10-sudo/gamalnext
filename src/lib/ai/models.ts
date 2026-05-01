@@ -4,7 +4,7 @@ interface GeminiModel {
 }
 
 export async function discoverModels(apiKey: string, preferredModel?: string): Promise<string[]> {
-    let candidateModels: string[] = [];
+    const candidateModels: string[] = [];
     const isAuto = !preferredModel || preferredModel.toLowerCase() === "auto" || preferredModel.toLowerCase() === "تلقائي";
 
     if (preferredModel && !isAuto) {

@@ -4,7 +4,7 @@ import { SkillsForm } from "../types";
 
 interface TechStackSectionProps {
     techFields: Record<"id", string>[];
-    appendTech: (value: any) => void;
+    appendTech: (value: { name: string; val: string }) => void;
     removeTech: (index: number) => void;
     register: UseFormRegister<SkillsForm>;
 }

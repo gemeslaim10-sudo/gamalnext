@@ -1,113 +1,79 @@
-import { useState, useEffect, useRef } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import type { Message, UserContext } from "./types";
+import { useChatStore } from "@/store/chatStore";
 
 export function useAiChat(isOpen: boolean) {
     const { user } = useAuth();
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [input, setInput] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [userContext, setUserContext] = useState<UserContext>({ name: "Guest", gender: "Unknown" });
+    const store = useChatStore();
 
-    const hasInitialized = useRef(false);
-
-    // Initialize: Fetch Settings & User Profile
     useEffect(() => {
-        const initChat = async () => {
-            if (hasInitialized.current) return;
-            hasInitialized.current = true;
-
-            try {
-                // 1. Fetch AI Settings (Welcome Message)
-                let welcomeText = "Welcome to Gamal's platform 👋 Glad to have you here!\nI am the virtual assistant here, excited to introduce you to Gamal and his amazing services: building websites, creating e-commerce stores (WordPress & Shopify), and providing integrated WhatsApp API solutions. 🚀\n\nMay I know your name? I'd be very happy to assist you! 😊";
-                const aiDoc = await getDoc(doc(db, "settings", "ai"));
-                if (aiDoc.exists() && aiDoc.data().welcomeMessage) {
-                    welcomeText = aiDoc.data().welcomeMessage;
-                }
-
-                // 2. Fetch User Details if logged in
-                let userName = "Guest";
-                let userGender = "Unknown";
-
-                if (user) {
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        userName = userData.name || user.displayName || "User";
-                        userGender = userData.gender || "Unknown";
-                    } else {
-                        userName = user.displayName || "User";
-                    }
-                }
-
-                setUserContext({ name: userName, gender: userGender });
-
-                // 3. Personalize Welcome Message
-                if (userName !== "Guest") {
-                    welcomeText = welcomeText.replace("{name}", userName);
-                } else {
-                    welcomeText = welcomeText.replace("{name}", "my friend");
-                }
-
-                setMessages([{ role: 'model', text: welcomeText }]);
-
-            } catch (error) {
-                console.error("Chat Init Error:", error);
-            }
-        };
-
         if (isOpen) {
-            initChat();
+            store.initChat(user);
         }
-    }, [isOpen, user]);
+    }, [isOpen, user, store]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!input.trim() || loading) return;
+        
+        if (!store.input.trim() || store.loading) return;
 
-        const userMessage = input.trim();
-        setInput("");
-        setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
-        setLoading(true);
+        const userMessage = store.input.trim();
+        store.setInput("");
+        store.addMessage({ role: 'user', text: userMessage });
+        store.setLoading(true);
 
         try {
-            const history = messages.map(m => ({
-                role: m.role,
-                parts: [{ text: m.text }]
-            }));
-
-            let sessionId: string;
-            if (user?.uid) {
-                sessionId = `session_${user.uid}`;
-            } else {
-                sessionId = localStorage.getItem("chatSessionId") || "";
-                if (!sessionId) {
-                    sessionId = crypto.randomUUID();
-                    localStorage.setItem("chatSessionId", sessionId);
+            // Build clean history: filter errors, then merge consecutive same-role messages
+            const cleanMessages = store.messages.filter(m => !m.isError);
+            const history: { role: string; parts: { text: string }[] }[] = [];
+            
+            for (const m of cleanMessages) {
+                const last = history[history.length - 1];
+                if (last && last.role === m.role) {
+                    last.parts[0].text += "\n" + m.text;
+                } else {
+                    history.push({ role: m.role, parts: [{ text: m.text }] });
                 }
             }
+            
+            // Gemini requires history to start with 'user'
+            while (history.length > 0 && history[0].role === 'model') {
+                history.shift();
+            }
+
+            const requestBody = {
+                message: userMessage,
+                history,
+                userContext: store.userContext,
+                sessionId: store.sessionId
+            };
 
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: userMessage,
-                    history,
-                    userContext,
-                    sessionId
-                }),
+                body: JSON.stringify(requestBody),
             });
 
-            const data = await res.json().catch(() => ({})); 
+            const rawText = await res.text();
+            
+            let data: Record<string, unknown>;
+            try {
+                data = JSON.parse(rawText);
+            } catch {
+                throw new Error("Invalid response from server");
+            }
 
-            if (!res.ok) {
-                const errorMessage = data.error || data.details || "Failed to connect to the server";
+            if (!res.ok || data.error) {
+                const errorMessage = (data.error || data.details || "Failed to connect to the server") as string;
                 throw new Error(errorMessage);
             }
 
-            setMessages(prev => [...prev, { role: 'model', text: data.response }]);
+            const responseText = (data.response || data.text || data.message || "") as string;
+            if (!responseText) {
+                throw new Error("Received empty response from AI");
+            }
+
+            store.addMessage({ role: 'model', text: responseText });
 
         } catch (error) {
             console.error("Chat Error:", error);
@@ -119,20 +85,22 @@ export function useAiChat(isOpen: boolean) {
                 userFriendlyError = "⚠️ Sorry, cannot connect to the server right now. The server might be updating or restarting. Please try again in a few seconds.";
             }
 
-            setMessages(prev => [...prev, {
+            store.addMessage({
                 role: 'model',
-                text: userFriendlyError
-            }]);
+                text: userFriendlyError,
+                isError: true
+            });
         } finally {
-            setLoading(false);
+            store.setLoading(false);
         }
     };
 
     return {
-        messages,
-        input,
-        setInput,
-        loading,
-        handleSubmit
+        messages: store.messages,
+        input: store.input,
+        setInput: store.setInput,
+        loading: store.loading,
+        handleSubmit,
+        clearChat: store.clearChat
     };
 }

@@ -26,7 +26,7 @@ export function useTableGenerator() {
             } else {
                 toast.error("Failed to generate table");
             }
-        } catch (e) {
+        } catch {
             toast.error("Error generating table");
         } finally {
             setLoading(false);

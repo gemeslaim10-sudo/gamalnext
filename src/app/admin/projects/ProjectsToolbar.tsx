@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Save, Search, ChevronDown, ChevronUp, LayoutGrid, List, X, Filter } from "lucide-react";
+import { Plus, Save, Search, ChevronDown, ChevronUp, LayoutGrid, List, X } from "lucide-react";
 import { CATEGORY_CONFIG } from "./types";
 
 interface ProjectsToolbarProps {

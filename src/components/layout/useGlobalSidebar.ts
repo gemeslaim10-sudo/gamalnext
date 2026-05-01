@@ -15,12 +15,15 @@ export function useGlobalSidebar() {
     const shouldHide = EXCLUDED_PREFIXES.some(p => pathname.startsWith(p));
 
     useEffect(() => {
+
         setMounted(true);
         if (isLargeScreen()) setIsOpen(true);
 
         const handleResize = () => {
             if (window.innerWidth >= 1024) {
                 setIsOpen(true);
+            } else {
+                setIsOpen(false);
             }
         };
         window.addEventListener('resize', handleResize);
@@ -35,7 +38,7 @@ export function useGlobalSidebar() {
                 const data = await res.json();
                 setArticles(data.articles || []);
                 setProjects(data.projects || []);
-            } catch (err) {
+            } catch {
                 // Silent fail
             }
         };
@@ -44,14 +47,17 @@ export function useGlobalSidebar() {
 
     const randomArticles = useMemo(
         () => shuffleAndPick(articles, 3),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [articles, pathname]
     );
     const randomProjects = useMemo(
         () => shuffleAndPick(projects, 3),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [projects, pathname]
     );
     const randomTools = useMemo(
         () => shuffleAndPick(ALL_TOOLS, 3),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [pathname]
     );
 
@@ -59,6 +65,7 @@ export function useGlobalSidebar() {
 
     useEffect(() => {
         if (!isLargeScreen()) {
+
             setIsOpen(false);
         }
     }, [pathname]);

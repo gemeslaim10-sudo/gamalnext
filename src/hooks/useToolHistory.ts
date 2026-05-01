@@ -1,7 +1,7 @@
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from 'react-hot-toast';
+
 
 // Global map to throttle writes to Firestore (1 write per minute per tool)
 const lastWriteMap = new Map<string, number>();

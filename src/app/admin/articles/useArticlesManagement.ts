@@ -49,7 +49,7 @@ export function useArticlesManagement() {
                 });
             }
             toast.success("Article Published & Author Notified!");
-        } catch (e) {
+        } catch {
             toast.error("Error approving article");
         }
     };
@@ -77,7 +77,7 @@ export function useArticlesManagement() {
             try {
                 await deleteDoc(doc(db, "articles", id));
                 toast.success("Article deleted");
-            } catch (e) {
+            } catch {
                 toast.error("Error deleting article");
             }
         }

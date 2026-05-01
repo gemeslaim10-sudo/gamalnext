@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { FileText, AlignLeft, Clock } from 'lucide-react';
+import { FileText, AlignLeft } from 'lucide-react';
 import { useToolHistory } from '@/hooks/useToolHistory';
 
 export default function TextAnalyzerPage() {
@@ -29,6 +29,7 @@ export default function TextAnalyzerPage() {
             }
         }, 3000);
         return () => clearTimeout(timeout);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stats.words, stats.chars]);
 
     return (

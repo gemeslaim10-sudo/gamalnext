@@ -6,7 +6,15 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 interface ToolCardProps {
-    tool: any;
+    tool: {
+        name: string;
+        href: string;
+        description: string;
+        icon: string;
+        bg?: string;
+        color?: string;
+        border?: string;
+    };
 }
 
 export function ToolCard({ tool }: ToolCardProps) {

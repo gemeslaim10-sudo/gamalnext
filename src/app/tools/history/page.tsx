@@ -5,13 +5,14 @@ import { useAuth } from '@/context/AuthContext';
 import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { FileText, Music, Video, Calendar, Download } from 'lucide-react';
+import { LoginPrompt } from '@/components/auth/LoginPrompt';
 
 type HistoryItem = {
     id: string;
     toolId: string;
     description: string;
     fileUrl?: string;
-    createdAt: any;
+    createdAt: { seconds: number; nanoseconds: number } | null;
     type: 'audio' | 'video' | 'text' | 'image' | 'other';
 };
 
@@ -36,7 +37,7 @@ export default function UserHistoryPage() {
                 const snap = await getDocs(q);
                 // Graceful fallback for missing index if it happens (though we should create one)
                 setHistory(snap.docs.map(d => ({ id: d.id, ...d.data() } as HistoryItem)));
-            } catch (e: any) {
+            } catch (e: unknown) {
                 console.error(e);
                 // If index missing, just try simpler query or fail silently on list
             } finally {
@@ -47,7 +48,7 @@ export default function UserHistoryPage() {
         fetchHistory();
     }, [user]);
 
-    if (!user) return <div className="p-10 text-center text-slate-400">Please login to view history.</div>;
+    if (!user) return <div className="mt-8"><LoginPrompt title="User History" description="Please sign in to view the history of files you created using our tools." /></div>;
     if (loading) return <div className="p-10 text-center text-slate-400">Loading history...</div>;
 
     const getIcon = (type: string) => {
@@ -62,14 +63,14 @@ export default function UserHistoryPage() {
     return (
         <div>
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-white mb-2">سجل ملفاتي</h1>
-                <p className="text-slate-400">جميع الملفات التي قمت بإنشائها باستخدام الأدوات.</p>
+                <h1 className="text-3xl font-bold text-white mb-2">My Files History</h1>
+                <p className="text-slate-400">All files you have generated using the tools.</p>
             </div>
 
             {history.length === 0 ? (
                 <div className="bg-slate-900/50 border border-dashed border-slate-700 rounded-xl p-12 text-center">
-                    <p className="text-slate-500 text-lg mb-4">لا يوجد سجلات بعد</p>
-                    <p className="text-slate-600 text-sm">جرب استخدام إحدى الأدوات من القائمة الجانبية.</p>
+                    <p className="text-slate-500 text-lg mb-4">No records found yet</p>
+                    <p className="text-slate-600 text-sm">Try using one of the tools from the sidebar menu.</p>
                 </div>
             ) : (
                 <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">

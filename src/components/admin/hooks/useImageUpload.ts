@@ -27,7 +27,7 @@ export function useImageUpload(onChange: (value: string) => void) {
             const data = await res.json();
             onChange(data.secure_url);
             toast.success("Uploaded successfully!", { id: toastId });
-        } catch (err) {
+        } catch {
             toast.error("Upload failed", { id: toastId });
         } finally {
             setLoading(false);
@@ -118,7 +118,7 @@ export function useImageUpload(onChange: (value: string) => void) {
             } else {
                 toast.error("No image or URL found in clipboard");
             }
-        } catch (err) {
+        } catch {
             toast.error("Cannot access clipboard. Try Ctrl+V instead.");
         }
     }, [uploadFile, onChange]);

@@ -11,7 +11,7 @@ export const iconOptions = [
 
 interface MainSkillsSectionProps {
     skillFields: Record<"id", string>[];
-    appendSkill: (value: any) => void;
+    appendSkill: (value: { title: string; description: string; tags: string; icon: string }) => void;
     removeSkill: (index: number) => void;
     register: UseFormRegister<SkillsForm>;
 }

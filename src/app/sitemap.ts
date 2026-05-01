@@ -77,7 +77,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Dynamic Users (Public Profiles)
-    const users = await getCollection<any>('users');
+    const users = await getCollection<{ id: string }>('users');
     const userRoutes: MetadataRoute.Sitemap = users.map((user) => ({
         url: `${baseUrl}/users/${user.id}`,
         lastModified: new Date(Date.now()), // Users might not have updatedAt, default to now

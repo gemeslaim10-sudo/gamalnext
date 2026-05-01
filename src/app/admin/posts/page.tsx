@@ -23,7 +23,7 @@ export default function AdminPostsPage() {
                         <Clock className="w-8 h-8 text-slate-400" />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">No Posts Found</h3>
-                    <p className="text-slate-400">Users haven't submitted any posts yet.</p>
+                    <p className="text-slate-400">Users haven&apos;t submitted any posts yet.</p>
                 </div>
             ) : (
                 <div className="grid gap-4">

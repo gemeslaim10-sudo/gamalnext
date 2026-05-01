@@ -4,7 +4,7 @@ import { SkillsForm } from "../types";
 
 interface SoftwareSectionProps {
     softFields: Record<"id", string>[];
-    appendSoft: (value: any) => void;
+    appendSoft: (value: { name: string; level: string; color: string }) => void;
     removeSoft: (index: number) => void;
     register: UseFormRegister<SkillsForm>;
 }

@@ -23,15 +23,6 @@ export function AiRoleSection({ formData, setFormData }: AiRoleSectionProps) {
                         placeholder="أنت المساعد الذكي الرسمي لـ Gamal.Dev. دورك هو..."
                     />
                 </div>
-                <div>
-                    <label className="block text-[10px] font-black text-slate-500 mb-3 uppercase tracking-[0.2em]">رسالة الترحيب الأولى (أول انطباع)</label>
-                    <input 
-                        value={formData.welcomeMessage}
-                        onChange={(e) => setFormData(prev => ({ ...prev, welcomeMessage: e.target.value }))}
-                        className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl p-5 text-white focus:border-blue-500 outline-none transition-all font-bold placeholder:text-slate-700 shadow-inner"
-                        placeholder="أهلًا بك في منصة جمال 👋 منوّر موقعنا!..."
-                    />
-                </div>
             </div>
         </div>
     );

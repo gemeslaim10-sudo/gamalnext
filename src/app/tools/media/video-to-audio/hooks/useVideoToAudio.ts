@@ -44,7 +44,7 @@ export function useVideoToAudio() {
             // Save to History
             addToHistory('video-to-audio', 'تحويل فيديو لصوت', `Converted ${file.name} to MP3`);
 
-        } catch (e) {
+        } catch {
             toast.error("Conversion Failed");
         } finally {
             setConverting(false);

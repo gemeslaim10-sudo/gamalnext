@@ -22,7 +22,7 @@ export function useFeed() {
                 const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as FeedAd));
                 setInFeedAds(all.filter(ad => (ad as FeedAd & { showInFeed?: boolean }).showInFeed === true));
             })
-            .catch(() => { /* silent fail */ });
+            .catch((e) => console.error("Failed to load ads", e));
     }, []);
 
     const lastItemElementRef = useCallback((node: HTMLDivElement | null) => {
@@ -84,7 +84,7 @@ export function useFeed() {
                 await navigator.clipboard.writeText(shareData.url);
                 toast.success('Link copied to clipboard! 📋');
             }
-        } catch (err) {
+        } catch {
             toast.error('Failed to copy link.');
         }
     };

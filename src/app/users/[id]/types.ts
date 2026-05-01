@@ -6,7 +6,7 @@ export type UserProfile = {
     location?: string;
     jobTitle?: string;
     socialStatus?: string;
-    createdAt?: any;
+    createdAt?: { seconds: number; nanoseconds: number } | null;
 };
 
 export type UserArticle = {
@@ -14,6 +14,6 @@ export type UserArticle = {
     title: string;
     summary: string;
     media: { url: string; type: 'image' | 'video' }[];
-    createdAt: any;
+    createdAt: { seconds: number; nanoseconds: number } | null;
     likesCount?: number;
 };

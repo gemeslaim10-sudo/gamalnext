@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Check, X, Trash, Star, EyeOff } from "lucide-react";
+import { Check, Trash, Star, EyeOff } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
 import type { FirebaseTimestamp } from "@/types";
 
@@ -32,7 +32,7 @@ export default function ReviewsPage() {
         try {
             await updateDoc(doc(db, "reviews", id), { status });
             toast.success(`Review ${status}`);
-        } catch (e) {
+        } catch {
             toast.error("Error updating status");
         }
     };
@@ -42,7 +42,7 @@ export default function ReviewsPage() {
             try {
                 await deleteDoc(doc(db, "reviews", id));
                 toast.success("Review deleted");
-            } catch (e) {
+            } catch {
                 toast.error("Error deleting review");
             }
         }
@@ -73,7 +73,7 @@ export default function ReviewsPage() {
                             </span>
                         </div>
 
-                        <p className="text-slate-300 text-sm mb-6 line-clamp-4">"{review.comment}"</p>
+                        <p className="text-slate-300 text-sm mb-6 line-clamp-4">&quot;{review.comment}&quot;</p>
 
                         <div className="flex items-center gap-2 mt-auto pt-4 border-t border-slate-700/50">
                             {review.status !== 'approved' && (

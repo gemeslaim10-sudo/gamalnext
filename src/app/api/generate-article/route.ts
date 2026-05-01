@@ -29,9 +29,10 @@ export async function POST(req: Request) {
         if (geminiApiKey) {
             try {
                 result = await runGemini(articlePrompt, geminiApiKey);
-            } catch (error: any) {
-                console.error("Gemini Generation Failed:", error.message);
-                geminiErrorMsg = error.message || "Unknown Gemini Error";
+            } catch (error: unknown) {
+                const message = error instanceof Error ? error.message : "Unknown Gemini Error";
+                console.error("Gemini Generation Failed:", message);
+                geminiErrorMsg = message;
             }
         } else {
             geminiErrorMsg = "Gemini API Key missing";
@@ -42,9 +43,10 @@ export async function POST(req: Request) {
             console.log("Falling back to Groq API...");
             try {
                 result = await runGroq(articlePrompt, groqApiKey);
-            } catch (error: any) {
-                console.error("Groq Generation Failed:", error.message);
-                groqErrorMsg = error.message;
+            } catch (error: unknown) {
+                const message = error instanceof Error ? error.message : "Unknown error";
+                console.error("Groq Generation Failed:", message);
+                groqErrorMsg = message;
             }
         } else if (!result && !groqApiKey) {
             groqErrorMsg = "Groq API Key missing";
@@ -55,9 +57,10 @@ export async function POST(req: Request) {
             console.log("Falling back to Hugging Face API...");
             try {
                 result = await runHuggingFace(articlePrompt, hfApiKey);
-            } catch (error: any) {
-                console.error("HF Generation Failed:", error.message);
-                groqErrorMsg += ` | HF Error: ${error.message}`;
+            } catch (error: unknown) {
+                const message = error instanceof Error ? error.message : "Unknown error";
+                console.error("HF Generation Failed:", message);
+                groqErrorMsg += ` | HF Error: ${message}`;
             }
         }
 
@@ -66,9 +69,10 @@ export async function POST(req: Request) {
             console.log("Falling back to OpenRouter API...");
             try {
                 result = await runOpenRouter(articlePrompt, openRouterApiKey);
-            } catch (error: any) {
-                console.error("OpenRouter Generation Failed:", error.message);
-                groqErrorMsg += ` | OpenRouter Error: ${error.message}`;
+            } catch (error: unknown) {
+                const message = error instanceof Error ? error.message : "Unknown error";
+                console.error("OpenRouter Generation Failed:", message);
+                groqErrorMsg += ` | OpenRouter Error: ${message}`;
             }
         }
 
@@ -89,10 +93,10 @@ export async function POST(req: Request) {
             seoKeywords: result.seoKeywords
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Article Generation Workflow Error:", error);
         return NextResponse.json({
-            error: `Workflow Error: ${error.message}. Gemini: ${geminiErrorMsg}. Groq: ${groqErrorMsg}`
+            error: `Workflow Error: ${error instanceof Error ? error.message : "Unknown error"}. Gemini: ${geminiErrorMsg}. Groq: ${groqErrorMsg}`
         }, { status: 500 });
     }
 }

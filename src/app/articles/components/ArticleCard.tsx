@@ -68,7 +68,7 @@ export function ArticleCard({ article, canEdit, isDeleting, onDelete }: ArticleC
                     </h3>
 
                     <p className="text-slate-400 text-[11px] sm:text-xs md:text-sm line-clamp-2 sm:line-clamp-3 mb-3 sm:mb-4 leading-relaxed flex-grow">
-                        {getArticleSummary(article as any, 150)}
+                        {getArticleSummary(article as unknown as Article, 150)}
                     </p>
 
                     <span className="text-blue-500 text-[11px] sm:text-sm font-bold flex items-center gap-2 mt-auto pt-3 sm:pt-4 border-t border-slate-800/50 w-full group-hover:text-blue-400">

@@ -15,7 +15,7 @@ export function FeedPostHeader({ item, siteLogo, siteName }: FeedPostHeaderProps
             <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-800 shrink-0 border-2 border-slate-700/50 relative flex items-center justify-center">
                     {siteLogo ? (
-                        <Image src={siteLogo} alt={siteName || "Gamal Tech"} fill className="object-cover" />
+                        <Image src={siteLogo} alt={siteName || "Gamal Tech"} fill sizes="40px" className="object-cover" />
                     ) : (
                         <User className="w-6 h-6 text-slate-400" />
                     )}

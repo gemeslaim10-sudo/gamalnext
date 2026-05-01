@@ -5,25 +5,36 @@ import { getCollection } from '@/lib/server-utils';
 import { FeaturedToolCard } from './FeaturedToolCard';
 import { DEFAULT_TOOLS } from './FeaturedToolsIcons';
 
+interface DbTool {
+    name: string;
+    description: string;
+    icon: string;
+    route?: string;
+    isActive?: boolean;
+    color?: string;
+    bg?: string;
+    border?: string;
+}
+
 export default async function FeaturedTools() {
-    const dbTools = await getCollection<any>("tools");
+    const dbTools = await getCollection<DbTool>("tools");
     let tools = DEFAULT_TOOLS;
 
     if (dbTools.length > 0) {
         const activeTools = dbTools.filter(t => t.isActive !== false);
         if (activeTools.length >= 4) {
             tools = activeTools.slice(0, 4).map(t => {
-                const defaultVer = DEFAULT_TOOLS.find(d => d.name === t.name) || {};
+                const defaultVer = (DEFAULT_TOOLS.find(d => d.name === t.name) || {}) as Record<string, string | undefined>;
                 return {
                     name: t.name,
                     description: t.description,
                     icon: t.icon,
                     href: t.route || '#',
-                    color: t.color || (defaultVer as any).color || 'text-blue-400',
-                    bg: t.bg || (defaultVer as any).bg || 'bg-blue-400/10',
-                    border: t.border || (defaultVer as any).border || 'border-blue-400/20'
+                    color: t.color || defaultVer.color || 'text-blue-400',
+                    bg: t.bg || defaultVer.bg || 'bg-blue-400/10',
+                    border: t.border || defaultVer.border || 'border-blue-400/20'
                 };
-            });
+            }) as typeof DEFAULT_TOOLS;
         }
     }
 

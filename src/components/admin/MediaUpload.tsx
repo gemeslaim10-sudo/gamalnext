@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Image, Video, Upload, X } from "lucide-react";
+import { Video, Upload, X } from "lucide-react";
 import { openCloudinaryWidget } from "@/lib/cloudinary";
 import toast from "react-hot-toast";
 

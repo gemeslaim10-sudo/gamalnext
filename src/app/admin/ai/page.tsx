@@ -4,8 +4,6 @@ import { Save, Bot, Loader2 } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 import { useAiSettings } from "./useAiSettings";
-import { AiRoleSection } from "./components/AiRoleSection";
-import { AiStyleSection } from "./components/AiStyleSection";
 import { AiEnginesSection } from "./components/AiEnginesSection";
 
 export default function AdminAiPage() {
@@ -51,8 +49,6 @@ export default function AdminAiPage() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <AiRoleSection formData={formData} setFormData={setFormData} />
-                    <AiStyleSection formData={formData} setFormData={setFormData} />
                     <AiEnginesSection formData={formData} setFormData={setFormData} />
                 </div>
             </div>

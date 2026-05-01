@@ -61,6 +61,7 @@ export default async function ArticlePage({ params }: Props) {
         notFound();
     }
 
+    // eslint-disable-next-line react-hooks/purity
     const createdAtMs = getTimestampMs(article.createdAt) || Date.now();
 
     // Serialize ID and date

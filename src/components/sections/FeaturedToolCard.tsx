@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, LucideIcon, Wrench } from 'lucide-react';
+import { ArrowRight, Wrench } from 'lucide-react';
 import Reveal from './Reveal';
 import { ICON_MAP } from './FeaturedToolsIcons';
 

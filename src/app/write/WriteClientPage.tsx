@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
-import { toast, Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { MediaUpload } from "@/components/admin/MediaUpload";
 import { Save, Loader2 } from "lucide-react";
-import { AuthModal } from "@/components/auth/AuthModal";
+import { LoginPrompt } from "@/components/auth/LoginPrompt";
 
 import { useWriteArticle } from "./useWriteArticle";
 import { TitleInput } from "./components/TitleInput";
@@ -28,22 +27,12 @@ export default function WriteArticlePage() {
         handleSubmit
     } = useWriteArticle();
 
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     if (!user) return (
-        <>
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white gap-6">
-                <div className="text-2xl font-bold">رجاء تسجيل الدخول أولاً</div>
-                <p className="text-slate-400">يجب عليك تسجيل الدخول لتتمكن من كتابة ونشر المقالات</p>
-                <button
-                    onClick={() => setIsAuthModalOpen(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20"
-                >
-                    تسجيل الدخول
-                </button>
-            </div>
-            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-        </>
+        <LoginPrompt 
+            title="Publish Article" 
+            description="Sign in to write and publish your article." 
+        />
     );
 
     return (
@@ -52,8 +41,8 @@ export default function WriteArticlePage() {
 
             <div className="pt-32 px-4 max-w-4xl mx-auto">
                 <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-                    <h1 className="text-3xl font-bold text-white mb-2">كتابة مقال جديد 📝</h1>
-                    <p className="text-slate-400 mb-8">شارك خبراتك ومعرفتك مع المجتمع</p>
+                    <h1 className="text-3xl font-bold text-white mb-2">Write a New Article 📝</h1>
+                    <p className="text-slate-400 mb-8">Share your knowledge with the community</p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <TitleInput
@@ -88,7 +77,7 @@ export default function WriteArticlePage() {
                             disabled={loading}
                             className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"
                         >
-                            {loading ? <Loader2 className="animate-spin" /> : <><Save /> إرسال للنشر</>}
+                            {loading ? <Loader2 className="animate-spin" /> : <><Save /> Publish Article</>}
                         </button>
                     </form>
                 </div>

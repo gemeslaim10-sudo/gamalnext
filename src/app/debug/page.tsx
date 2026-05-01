@@ -4,7 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export default function DebugPage() {
-    const [articles, setArticles] = useState<any[]>([]);
+    const [articles, setArticles] = useState<{ id: string; title?: string; status?: string; authorId?: string }[]>([]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
 
@@ -13,8 +13,8 @@ export default function DebugPage() {
             try {
                 const snap = await getDocs(collection(db, "articles"));
                 setArticles(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-            } catch (e: any) {
-                setError(e.message);
+            } catch (e: unknown) {
+                setError(e instanceof Error ? e.message : "Unknown error");
             } finally {
                 setLoading(false);
             }

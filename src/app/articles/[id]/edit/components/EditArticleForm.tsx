@@ -7,9 +7,15 @@ interface EditArticleFormProps {
         content: string;
         summary: string;
         tags: string;
-        media: any[];
+        media: { url: string; type: 'image' | 'video' }[];
     };
-    setFormData: (data: any) => void;
+    setFormData: (data: React.SetStateAction<{
+        title: string;
+        content: string;
+        summary: string;
+        tags: string;
+        media: { url: string; type: 'image' | 'video' }[];
+    }>) => void;
     saving: boolean;
     onSubmit: (e: React.FormEvent) => void;
 }

@@ -9,7 +9,7 @@ export type Post = {
     userEmail: string;
     content: string;
     status: "pending" | "approved" | "rejected";
-    createdAt: any;
+    createdAt: { seconds: number; nanoseconds: number } | null;
 };
 
 export function useAdminPosts() {

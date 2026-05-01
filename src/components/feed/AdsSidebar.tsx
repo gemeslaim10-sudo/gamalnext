@@ -70,7 +70,7 @@ export default function AdsSidebar() {
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Sponsored</span>
             </div>
 
-            {ads.map(ad => {
+            {ads.map((ad, index) => {
                 const waUrl = `https://wa.me/${ad.whatsappNumber || "201024531452"}?text=${encodeURIComponent(ad.whatsappMessage || "")}`;
 
                 return (
@@ -87,6 +87,7 @@ export default function AdsSidebar() {
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-700"
                                     sizes="320px"
+                                    priority={index === 0}
                                 />
                                 {/* Gradient overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />

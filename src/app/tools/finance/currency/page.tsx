@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Coins, RefreshCw, ArrowRightLeft, TrendingUp } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { Coins, RefreshCw, ArrowRightLeft } from 'lucide-react';
 import { useToolHistory } from '@/hooks/useToolHistory';
 
 const CURRENCIES = [

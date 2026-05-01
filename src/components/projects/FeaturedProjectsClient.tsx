@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Reveal from '../sections/Reveal';
 import ProjectCard from './ProjectCard';
 
-type Project = {
+export type Project = {
     title: string;
     image?: string;
     tags: string;

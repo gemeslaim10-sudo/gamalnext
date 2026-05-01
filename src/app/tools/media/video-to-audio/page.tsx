@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
+
 import { Upload, Music, Loader2, Download, Video } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useToolHistory } from '@/hooks/useToolHistory';
@@ -9,7 +9,6 @@ import { useToolHistory } from '@/hooks/useToolHistory';
 // import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
 export default function VideoToAudioPage() {
-    const { user } = useAuth();
     const [file, setFile] = useState<File | null>(null);
     const [converting, setConverting] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -51,7 +50,7 @@ export default function VideoToAudioPage() {
             // Save to History (We would call an API route here that writes to Firestore 'user_history')
             addToHistory('video-to-audio', 'تحويل فيديو لصوت', `Converted ${file.name} to MP3`);
 
-        } catch (e) {
+        } catch {
             toast.error("Conversion Failed");
         } finally {
             setConverting(false);

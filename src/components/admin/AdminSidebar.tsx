@@ -5,6 +5,9 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, FileText, Code, MessageSquare, Users, LogOut, Bot, History, ExternalLink, Settings } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const menuItems = [
     { icon: LayoutDashboard, label: "لوحة التحكم", href: "/admin" },
@@ -16,6 +19,7 @@ const menuItems = [
     { icon: MessageSquare, label: "الإعلانات (Explore Ads)", href: "/admin/ads" },
     { icon: MessageSquare, label: "آراء العملاء", href: "/admin/reviews" },
     { icon: Users, label: "المستخدمين", href: "/admin/users" },
+    { icon: Users, label: "العملاء المحتملين (Leads)", href: "/admin/leads" },
     { icon: Bot, label: "إعدادات شات AI", href: "/admin/ai" },
     { icon: History, label: "سجلات محادثات AI", href: "/admin/ai-chats" },
     { icon: Settings, label: "إعدادات الموقع", href: "/admin/settings" },
@@ -29,6 +33,15 @@ interface AdminSidebarProps {
 export function AdminSidebar({ className, onClose }: AdminSidebarProps) {
     const pathname = usePathname();
     const { logout } = useAuth();
+    const [pendingReviewsCount, setPendingReviewsCount] = useState(0);
+
+    useEffect(() => {
+        const q = query(collection(db, "reviews"), where("status", "==", "pending"));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setPendingReviewsCount(snapshot.size);
+        });
+        return () => unsubscribe();
+    }, []);
 
     return (
         <aside className={cn("w-56 bg-slate-900 border-r border-slate-800 h-screen flex flex-col flex-shrink-0", className)}>
@@ -41,13 +54,15 @@ export function AdminSidebar({ className, onClose }: AdminSidebarProps) {
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = pathname === item.href;
+                        const isReviews = item.href === "/admin/reviews";
+                        
                         return (
                             <li key={item.href}>
                                 <Link
                                     href={item.href}
                                     onClick={onClose}
                                     className={cn(
-                                        "flex items-center gap-2.5 px-5 py-2.5 text-[13px] font-medium transition-colors",
+                                        "flex items-center gap-2.5 px-5 py-2.5 text-[13px] font-medium transition-colors relative",
                                         isActive
                                             ? "bg-blue-600/10 text-blue-400 border-r-2 border-blue-500"
                                             : "text-slate-400 hover:text-white hover:bg-slate-800"
@@ -55,6 +70,12 @@ export function AdminSidebar({ className, onClose }: AdminSidebarProps) {
                                 >
                                     <Icon className="w-4 h-4" />
                                     {item.label}
+                                    
+                                    {isReviews && pendingReviewsCount > 0 && (
+                                        <span className="absolute left-5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                                            {pendingReviewsCount}
+                                        </span>
+                                    )}
                                 </Link>
                             </li>
                         );

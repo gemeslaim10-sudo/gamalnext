@@ -47,22 +47,22 @@ export async function generateImageKeyword(title: string, geminiApiKey?: string,
 
                 if (modelsRes.ok) {
                     const modelsData = await modelsRes.json();
-                    const validModels = modelsData.models?.filter((m: any) =>
+                    const validModels = modelsData.models?.filter((m: { name: string; supportedGenerationMethods?: string[] }) =>
                         m.name.includes("gemini") &&
                         m.supportedGenerationMethods?.includes("generateContent") &&
                         !m.name.includes("vision")
                     );
 
                     if (validModels && validModels.length > 0) {
-                        const flashModel = validModels.find((m: any) =>
+                        const flashModel = validModels.find((m: { name: string }) =>
                             m.name.includes("flash") && !m.name.includes("thinking")
                         );
-                        const proModel = validModels.find((m: any) => m.name.includes("pro"));
+                        const proModel = validModels.find((m: { name: string }) => m.name.includes("pro"));
                         const selectedModel = flashModel || proModel || validModels[0];
                         selectedModelName = selectedModel.name.replace(/^models\//, '');
                     }
                 }
-            } catch (discoveryError) {
+            } catch {
                 console.log(`⚠️ Model discovery failed, using fallback: ${selectedModelName}`);
             }
 

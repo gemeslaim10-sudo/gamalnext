@@ -1,8 +1,5 @@
-import { db } from "@/lib/firebase";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import { getCollection } from "@/lib/server-utils";
 import Link from "next/link";
-import { MoveRight, Calendar } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Toaster } from "react-hot-toast";

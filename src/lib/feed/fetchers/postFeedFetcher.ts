@@ -21,7 +21,7 @@ export async function fetchUserPostsFeed(allFeed: FeedItem[]) {
                 imageUrl: data.mediaUrl || (data.gallery as string[])?.[0] || null,
                 gallery: Array.isArray(data.gallery) ? data.gallery as string[] : null,
                 mediaType: data.mediaType || "image",
-                link: `/explore#${docSnap.id}`,
+                link: `/#${docSnap.id}`,
                 createdAt: parseDate(data.createdAt),
                 author: data.userName || "User",
             });

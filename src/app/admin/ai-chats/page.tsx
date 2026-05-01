@@ -9,7 +9,7 @@ import ChatView from "@/components/admin/chat/ChatView";
 type Message = {
     role: 'user' | 'model';
     text: string;
-    timestamp: any;
+    timestamp: { seconds: number; nanoseconds: number } | null;
 };
 
 type Session = {
@@ -17,11 +17,11 @@ type Session = {
     userId: string;
     sessionId: string;
     userName?: string;
-    lastMessageAt: any;
+    lastMessageAt: { seconds: number; nanoseconds: number } | null;
     preview: string;
     messages: Message[];
-    startedAt?: any;
-    userContext?: any;
+    startedAt?: { seconds: number; nanoseconds: number } | null;
+    userContext?: Record<string, string>;
 };
 
 export default function AiChatsPage() {

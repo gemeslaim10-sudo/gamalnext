@@ -26,9 +26,13 @@ export async function POST(req: Request) {
         // 3. Run Agent Execution Flow
         const result = await agent.run(message, history, userContext, sessionId);
 
+        if (result.error) {
+            return NextResponse.json(result, { status: 500 });
+        }
+
         return NextResponse.json(result);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Gateway Critical Error:", error);
         return NextResponse.json({ error: "Site intelligence currently unavailable." }, { status: 500 });
     }

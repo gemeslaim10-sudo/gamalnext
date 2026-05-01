@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 import { SkillsForm, defaultSkillsData } from "./types";
 
 export function useSkillsAdmin() {
-    const { register, control, handleSubmit, setValue, formState: { isSubmitting } } = useForm<SkillsForm>({
+    const { register, control, handleSubmit, setValue } = useForm<SkillsForm>({
         defaultValues: defaultSkillsData
     });
 
@@ -39,7 +39,7 @@ export function useSkillsAdmin() {
         try {
             await setDoc(doc(db, "site_content", "skills"), data);
             toast.success("Skills updated!");
-        } catch (e) {
+        } catch {
             toast.error("Error saving.");
         }
     };

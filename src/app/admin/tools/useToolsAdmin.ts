@@ -12,8 +12,9 @@ export function useToolsAdmin() {
     const debounceTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
     useEffect(() => {
+        const timers = debounceTimers.current;
         return () => {
-            debounceTimers.current.forEach(timer => clearTimeout(timer));
+            timers.forEach(timer => clearTimeout(timer));
         };
     }, []);
 
@@ -53,7 +54,7 @@ export function useToolsAdmin() {
         try {
             await updateDoc(doc(db, 'tools', updatedTool.id), { ...updatedTool });
             // Optional toast if we wanted feedback on autosave, but usually too noisy.
-        } catch (e) {
+        } catch {
             toast.error("Failed to update");
         }
     };

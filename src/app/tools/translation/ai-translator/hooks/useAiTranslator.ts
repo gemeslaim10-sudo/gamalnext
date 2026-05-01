@@ -29,7 +29,7 @@ export function useAiTranslator() {
             } else {
                 toast.error(data.error || "Translation failed");
             }
-        } catch (error) {
+        } catch {
             toast.error("Something went wrong");
         } finally {
             setLoading(false);

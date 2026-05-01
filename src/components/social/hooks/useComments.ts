@@ -77,7 +77,7 @@ export function useComments(articleId: string) {
         try {
             await deleteDoc(doc(db, "comments", id));
             toast.success("Deleted");
-        } catch (e) {
+        } catch {
             toast.error("Error deleting");
         }
     };

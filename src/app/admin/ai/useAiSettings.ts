@@ -6,10 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export interface AiSettingsData {
-    systemRole: string;
-    prompt: string;
-    stylePrompt: string;
-    welcomeMessage: string;
     geminiKey: string;
     groqKey: string;
     openRouterKey: string;
@@ -25,10 +21,6 @@ export function useAiSettings() {
     const [saving, setSaving] = useState(false);
     
     const [formData, setFormData] = useState<AiSettingsData>({
-        systemRole: "",
-        prompt: "",
-        stylePrompt: "",
-        welcomeMessage: "",
         geminiKey: "",
         groqKey: "",
         openRouterKey: "",
@@ -45,10 +37,6 @@ export function useAiSettings() {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     setFormData({
-                        systemRole: data.systemRole || "",
-                        prompt: data.prompt || "",
-                        stylePrompt: data.stylePrompt || "",
-                        welcomeMessage: data.welcomeMessage || "",
                         geminiKey: data.geminiKey || "",
                         groqKey: data.groqKey || "",
                         openRouterKey: data.openRouterKey || "",

@@ -12,24 +12,42 @@ export const metadata = {
 
 export const revalidate = 0; // Revalidate immediately (dynamic)
 
-export default async function ToolsPage() {
-    const dbTools = await getCollection<any>("tools");
+interface Tool {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    route?: string;
+    href?: string;
+    isActive?: boolean;
+    color?: string;
+    bg?: string;
+    border?: string;
+    category?: string;
+}
 
-    let tools = dbTools.length > 0 ? dbTools : DEFAULT_TOOLS;
+export default async function ToolsPage() {
+    const dbTools = await getCollection<Tool>("tools");
+
+    let tools: Tool[] = dbTools.length > 0 ? dbTools : (DEFAULT_TOOLS as unknown as Tool[]);
 
     if (dbTools.length > 0) {
         tools = tools.filter(t => t.isActive !== false);
-        tools = tools.map((tool: any) => {
-            const defaultVer = DEFAULT_TOOLS.find(d => d.id === tool.id);
-            return {
-                ...tool,
-                color: tool.color || defaultVer?.color || 'text-blue-400',
-                bg: tool.bg || defaultVer?.bg || 'bg-blue-400/10',
-                border: tool.border || defaultVer?.border || 'border-blue-400/20',
-                href: tool.route || defaultVer?.href || '#'
-            };
-        });
     }
+
+    const displayTools = tools.map((tool: Tool) => {
+        const defaultVer = DEFAULT_TOOLS.find(d => d.id === tool.id);
+        return {
+            id: tool.id,
+            name: tool.name,
+            description: tool.description,
+            icon: tool.icon,
+            color: tool.color || defaultVer?.color || 'text-blue-400',
+            bg: tool.bg || defaultVer?.bg || 'bg-blue-400/10',
+            border: tool.border || defaultVer?.border || 'border-blue-400/20',
+            href: tool.route || tool.href || defaultVer?.href || '#'
+        };
+    });
 
     return (
         <div>
@@ -44,7 +62,7 @@ export default async function ToolsPage() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {tools.map((tool: any) => (
+                {displayTools.map((tool) => (
                     <ToolCard key={tool.id} tool={tool} />
                 ))}
             </div>

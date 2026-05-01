@@ -4,7 +4,18 @@ import React, { createContext, useContext } from "react";
 
 export interface BrandingSettings {
     siteName?: string;
+    siteDescription?: string;
     siteLogo?: string;
+    ownerName?: string;
+    ownerTitle?: string;
+    ownerBio?: string;
+    ownerRole?: string;
+    ownerLocation?: string;
+    githubUrl?: string;
+    linkedinUrl?: string;
+    emailAddress?: string;
+    whatsappNumber?: string;
+    phoneDisplay?: string;
     [key: string]: unknown;
 }
 

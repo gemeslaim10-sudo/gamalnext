@@ -2,9 +2,6 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 export type AiConfig = {
-    prompt: string;
-    systemRole?: string;
-    stylePrompt?: string;
     welcomeMessage: string;
     modelName: string;
     geminiKey?: string;
@@ -14,17 +11,23 @@ export type AiConfig = {
     huggingfaceKey?: string;
 }
 
+let cachedConfig: AiConfig | null = null;
+let lastFetchTime = 0;
+const CACHE_TTL = 1000 * 60 * 5; // 5 minutes cache
+
 export async function getAiConfig(): Promise<AiConfig> {
     try {
+        const now = Date.now();
+        if (cachedConfig && (now - lastFetchTime) < CACHE_TTL) {
+            return cachedConfig;
+        }
+
         const docRef = doc(db, "settings", "ai");
         const docSnap = await getDoc(docRef);
         
         const data = docSnap.exists() ? docSnap.data() : {};
         
-        return {
-            prompt: data.prompt || "",
-            systemRole: data.systemRole || "",
-            stylePrompt: data.stylePrompt || "",
+        cachedConfig = {
             welcomeMessage: data.welcomeMessage || "",
             modelName: data.modelName || "gemini-2.5-flash",
             // Priority: DB Key > ENV Key
@@ -34,10 +37,11 @@ export async function getAiConfig(): Promise<AiConfig> {
             openaiKey: data.openaiKey || process.env.OPENAI_API_KEY,
             huggingfaceKey: data.huggingfaceKey || process.env.HUGGINGFACE_API_KEY,
         };
+        lastFetchTime = now;
+        return cachedConfig;
     } catch (error) {
         console.error("Error getting AI config:", error);
-        return {
-            prompt: "",
+        return cachedConfig || {
             welcomeMessage: "",
             modelName: "gemini-2.5-flash",
             geminiKey: process.env.GEMINI_API_KEY,

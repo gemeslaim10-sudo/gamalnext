@@ -1,11 +1,11 @@
 import { getDocument } from "@/lib/server-utils";
-import FeaturedProjectsClient from "./FeaturedProjectsClient";
+import FeaturedProjectsClient, { type Project } from "./FeaturedProjectsClient";
 
 export default async function FeaturedProjects() {
     const projectsData = await getDocument("site_content", "projects");
 
     // Default fallback data if empty, using the structure from Projects.tsx
-    const defaultProjects = [
+    const defaultProjects: Project[] = [
         {
             title: 'Art Vision Portfolio',
             image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800',
@@ -34,7 +34,7 @@ export default async function FeaturedProjects() {
 
     // Combine fetched data with defaults if fetched is empty or use fetched directly
     // Assuming structure: { items: [...] }
-    const items = (projectsData as any)?.items || defaultProjects;
+    const items = (projectsData as unknown as { items: Project[] })?.items || defaultProjects;
 
     return <FeaturedProjectsClient projects={items} />;
 }

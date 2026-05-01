@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mic, Play, Pause, Download, Volume2 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { Mic, Play, Pause, Volume2 } from 'lucide-react';
 import { useToolHistory } from '@/hooks/useToolHistory';
 
 export default function TextToSpeechPage() {
@@ -16,6 +15,7 @@ export default function TextToSpeechPage() {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const synthesis = window.speechSynthesis;
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setSynth(synthesis);
 
             const updateVoices = () => {

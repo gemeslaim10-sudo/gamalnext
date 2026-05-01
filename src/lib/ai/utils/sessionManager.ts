@@ -1,22 +1,32 @@
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, collection, addDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export async function logSession(sid: string, msg: string, resp: string) {
     try {
-        const docRef = doc(db, "chat_sessions", sid);
-        const snap = await getDoc(docRef);
-        let messages: any[] = snap.exists() ? (snap.data().messages || []) : [];
+        const sessionRef = doc(db, "chat_sessions", sid);
         
-        messages.push({ role: 'user', text: msg, timestamp: new Date() });
-        messages.push({ role: 'model', text: resp, timestamp: new Date() });
-        
-        // Limit to 100 messages to prevent document size exhaustion (1MB max)
-        if (messages.length > 100) messages = messages.slice(messages.length - 100);
-
-        await setDoc(docRef, {
+        // Update the main session document with the last activity time
+        await setDoc(sessionRef, {
             lastMessageAt: serverTimestamp(),
-            messages
+            updatedAt: serverTimestamp()
         }, { merge: true });
+
+        const messagesRef = collection(sessionRef, "messages");
+        
+        // Add user message
+        await addDoc(messagesRef, {
+            role: 'user',
+            text: msg,
+            timestamp: serverTimestamp()
+        });
+
+        // Add model response
+        await addDoc(messagesRef, {
+            role: 'model',
+            text: resp,
+            timestamp: serverTimestamp()
+        });
+        
     } catch (e) {
         console.error("Session Log Error:", e);
     }

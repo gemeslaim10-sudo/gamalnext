@@ -27,6 +27,7 @@ export default function UnitConverterPage() {
             }
         }, 2000);
         return () => clearTimeout(timeout);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [amount, from, to]);
 
     return (
@@ -42,7 +43,7 @@ export default function UnitConverterPage() {
                     {Object.entries(CATEGORIES).map(([key, data]) => (
                         <button
                             key={key}
-                            onClick={() => { setCategory(key as any); setFrom(Object.keys(data.units)[0]); setTo(Object.keys(data.units)[1]); }}
+                            onClick={() => { setCategory(key); setFrom(Object.keys(data.units)[0]); setTo(Object.keys(data.units)[1]); }}
                             className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${category === key ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                         >
                             {data.name}

@@ -2,7 +2,6 @@ import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import ReviewsClient from "./ReviewsClient";
 import type { Review } from "@/types";
-import { getTimestampMs } from "@/types";
 
 async function getReviews() {
     try {

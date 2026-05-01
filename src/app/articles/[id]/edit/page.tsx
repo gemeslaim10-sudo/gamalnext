@@ -6,16 +6,17 @@ import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useEditArticle } from "./useEditArticle";
 import { EditArticleForm } from "./components/EditArticleForm";
+import { LoginPrompt } from "@/components/auth/LoginPrompt";
 
 export default function EditArticlePage({ params }: { params: { id: string } }) {
     const { user, loading, saving, formData, setFormData, handleSubmit } = useEditArticle(params.id);
 
     if (!user) {
         return (
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white gap-6">
-                <div className="text-2xl font-bold">رجاء تسجيل الدخول أولاً</div>
-                <p className="text-slate-400">يجب عليك تسجيل الدخول لتتمكن من تعديل المقالات</p>
-            </div>
+            <LoginPrompt 
+                title="Welcome Back" 
+                description="Please sign in to edit your articles." 
+            />
         );
     }
 
@@ -41,8 +42,8 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
                             <ArrowLeft className="w-6 h-6" />
                         </Link>
                         <div>
-                            <h1 className="text-3xl font-bold text-white">تعديل المقال ✏️</h1>
-                            <p className="text-slate-400 mt-2">قم بتحديث محتوى المقال</p>
+                            <h1 className="text-3xl font-bold text-white">Edit Article ✏️</h1>
+                            <p className="text-slate-400 mt-2">Update the content of your article</p>
                         </div>
                     </div>
 

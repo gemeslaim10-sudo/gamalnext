@@ -3,5 +3,5 @@ export interface WriteFormData {
     content: string;
     summary: string;
     tags: string;
-    media: any[];
+    media: { url: string; type: 'image' | 'video' }[];
 }

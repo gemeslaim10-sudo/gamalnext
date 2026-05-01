@@ -2,15 +2,17 @@ import Link from 'next/link';
 import { Search, ChevronLeft } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
+import type { ElementType } from 'react';
+
 interface Category {
     name: string;
-    icon: any;
+    icon: ElementType;
     href: string;
 }
 
 interface UserLink {
     name: string;
-    icon: any;
+    icon: ElementType;
     href: string;
 }
 
@@ -21,7 +23,7 @@ interface ToolsSidebarProps {
     setSearchQuery: (query: string) => void;
     filteredCategories: Category[];
     userLinks: UserLink[];
-    WrenchIcon: any;
+    WrenchIcon: ElementType;
 }
 
 export function ToolsSidebar({

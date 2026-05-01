@@ -13,7 +13,7 @@ export type Article = {
     status?: 'published' | 'pending';
     authorName?: string;
     authorId?: string;
-    createdAt: any;
+    createdAt: { seconds: number; nanoseconds: number } | null;
 }
 
 export const initialForm = {

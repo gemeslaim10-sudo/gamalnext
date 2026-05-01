@@ -3,7 +3,7 @@ export const parseJsonFromLLM = (text: string) => {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         const jsonStr = jsonMatch ? jsonMatch[0] : text;
         return JSON.parse(jsonStr);
-    } catch (e) {
+    } catch {
         return null;
     }
 };

@@ -28,7 +28,7 @@ export function useMultiImageUpload(value: string[], onChange: (urls: string[]) 
             const data = await res.json();
             onChange([...value, data.secure_url]);
             toast.success("Uploaded successfully!", { id: toastId });
-        } catch (err) {
+        } catch {
             toast.error("Upload failed", { id: toastId });
         } finally {
             setLoading(false);
@@ -113,7 +113,7 @@ export function useMultiImageUpload(value: string[], onChange: (urls: string[]) 
             } else {
                 toast.error("No image or URL found in clipboard");
             }
-        } catch (err) {
+        } catch {
             toast.error("Cannot access clipboard. Try Ctrl+V instead.");
         }
     }, [uploadFile, onChange, value]);

@@ -34,7 +34,7 @@ export function useAiArticleEnhancer(
 
             toast.success("تم تحديث الصورة بنجاح! 🎨", { id: "img-gen" });
 
-        } catch (error) {
+        } catch {
             toast.error("فشل تحديث الصورة", { id: "img-gen" });
         } finally {
             setRegeneratingImage(false);
@@ -60,7 +60,7 @@ export function useAiArticleEnhancer(
             } else {
                 throw new Error("Failed");
             }
-        } catch (e) {
+        } catch {
             toast.error("فشل تحسين العنوان", { id: "enhance-title" });
         } finally {
             setEnhancingTitle(false);
@@ -98,9 +98,9 @@ export function useAiArticleEnhancer(
 
             toast.success("تم إستحداث المحتوى! 🪄 الرجاء اختيار صورة مناسبة.", { id: "ai-gen" });
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
-            toast.error("حدث خطأ أثناء التوليد: " + error.message, { id: "ai-gen" });
+            toast.error("حدث خطأ أثناء التوليد: " + (error instanceof Error ? error.message : String(error)), { id: "ai-gen" });
         } finally {
             setGenerating(false);
         }

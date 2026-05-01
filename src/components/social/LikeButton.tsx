@@ -11,7 +11,6 @@ export default function LikeButton({ articleId }: { articleId: string }) {
     const { user } = useAuth();
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
-    const [loading, setLoading] = useState(true);
     const [userLikeId, setUserLikeId] = useState<string | null>(null);
 
     // Fetch Like Status
@@ -21,8 +20,8 @@ export default function LikeButton({ articleId }: { articleId: string }) {
                 const qCount = query(collection(db, "likes"), where("articleId", "==", articleId));
                 const snapshot = await getCountFromServer(qCount);
                 setLikeCount(snapshot.data().count);
-            } catch (e) {
-                console.error("Error fetching likes count", e);
+            } catch {
+                console.error("Error fetching likes count");
             }
         }
         fetchCount();
@@ -34,7 +33,6 @@ export default function LikeButton({ articleId }: { articleId: string }) {
             if (!user) {
                 setLiked(false);
                 setUserLikeId(null);
-                setLoading(false);
                 return;
             }
 
@@ -51,7 +49,6 @@ export default function LikeButton({ articleId }: { articleId: string }) {
                 setLiked(false);
                 setUserLikeId(null);
             }
-            setLoading(false);
         }
         checkUserLike();
     }, [user, articleId]);
@@ -81,7 +78,7 @@ export default function LikeButton({ articleId }: { articleId: string }) {
                 });
                 setUserLikeId(ref.id);
             }
-        } catch (e) {
+        } catch {
             // Revert
             setLiked(prevLiked);
             toast.error("Update failed");

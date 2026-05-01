@@ -132,6 +132,13 @@ export interface ChatSession {
 export interface BrandingSettings {
     siteName?: string;
     siteLogo?: string;
+    ownerBio?: string;
+    githubUrl?: string;
+    linkedinUrl?: string;
+    emailAddress?: string;
+    whatsappNumber?: string;
+    phoneDisplay?: string;
+    ownerLocation?: string;
     [key: string]: unknown;
 }
 

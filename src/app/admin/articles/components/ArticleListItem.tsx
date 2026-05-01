@@ -1,5 +1,4 @@
 import { Check, Edit, Trash } from "lucide-react";
-import Image from "next/image";
 import type { Article } from "../types";
 
 interface ArticleListItemProps {

@@ -10,7 +10,7 @@ interface ToolRowProps {
 export function ToolRow({ tool, onSave }: ToolRowProps) {
     const [localTool, setLocalTool] = useState<ToolData>(tool);
 
-    const handleChange = (field: keyof ToolData, value: any) => {
+    const handleChange = (field: keyof ToolData, value: string | boolean) => {
         const updated = { ...localTool, [field]: value };
         setLocalTool(updated);
         onSave(updated);
