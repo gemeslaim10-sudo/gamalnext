@@ -1,4 +1,4 @@
-import { setDoc, collection, serverTimestamp, doc } from "firebase/firestore";
+import { setDoc, serverTimestamp, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export async function handleLeadCapture(text: string, userId?: string, sessionId?: string): Promise<boolean | null> {

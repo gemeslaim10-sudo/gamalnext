@@ -12,7 +12,7 @@ export async function runFailover(
     groqKey?: string, 
     openRouterKey?: string,
     openaiKey?: string,
-    huggingfaceKey?: string
+    _huggingfaceKey?: string
 ) {
     const providers = [
         // Top-Tier Open Source Models (DeepSeek & Qwen)

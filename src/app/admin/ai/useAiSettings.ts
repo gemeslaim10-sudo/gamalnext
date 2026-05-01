@@ -13,6 +13,8 @@ export interface AiSettingsData {
     huggingfaceKey: string;
     modelName: string;
     systemRole: string;
+    stylePrompt: string;
+    prompt: string;
 }
 
 export function useAiSettings() {
@@ -28,7 +30,9 @@ export function useAiSettings() {
         openaiKey: "",
         huggingfaceKey: "",
         modelName: "gemini-2.0-flash-exp",
-        systemRole: ""
+        systemRole: "",
+        stylePrompt: "",
+        prompt: ""
     });
 
     useEffect(() => {
@@ -45,7 +49,9 @@ export function useAiSettings() {
                         openaiKey: data.openaiKey || "",
                         huggingfaceKey: data.huggingfaceKey || "",
                         modelName: data.modelName || "gemini-2.0-flash-exp",
-                        systemRole: data.systemRole || ""
+                        systemRole: data.systemRole || "",
+                        stylePrompt: data.stylePrompt || "",
+                        prompt: data.prompt || ""
                     });
                 }
             } catch (error) {

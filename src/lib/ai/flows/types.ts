@@ -1,7 +1,5 @@
 
-import type { ChatMessage } from "../utils/failoverManager";
-
-export type BasePersona = 'SALES' | 'INTIMATE' | 'TROLL';
+export type BasePersona = 'SALES' | 'INTIMATE' | 'TROLL' | 'GREETING' | 'JOKER' | 'FREQUENT_VISITOR';
 
 export interface FlowDefinition {
     id: string;

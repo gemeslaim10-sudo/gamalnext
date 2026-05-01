@@ -1,4 +1,4 @@
-export function getIntimateFlow(userName: string): string {
+export function getIntimateFlow(_userName: string): string {
     return `
 [التدفق: معرفة شخصية قوية (عائلة أو أصدقاء مقربين)]
 حالة العميل: العميل شخص مقرب جداً لجمال (صديقه، أخوه، أو زوجته).

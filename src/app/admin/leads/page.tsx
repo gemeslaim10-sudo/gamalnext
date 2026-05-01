@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Trash2, Phone, Briefcase, Clock, Calendar, Mail } from "lucide-react";
+import { Trash2, Phone, Briefcase, Clock, Calendar } from "lucide-react";
 import toast from "react-hot-toast";
 
 type Lead = {

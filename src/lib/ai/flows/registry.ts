@@ -1,4 +1,4 @@
-import { FlowDefinition, BasePersona } from "./types";
+import { FlowDefinition } from "./types";
 import { personasFlows } from "./personas";
 import { salesFlows } from "./sales";
 import { techFlows } from "./tech";

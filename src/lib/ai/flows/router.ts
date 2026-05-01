@@ -14,7 +14,7 @@ function normalizeArabic(text: string): string {
 export function determineFlowState(message: string, history: ChatMessage[], userName?: string): FlowState {
     const rawQ = message.toLowerCase();
     const q = normalizeArabic(rawQ) + " " + rawQ; // Keep both normalized and raw for maximum compatibility
-    const historyText = history.map(h => normalizeArabic(h.parts[0].text)).join(' ');
+    const historyText = history.map(h => normalizeArabic(h.parts?.[0]?.text ?? h.text ?? "")).join(' ');
     
     // 1. TROLL detection (nonsense, gibberish, weird testing)
     const trollKeywords = ['غبي', 'عبيط', 'مش فاهم', 'صيني', 'هلوسة', 'تهلوس', 'اسكت', 'بطيخ', 'اختبار', 'ترغي', 'بلح', 'يع', 'يعم', 'قرف', 'زفت', 'هبل', 'ايه ده', 'ش', 'س', 'ق', 'وحش', 'بوسه', 'بوسة', 'بحبك', 'اتجوزك', 'شخ', 'احا', 'شرم', 'متناك', 'عرص', 'خرا'];
