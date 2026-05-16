@@ -11,27 +11,42 @@ interface FeedPostMediaProps {
 
 export function FeedPostMedia({ item, index, onOpenLightbox }: FeedPostMediaProps) {
     if (item.gallery && item.gallery.length > 1) {
+        const count = item.gallery.length;
+        const displayImages = item.gallery.slice(0, 4);
+
         return (
-            <div className={`grid gap-1 ${item.gallery.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
-                {item.gallery.slice(0, 3).map((img, idx) => (
-                    <button
-                        key={idx}
-                        onClick={() => onOpenLightbox(item.gallery!, idx, item.title)}
-                        className={`block relative bg-black ${item.gallery!.length === 3 && idx === 0 ? 'col-span-2 aspect-[21/9]' : 'aspect-square'} overflow-hidden group cursor-zoom-in`}
-                    >
-                        <div className="absolute inset-0 bg-black/30 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
-                        </div>
-                        <Image
-                            src={img}
-                            alt={item.title}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 672px"
-                            className="object-cover transition-transform duration-700 group-hover:scale-105"
-                            priority={index === 0 && idx === 0}
-                        />
-                    </button>
-                ))}
+            <div className={`grid gap-1 ${count === 3 ? 'grid-cols-2' : 'grid-cols-2'}`}>
+                {displayImages.map((img, idx) => {
+                    let className = 'aspect-square';
+                    if (count === 3 && idx === 0) {
+                        className = 'col-span-2 aspect-[21/9]';
+                    }
+
+                    return (
+                        <button
+                            key={idx}
+                            onClick={() => onOpenLightbox(item.gallery!, idx, item.title)}
+                            className={`block relative bg-black ${className} overflow-hidden group cursor-zoom-in`}
+                        >
+                            <div className="absolute inset-0 bg-black/30 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                            </div>
+                            <Image
+                                src={img}
+                                alt={item.title}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 672px"
+                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                priority={index === 0 && idx === 0}
+                            />
+                            {count > 4 && idx === 3 && (
+                                <div className="absolute inset-0 bg-black/60 z-20 flex items-center justify-center">
+                                    <span className="text-white text-2xl font-bold">+{count - 4}</span>
+                                </div>
+                            )}
+                        </button>
+                    );
+                })}
             </div>
         );
     }

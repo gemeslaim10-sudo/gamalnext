@@ -65,11 +65,11 @@ export default function CreatePost() {
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            disabled={images.length >= 3 || isUploading}
+                            disabled={images.length >= 4 || isUploading}
                             className="flex items-center gap-2 text-slate-400 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
-                            <span className="text-sm font-medium">{images.length}/3 Images</span>
+                            <span className="text-sm font-medium">{images.length}/4 Images</span>
                         </button>
                         <input
                             type="file"

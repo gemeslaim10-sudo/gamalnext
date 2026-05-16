@@ -20,8 +20,8 @@ export function useCreatePost() {
     const uploadFiles = async (files: File[]) => {
         if (!files.length) return;
 
-        if (images.length + files.length > 3) {
-            toast.error("You can upload a maximum of 3 images.");
+        if (images.length + files.length > 4) {
+            toast.error("You can upload a maximum of 4 images.");
             return;
         }
 
