@@ -114,24 +114,31 @@ export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEdi
             // 1. Draw original full image
             ctx.drawImage(image, 0, 0);
 
-            // 2. Set blur filter
-            ctx.filter = "blur(12px)";
-
-            // 3. Draw the cropped section OVER the original, but blurred
-            ctx.drawImage(
-                image,
-                crop.x * scaleX,
-                crop.y * scaleY,
-                crop.width * scaleX,
-                crop.height * scaleY,
+            // 2. Setup clipping to strictly the crop region
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(
                 crop.x * scaleX,
                 crop.y * scaleY,
                 crop.width * scaleX,
                 crop.height * scaleY
             );
+            ctx.clip();
 
-            // Reset filter
+            // 3. Set a very dense blur filter
+            ctx.filter = "blur(40px) brightness(0.8)";
+
+            // 4. Draw the ENTIRE image again, clipped to the rect
+            // This prevents the blur from feathering at the selection edges
+            ctx.drawImage(image, 0, 0);
+
+            // 5. Add a semi-transparent overlay for extra text obscuring
             ctx.filter = "none";
+            ctx.fillStyle = "rgba(15, 23, 42, 0.4)";
+            ctx.fill();
+
+            // 6. Reset clip and filter
+            ctx.restore();
 
             const base64Image = canvas.toDataURL("image/webp");
             pushToHistory(base64Image);
