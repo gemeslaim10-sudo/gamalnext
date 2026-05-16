@@ -180,7 +180,7 @@ export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEdi
                 <div className="flex-1 overflow-auto p-4 sm:p-6 bg-slate-950/50 flex flex-col items-center justify-center min-h-[300px]">
                     {mode === "none" ? (
                         <img 
-                            src={currentImageSrc} 
+                            src={currentImageSrc || undefined} 
                             alt="Current" 
                             className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-xl"
                             crossOrigin="anonymous"
@@ -192,7 +192,7 @@ export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEdi
                             className="max-w-full max-h-[60vh] shadow-xl rounded-lg"
                         >
                             <img 
-                                src={currentImageSrc} 
+                                src={currentImageSrc || undefined} 
                                 alt="Crop target" 
                                 onLoad={onImageLoad}
                                 className="max-w-full max-h-[60vh] object-contain"
