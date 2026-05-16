@@ -63,7 +63,7 @@ export async function generateImageKeyword(title: string, geminiApiKey?: string,
                     }
                 }
             } catch {
-                console.log(`⚠️ Model discovery failed, using fallback: ${selectedModelName}`);
+                // Model discovery failed, use fallback
             }
 
             const genAI = new GoogleGenerativeAI(geminiApiKey);

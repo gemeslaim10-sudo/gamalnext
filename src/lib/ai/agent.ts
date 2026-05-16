@@ -65,7 +65,6 @@ export class AiAgent {
             
             if (phoneMatch) {
                 try {
-                    console.log("ROOT FIX: Auto-detected phone number from user input:", phoneMatch[0]);
                     await handleLeadCapture(`[[LEAD_DATA:{"name": "${userContext?.name || 'Guest'}", "phone": "${phoneMatch[0]}", "activity": "${flow.id}", "service": "${flow.id}", "preferredTime": null}]]`, userContext?.uid, sessionId);
                 } catch (e) {
                     console.error("Silent lead capture failed:", e);
@@ -114,14 +113,14 @@ export class AiAgent {
             try {
                 const leadStatus = await handleLeadCapture(text, userContext?.uid, sessionId);
                 if (leadStatus === false) {
-                    console.error("⚠️ Failed to capture lead data from response.");
+                    console.error("Failed to capture lead data from response.");
                 }
                 
                 if (sessionId) {
                     await logSession(sessionId, message, text);
                 }
             } catch (dbError) {
-                console.warn("⚠️ تم الرد بنجاح ولكن فشل الحفظ في قاعدة البيانات:", dbError);
+                console.error("Post-processing DB error:", dbError);
             }
             // 7. Clean the final text before sending to the client (remove the secret tag)
             const cleanText = text.replace(/\[*LEAD_DATA\s*:\s*([\s\S]*?)(?:\]\]|\](?!\w))/ig, "").trim();
@@ -146,13 +145,13 @@ export class AiAgent {
                 try {
                     const leadStatus = await handleLeadCapture(failoverText, userContext?.uid, sessionId);
                     if (leadStatus === false) {
-                        console.error("⚠️ Failed to capture lead data from failover response.");
+                        console.error("Failed to capture lead data from failover response.");
                     }
                     if (sessionId) {
                         await logSession(sessionId, message, failoverText);
                     }
                 } catch (dbError) {
-                    console.warn("⚠️ تم الرد بنجاح (طوارئ) ولكن فشل الحفظ في قاعدة البيانات:", dbError);
+                    console.error("Failover post-processing DB error:", dbError);
                 }
                 const cleanFailoverText = failoverText.replace(/\[*LEAD_DATA\s*:\s*([\s\S]*?)(?:\]\]|\](?!\w))/ig, "").trim();
                 return { response: cleanFailoverText };

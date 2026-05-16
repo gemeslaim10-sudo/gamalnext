@@ -30,11 +30,10 @@ export const runGemini = async (prompt: string, apiKey: string): Promise<Article
                 const selectedModel = flashModel || proModel || validModels[0];
 
                 selectedModelName = selectedModel.name.replace(/^models\//, '');
-                console.log(`✅ Dynamic Model Selected: ${selectedModelName}`);
             }
         }
     } catch {
-        console.log(`⚠️ Model discovery failed, using fallback: ${selectedModelName}`);
+        // Model discovery failed, use fallback
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);

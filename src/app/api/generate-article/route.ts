@@ -40,7 +40,6 @@ export async function POST(req: Request) {
 
         // 2. Try Groq
         if (!result && groqApiKey) {
-            console.log("Falling back to Groq API...");
             try {
                 result = await runGroq(articlePrompt, groqApiKey);
             } catch (error: unknown) {
@@ -54,7 +53,6 @@ export async function POST(req: Request) {
 
         // 3. Try Hugging Face
         if (!result && hfApiKey) {
-            console.log("Falling back to Hugging Face API...");
             try {
                 result = await runHuggingFace(articlePrompt, hfApiKey);
             } catch (error: unknown) {
@@ -66,7 +64,6 @@ export async function POST(req: Request) {
 
         // 4. Try OpenRouter
         if (!result && openRouterApiKey) {
-            console.log("Falling back to OpenRouter API...");
             try {
                 result = await runOpenRouter(articlePrompt, openRouterApiKey);
             } catch (error: unknown) {

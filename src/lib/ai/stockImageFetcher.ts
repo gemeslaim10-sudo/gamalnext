@@ -13,14 +13,12 @@ export async function fetchStockImage(keyword: string, unsplashKey?: string, pex
                 const data = await unsplashRes.json();
                 if (data.urls?.regular) {
                     imageUrl = data.urls.regular;
-                    console.log("✅ Unsplash API image loaded");
                 }
             }
         }
 
         if (!imageUrl) {
             imageUrl = `https://source.unsplash.com/1280x720/?${unsplashKeyword}`;
-            console.log("Using Unsplash Source");
         }
     } catch (error) {
         console.error("Unsplash error:", error);
@@ -39,7 +37,6 @@ export async function fetchStockImage(keyword: string, unsplashKey?: string, pex
                 const pexelsData = await pexelsRes.json();
                 if (pexelsData.photos && pexelsData.photos.length > 0) {
                     imageUrl = pexelsData.photos[0].src.large;
-                    console.log("✅ Pexels image loaded");
                 }
             }
         } catch (error) {

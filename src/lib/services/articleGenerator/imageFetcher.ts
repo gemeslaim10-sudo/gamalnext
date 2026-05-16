@@ -16,11 +16,9 @@ export const fetchStockImage = async (imageKeyword: string): Promise<string> => 
             const unsplashData = await unsplashRes.json();
             if (unsplashData.urls?.regular) {
                 imageUrl = unsplashData.urls.regular;
-                console.log("✅ Unsplash image loaded successfully");
             }
         } else {
             imageUrl = `https://source.unsplash.com/1280x720/?${unsplashKeyword}`;
-            console.log("⚠️ Using Unsplash Source fallback");
         }
     } catch (error) {
         console.error("Unsplash fetch error:", error);
@@ -40,7 +38,6 @@ export const fetchStockImage = async (imageKeyword: string): Promise<string> => 
                 const pexelsData = await pexelsRes.json();
                 if (pexelsData.photos && pexelsData.photos.length > 0) {
                     imageUrl = pexelsData.photos[0].src.large;
-                    console.log("✅ Pexels image loaded as fallback");
                 }
             }
         } catch (error) {
@@ -50,7 +47,6 @@ export const fetchStockImage = async (imageKeyword: string): Promise<string> => 
 
     if (!imageUrl) {
         imageUrl = `https://source.unsplash.com/1280x720/?${unsplashKeyword}`;
-        console.log("Using final Unsplash Source fallback");
     }
 
     return imageUrl;
