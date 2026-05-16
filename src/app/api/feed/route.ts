@@ -41,12 +41,36 @@ export async function GET(request: Request) {
         }
     }));
 
-    // Sort by interactionScore descending, then by date descending
+    // Sort by a blended score of Recency + Engagement
+    // Posts lose score as they age, but gain score from likes/comments
+    const NOW = Date.now();
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
     allFeed.sort((a, b) => {
+        const timeA = new Date(a.createdAt).getTime();
+        const timeB = new Date(b.createdAt).getTime();
+        
+        // Calculate age in days (how old is the post?)
+        const ageInDaysA = (NOW - timeA) / MS_PER_DAY;
+        const ageInDaysB = (NOW - timeB) / MS_PER_DAY;
+
         // @ts-expect-error: Temporary field for sorting
-        const scoreDiff = (b.interactionScore || 0) - (a.interactionScore || 0);
-        if (scoreDiff !== 0) return scoreDiff;
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        const scoreA = a.interactionScore || 0;
+        // @ts-expect-error: Temporary field for sorting
+        const scoreB = b.interactionScore || 0;
+
+        // Formula: Time weight + Engagement weight
+        // Newer posts get a high baseline score that decays over time.
+        // Engagement adds bonus points to combat the decay.
+        // E.g., 1 interaction = 2 hours of "youth"
+        
+        // Let's use a simple penalty: -10 points per day old, +2 points per interaction
+        // Starting score is normalized to 0 for "right now"
+        const weightA = -(ageInDaysA * 10) + (scoreA * 2);
+        const weightB = -(ageInDaysB * 10) + (scoreB * 2);
+
+        // Sort descending (highest weight first)
+        return weightB - weightA;
     });
 
     // Paginate
