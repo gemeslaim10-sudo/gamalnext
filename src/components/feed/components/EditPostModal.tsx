@@ -182,18 +182,18 @@ export function EditPostModal({ item, isOpen, onClose }: EditPostModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={onClose} />
-            
-            <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/50">
-                    <h2 className="text-lg font-bold text-white">Edit Post</h2>
-                    <button onClick={onClose} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors">
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
+        <div className="fixed inset-0 z-[100] bg-slate-950 flex flex-col animate-in fade-in duration-200 overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-800 bg-slate-900/50 shrink-0">
+                <h2 className="text-lg font-bold text-white">Edit Post</h2>
+                <button onClick={onClose} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors">
+                    <X className="w-6 h-6" />
+                </button>
+            </div>
 
-                <div className="p-6">
+            {/* Content Area */}
+            <div className="flex-1 overflow-y-auto w-full mx-auto p-4 sm:p-6 bg-slate-900/30">
+                <div className="max-w-3xl mx-auto">
                     <form onSubmit={handleUpdate}>
                         <textarea
                             value={content}

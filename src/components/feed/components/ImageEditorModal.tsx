@@ -153,11 +153,9 @@ export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEdi
     };
 
     return (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[90vh] sm:h-auto sm:max-h-[90vh]">
-                
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/50 shrink-0">
+        <div className="fixed inset-0 z-[110] flex flex-col bg-slate-950 animate-in fade-in duration-200 overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-800 bg-slate-900/50 shrink-0">
                     <h2 className="text-lg font-bold text-white flex items-center gap-2">
                         Edit Image
                     </h2>
@@ -248,7 +246,6 @@ export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEdi
                         </div>
                     )}
                 </div>
-            </div>
         </div>
     );
 }
