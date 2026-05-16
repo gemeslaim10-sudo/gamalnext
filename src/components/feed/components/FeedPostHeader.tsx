@@ -1,11 +1,10 @@
 import Image from "next/image";
+import Link from "next/link";
 import { User, Calendar, MoreHorizontal, Edit2 } from "lucide-react";
-import { useState } from "react";
 import { getIconForType, getLabelForType } from "../helpers";
 import type { FeedItem } from "../types";
 import { useAuth } from "@/context/AuthContext";
 import { ALLOWED_ADMINS } from "@/lib/constants";
-import { EditPostModal } from "./EditPostModal";
 
 interface FeedPostHeaderProps {
     item: FeedItem;
@@ -15,7 +14,6 @@ interface FeedPostHeaderProps {
 
 export function FeedPostHeader({ item, siteLogo, siteName }: FeedPostHeaderProps) {
     const { user } = useAuth();
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Can only edit if it's a "post" type and the user is either the author or an admin
     const isAdmin = !!(user?.email && ALLOWED_ADMINS.includes(user.email));
@@ -51,23 +49,15 @@ export function FeedPostHeader({ item, siteLogo, siteName }: FeedPostHeaderProps
                 </div>
 
                 {canEdit && (
-                    <button
-                        onClick={() => setIsEditModalOpen(true)}
+                    <Link
+                        href={`/edit/${item.id}`}
                         className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors"
                         aria-label="Edit post"
                     >
                         <Edit2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </button>
+                    </Link>
                 )}
             </div>
-
-            {canEdit && (
-                <EditPostModal
-                    item={item}
-                    isOpen={isEditModalOpen}
-                    onClose={() => setIsEditModalOpen(false)}
-                />
-            )}
         </>
     );
 }
