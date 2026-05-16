@@ -4,6 +4,7 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "react-hot-toast";
 import { cloudinaryConfig } from "@/lib/cloudinary";
+import { ALLOWED_ADMINS } from "@/lib/constants";
 
 export function useCreatePost() {
     const { user } = useAuth();
@@ -12,6 +13,8 @@ export function useCreatePost() {
     const [images, setImages] = useState<string[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const isAdmin = !!(user?.email && ALLOWED_ADMINS.includes(user.email));
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
@@ -69,16 +72,24 @@ export function useCreatePost() {
                 mediaUrl: images[0] || null,
                 gallery: images,
                 mediaType: images.length > 0 ? "image" : null,
-                status: "pending",
+                status: isAdmin ? "approved" : "pending",
                 createdAt: serverTimestamp(),
             });
             
             setContent("");
             setImages([]);
-            toast.success("Post submitted for approval! It will appear once an admin approves it.", {
-                duration: 5000,
-                icon: '⏳'
-            });
+
+            if (isAdmin) {
+                toast.success("Post published successfully! 🚀", {
+                    duration: 3000,
+                    icon: '✅'
+                });
+            } else {
+                toast.success("Post submitted for approval! It will appear once an admin approves it.", {
+                    duration: 5000,
+                    icon: '⏳'
+                });
+            }
         } catch (error) {
             console.error("Error creating post:", error);
             toast.error("Failed to submit post. Please try again.");
@@ -92,6 +103,7 @@ export function useCreatePost() {
         content,
         setContent,
         isSubmitting,
+        isAdmin,
         images,
         isUploading,
         fileInputRef,
@@ -100,3 +112,4 @@ export function useCreatePost() {
         handleSubmit
     };
 }
+

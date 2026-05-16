@@ -1,6 +1,6 @@
 "use client";
 
-import { Image as ImageIcon, Send, Loader2, X } from "lucide-react";
+import { Image as ImageIcon, Send, Loader2, X, Shield } from "lucide-react";
 import Image from "next/image";
 import { detectTextDir } from "@/lib/utils";
 import { useCreatePost } from "./hooks/useCreatePost";
@@ -11,6 +11,7 @@ export default function CreatePost() {
         content,
         setContent,
         isSubmitting,
+        isAdmin,
         images,
         isUploading,
         fileInputRef,
@@ -77,21 +78,33 @@ export default function CreatePost() {
                             className="hidden"
                         />
                         
-                        <div className="text-xs text-amber-500/70 hidden sm:flex items-center gap-2 border-l border-slate-800 pl-4">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500/50"></span>
-                            Requires admin approval
-                        </div>
+                        {isAdmin ? (
+                            <div className="text-xs text-emerald-400/80 hidden sm:flex items-center gap-2 border-l border-slate-800 pl-4">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                Publishes instantly
+                            </div>
+                        ) : (
+                            <div className="text-xs text-amber-500/70 hidden sm:flex items-center gap-2 border-l border-slate-800 pl-4">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500/50"></span>
+                                Requires admin approval
+                            </div>
+                        )}
                     </div>
                     <button
                         type="submit"
                         disabled={(!content.trim() && images.length === 0) || isSubmitting || isUploading}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                            isAdmin 
+                                ? 'bg-emerald-600 hover:bg-emerald-500 text-white' 
+                                : 'bg-blue-600 hover:bg-blue-500 text-white'
+                        }`}
                     >
-                        {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                        Post
+                        {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : isAdmin ? <Shield className="w-4 h-4" /> : <Send className="w-4 h-4" />}
+                        {isAdmin ? 'Publish' : 'Post'}
                     </button>
                 </div>
             </form>
         </div>
     );
 }
+
