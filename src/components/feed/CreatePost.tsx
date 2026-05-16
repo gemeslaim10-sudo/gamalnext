@@ -1,9 +1,11 @@
 "use client";
 
-import { Image as ImageIcon, Send, Loader2, X, Shield } from "lucide-react";
+import { Image as ImageIcon, Send, Loader2, X, Shield, Edit2 } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import { detectTextDir } from "@/lib/utils";
 import { useCreatePost } from "./hooks/useCreatePost";
+import { ImageEditorModal } from "./components/ImageEditorModal";
 
 export default function CreatePost() {
     const {
@@ -17,9 +19,11 @@ export default function CreatePost() {
         fileInputRef,
         handleImageUpload,
         handlePaste,
+        updateEditedImage,
         removeImage,
         handleSubmit
     } = useCreatePost();
+    const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null);
 
     if (!user) {
         return (
@@ -48,13 +52,22 @@ export default function CreatePost() {
                         {images.map((img, idx) => (
                             <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-700 group">
                                 <Image src={img} alt={`Upload ${idx + 1}`} fill sizes="80px" className="object-cover" />
-                                <button
-                                    type="button"
-                                    onClick={() => removeImage(idx)}
-                                    className="absolute top-1 right-1 bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    <X className="w-3 h-3" />
-                                </button>
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[1px]">
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditingImageIndex(idx)}
+                                        className="bg-blue-500/80 hover:bg-blue-500 text-white rounded-full p-1.5 transition-colors"
+                                    >
+                                        <Edit2 className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImage(idx)}
+                                        className="bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1.5 transition-colors"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -106,6 +119,18 @@ export default function CreatePost() {
                     </button>
                 </div>
             </form>
+
+            <ImageEditorModal
+                isOpen={editingImageIndex !== null}
+                imageUrl={editingImageIndex !== null ? images[editingImageIndex] : ""}
+                onClose={() => setEditingImageIndex(null)}
+                onSave={async (file) => {
+                    if (editingImageIndex !== null) {
+                        await updateEditedImage(editingImageIndex, file);
+                        setEditingImageIndex(null);
+                    }
+                }}
+            />
         </div>
     );
 }

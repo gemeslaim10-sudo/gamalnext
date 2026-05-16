@@ -82,6 +82,35 @@ export function useCreatePost() {
         }
     };
 
+    const updateEditedImage = async (indexToUpdate: number, editedFile: File) => {
+        setIsUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", editedFile);
+            formData.append("upload_preset", cloudinaryConfig.uploadPreset || "ml_default");
+
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/auto/upload`, {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!res.ok) throw new Error("Upload failed");
+            const data = await res.json();
+            
+            setImages(prev => {
+                const newImages = [...prev];
+                newImages[indexToUpdate] = data.secure_url;
+                return newImages;
+            });
+            toast.success("Image updated successfully!");
+        } catch (error) {
+            console.error("Image update error:", error);
+            toast.error("Failed to update edited image.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const removeImage = (indexToRemove: number) => {
         setImages(prev => prev.filter((_, idx) => idx !== indexToRemove));
     };
@@ -137,6 +166,7 @@ export function useCreatePost() {
         fileInputRef,
         handleImageUpload,
         handlePaste,
+        updateEditedImage,
         removeImage,
         handleSubmit
     };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Image as ImageIcon, Loader2, X, Save, Trash2 } from "lucide-react";
+import { Image as ImageIcon, Loader2, X, Save, Trash2, Edit2 } from "lucide-react";
 import Image from "next/image";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import { cloudinaryConfig } from "@/lib/cloudinary";
 import { detectTextDir } from "@/lib/utils";
 import type { FeedItem } from "../types";
+import { ImageEditorModal } from "./ImageEditorModal";
 
 interface EditPostModalProps {
     item: FeedItem;
@@ -22,6 +23,7 @@ export function EditPostModal({ item, isOpen, onClose }: EditPostModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Initialize images when modal opens
@@ -74,6 +76,35 @@ export function EditPostModal({ item, isOpen, onClose }: EditPostModalProps) {
         } catch (error) {
             console.error("Image upload error:", error);
             toast.error("Failed to upload image. Please try again.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const updateEditedImage = async (indexToUpdate: number, editedFile: File) => {
+        setIsUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", editedFile);
+            formData.append("upload_preset", cloudinaryConfig.uploadPreset || "ml_default");
+
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/auto/upload`, {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!res.ok) throw new Error("Upload failed");
+            const data = await res.json();
+            
+            setImages(prev => {
+                const newImages = [...prev];
+                newImages[indexToUpdate] = data.secure_url;
+                return newImages;
+            });
+            toast.success("Image updated successfully!");
+        } catch (error) {
+            console.error("Image update error:", error);
+            toast.error("Failed to update edited image.");
         } finally {
             setIsUploading(false);
         }
@@ -180,13 +211,22 @@ export function EditPostModal({ item, isOpen, onClose }: EditPostModalProps) {
                                 {images.map((img, idx) => (
                                     <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-slate-700 group">
                                         <Image src={img} alt={`Upload ${idx + 1}`} fill sizes="96px" className="object-cover" />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeImage(idx)}
-                                            className="absolute top-1 right-1 bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <X className="w-3 h-3" />
-                                        </button>
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[1px]">
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditingImageIndex(idx)}
+                                                className="bg-blue-500/80 hover:bg-blue-500 text-white rounded-full p-1.5 transition-colors"
+                                            >
+                                                <Edit2 className="w-3 h-3" />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(idx)}
+                                                className="bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1.5 transition-colors"
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -236,6 +276,18 @@ export function EditPostModal({ item, isOpen, onClose }: EditPostModalProps) {
                     </form>
                 </div>
             </div>
+
+            <ImageEditorModal
+                isOpen={editingImageIndex !== null}
+                imageUrl={editingImageIndex !== null ? images[editingImageIndex] : ""}
+                onClose={() => setEditingImageIndex(null)}
+                onSave={async (file) => {
+                    if (editingImageIndex !== null) {
+                        await updateEditedImage(editingImageIndex, file);
+                        setEditingImageIndex(null);
+                    }
+                }}
+            />
         </div>
     );
 }
