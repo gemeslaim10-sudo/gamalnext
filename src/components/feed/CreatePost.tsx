@@ -47,7 +47,7 @@ export default function CreatePost() {
                     <div className="flex flex-wrap gap-2 mt-3">
                         {images.map((img, idx) => (
                             <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-700 group">
-                                <Image src={img} alt={`Upload ${idx + 1}`} fill className="object-cover" />
+                                <Image src={img} alt={`Upload ${idx + 1}`} fill sizes="80px" className="object-cover" />
                                 <button
                                     type="button"
                                     onClick={() => removeImage(idx)}

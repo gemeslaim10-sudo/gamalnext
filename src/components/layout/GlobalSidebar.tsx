@@ -17,9 +17,9 @@ export default function GlobalSidebar() {
 
     if (shouldHide) return null;
 
-    // Before mount, render only the layout placeholder to match server HTML
+    // Before mount, render the same placeholder the layout expects to prevent hydration mismatch
     if (!mounted) {
-        return <div className="hidden lg:block shrink-0 w-0" />;
+        return <div className="hidden lg:block shrink-0 w-0" aria-hidden="true" />;
     }
 
     const ContextIcon = contextInfo.icon;

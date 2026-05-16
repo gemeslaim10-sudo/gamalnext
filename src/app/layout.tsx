@@ -96,8 +96,8 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" dir="ltr">
-      <body className={`${cairo.variable} font-sans bg-slate-950 text-slate-200 antialiased`}>
+    <html lang="en" dir="ltr" suppressHydrationWarning>
+      <body className={`${cairo.variable} font-sans bg-slate-950 text-slate-200 antialiased`} suppressHydrationWarning>
         <AuthProvider>
           <script
             type="application/ld+json"
