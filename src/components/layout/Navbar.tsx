@@ -13,6 +13,7 @@ import MobileMenu from '../navbar/MobileMenu';
 
 // Hook
 import { useNavbar } from './hooks/useNavbar';
+import { FloatingNavBar } from './navbar/FloatingNavBar';
 
 export default function Navbar({ isStatic = false }: { isStatic?: boolean }) {
     const {
@@ -39,8 +40,8 @@ export default function Navbar({ isStatic = false }: { isStatic?: boolean }) {
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2 cursor-pointer z-50 group no-scroll-spy">
                             {branding?.siteLogo ? (
-                                <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-lg overflow-hidden group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
-                                    <Image src={branding.siteLogo} alt="Logo" fill sizes="(max-width: 640px) 32px, 40px" className="object-cover" />
+                                <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-lg overflow-hidden group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
+                                    <Image src={branding.siteLogo} alt="Logo" fill sizes="(max-width: 640px) 32px, 40px" className="object-contain" />
                                 </div>
                             ) : (
                                 <div className="bg-gradient-to-tr from-blue-500 to-cyan-400 p-1 rounded-lg group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
@@ -122,31 +123,12 @@ export default function Navbar({ isStatic = false }: { isStatic?: boolean }) {
                 />
             </nav>
 
-            {/* ── FLOATING NAV BAR (visible when scrolled) ──────── */}
-            {isScrolled && (
-                <div className="fixed top-4 right-4 z-[91] flex items-center gap-1">
-                    {/* Horizontal links — slide out to the left */}
-                    {isMobileMenuOpen && (
-                        <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-xl px-2 py-1.5 shadow-2xl animate-in slide-in-from-right-4 duration-300">
-                            <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${isActive('/') ? 'bg-blue-600/20 text-blue-400' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}>Home</Link>
-                            <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${isActive('/profile') ? 'bg-blue-600/20 text-blue-400' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}>Profile</Link>
-                            <Link href="/portfolio" onClick={() => setIsMobileMenuOpen(false)} className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${isActive('/portfolio') ? 'bg-blue-600/20 text-blue-400' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}>Portfolio</Link>
-                            <Link href="/articles" onClick={() => setIsMobileMenuOpen(false)} className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${isActive('/articles') ? 'bg-blue-600/20 text-blue-400' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}>Blog</Link>
-                            <Link href="/tools" onClick={() => setIsMobileMenuOpen(false)} className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${isActive('/tools') ? 'bg-blue-600/20 text-blue-400' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}>Tools</Link>
-                            <Link href="https://packages.gamaltech.info" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)} className="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap text-slate-300 hover:text-white hover:bg-white/5 transition-all">Pricing</Link>
-                            <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap text-blue-400 bg-blue-600/10 border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all">Contact</Link>
-                        </div>
-                    )}
-
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="p-2.5 rounded-xl bg-slate-900/80 backdrop-blur-xl border border-white/10 text-slate-300 hover:text-white hover:bg-slate-800 transition-all shadow-lg shrink-0"
-                        aria-label="Toggle menu"
-                    >
-                        {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                    </button>
-                </div>
-            )}
+            <FloatingNavBar 
+                isScrolled={isScrolled}
+                isMobileMenuOpen={isMobileMenuOpen}
+                setIsMobileMenuOpen={setIsMobileMenuOpen}
+                isActive={isActive}
+            />
 
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
         </>

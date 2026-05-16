@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { User, Calendar, MoreHorizontal, Edit2 } from "lucide-react";
+import { User, Calendar, Edit2 } from "lucide-react";
 import { getIconForType, getLabelForType } from "../helpers";
 import type { FeedItem } from "../types";
 import { useAuth } from "@/context/AuthContext";
@@ -24,9 +24,9 @@ export function FeedPostHeader({ item, siteLogo, siteName }: FeedPostHeaderProps
         <>
             <div className="p-3 sm:p-6 flex items-start sm:items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-slate-800 shrink-0 border-2 border-slate-700/50 relative flex items-center justify-center">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-black shrink-0 border-2 border-slate-700/50 relative flex items-center justify-center">
                         {siteLogo ? (
-                            <Image src={siteLogo} alt={siteName || "Gamal Tech"} fill sizes="(max-width: 640px) 40px, 48px" className="object-cover" />
+                            <Image src={siteLogo} alt={siteName || "Gamal Tech"} fill sizes="(max-width: 640px) 40px, 48px" className="object-contain" />
                         ) : (
                             <User className="w-5 h-5 sm:w-6 sm:h-6 text-slate-400" />
                         )}

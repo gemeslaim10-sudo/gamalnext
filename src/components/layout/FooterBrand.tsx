@@ -12,8 +12,8 @@ export function FooterBrand({ branding }: FooterBrandProps) {
         <div className="space-y-6">
             <Link href="/" className="flex items-center gap-2 cursor-pointer group w-fit">
                 {branding?.siteLogo ? (
-                    <div className="relative w-8 h-8 rounded-xl overflow-hidden group-hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all">
-                        <Image src={branding.siteLogo} alt="Logo" fill sizes="40px" className="object-cover" />
+                    <div className="relative w-8 h-8 rounded-xl bg-black overflow-hidden group-hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all">
+                        <Image src={branding.siteLogo} alt="Logo" fill sizes="40px" className="object-contain" />
                     </div>
                 ) : (
                     <div className="bg-gradient-to-tr from-blue-500 to-cyan-400 p-1.5 rounded-xl group-hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all">

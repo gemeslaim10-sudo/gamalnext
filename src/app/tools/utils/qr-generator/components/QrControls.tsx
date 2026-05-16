@@ -28,7 +28,6 @@ export function QrControls({
 }: QrControlsProps) {
     return (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
-            {/* Text Input */}
             <div>
                 <label className="block text-sm text-slate-400 mb-2 font-bold flex items-center gap-2">
                     <LinkIcon className="w-4 h-4" />
@@ -46,8 +45,6 @@ export function QrControls({
                     {text.length > 0 ? `${new TextEncoder().encode(text).length} bytes` : ''}
                 </p>
             </div>
-
-            {/* Error Correction Level */}
             <div>
                 <label className="block text-sm text-slate-400 mb-2 font-bold flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4" />

@@ -1,41 +1,13 @@
 import { GoogleGenerativeAI, FunctionCall } from "@google/generative-ai";
 import { aiTools, toolHandlers } from "./tools";
-import { STRICT_INSTRUCTION } from "./instructions";
 import { logSession } from "./utils/sessionManager";
 import { handleLeadCapture } from "./utils/leadManager";
 import { getRagContext } from "./utils/ragManager";
 import { runFailover, type ChatMessage } from "./utils/failoverManager";
 import { determineFlow } from "./flows/registry";
-import { FlowDefinition } from "./flows/types";
+import { buildInstruction, sanitizeHistory } from "./utils/agentHelpers";
+import { AiConfig, UserContext, ToolResponse } from "./types/agent";
 
-interface AiConfig {
-    modelName?: string;
-    groqKey?: string;
-    openRouterKey?: string;
-    openaiKey?: string;
-    huggingfaceKey?: string;
-}
-
-interface UserContext {
-    name?: string;
-    uid?: string;
-    phone?: string;
-    email?: string;
-    gender?: string;
-    [key: string]: unknown;
-}
-
-interface ToolResponse {
-    functionResponse: {
-        name: string;
-        response: { result: unknown };
-    };
-}
-
-/**
- * The AI Agent Orchestrator
- * Handles Role, RAG, Tools, and Failovers
- */
 export class AiAgent {
     private genAI: GoogleGenerativeAI;
     private config: AiConfig;
@@ -46,20 +18,13 @@ export class AiAgent {
     }
 
     async run(message: string, rawChatHistory: ChatMessage[], userContext?: UserContext, sessionId?: string) {
-        // 0. Context Window Management (Sliding Window to prevent token bloat)
         const chatHistory = rawChatHistory.slice(-15);
 
         try {
-            // 1. RAG Discovery
             const ragContext = await getRagContext(message);
-
-            // 2. Build Instructions with Flow State
             const flow = determineFlow(message, chatHistory, userContext?.name);
-            const finalInstruction = this.buildInstruction(message, chatHistory, ragContext, userContext, flow);
+            const finalInstruction = buildInstruction(message, chatHistory, ragContext, userContext, flow);
 
-            // 2.5 SILENT LEAD CAPTURE (ROOT FIX)
-            // If the user types a phone number, capture it immediately without relying on the AI.
-            // Updated to support international and local numbers properly.
             const phoneRegex = /(?:\+|00)?\d{8,15}/;
             const phoneMatch = message.match(phoneRegex);
             
@@ -71,27 +36,20 @@ export class AiAgent {
                 }
             }
 
-            // 3. Initialize Model with Tools
             const model = this.genAI.getGenerativeModel({
                 model: this.config.modelName || "gemini-2.5-flash",
-                generationConfig: {
-                    temperature: 0.3,
-                },
-                tools: [{ 
-                    functionDeclarations: aiTools 
-                }]
+                generationConfig: { temperature: 0.3 },
+                tools: [{ functionDeclarations: aiTools }]
             });
 
-            // 4. Start Chat Session
             const chat = model.startChat({
-                history: this.sanitizeHistory(chatHistory),
+                history: sanitizeHistory(chatHistory),
                 systemInstruction: {
                     role: "system",
                     parts: [{ text: finalInstruction }]
                 },
             });
 
-            // 5. Agentic Loop (Tools Execution)
             let result = await chat.sendMessage(message);
             let response = result.response;
             let toolCalls = response.functionCalls();
@@ -109,7 +67,6 @@ export class AiAgent {
 
             const text = response.text();
 
-            // 6. Post-Processing (Leads & Sessions) - معزول عن الرد الأساسي
             try {
                 const leadStatus = await handleLeadCapture(text, userContext?.uid, sessionId);
                 if (leadStatus === false) {
@@ -122,14 +79,14 @@ export class AiAgent {
             } catch (dbError) {
                 console.error("Post-processing DB error:", dbError);
             }
-            // 7. Clean the final text before sending to the client (remove the secret tag)
+            
             const cleanText = text.replace(/\[*LEAD_DATA\s*:\s*([\s\S]*?)(?:\]\]|\](?!\w))/ig, "").trim();
 
             return { response: cleanText };
 
         } catch (error) {
             console.error("AI Agent Execution Failed:", error);
-            const instruction = this.buildInstruction(message, chatHistory, "", userContext);
+            const instruction = buildInstruction(message, chatHistory, "", userContext);
             const failoverResult = await runFailover(
                 message, 
                 chatHistory, 
@@ -144,12 +101,8 @@ export class AiAgent {
                 const failoverText = failoverResult.response;
                 try {
                     const leadStatus = await handleLeadCapture(failoverText, userContext?.uid, sessionId);
-                    if (leadStatus === false) {
-                        console.error("Failed to capture lead data from failover response.");
-                    }
-                    if (sessionId) {
-                        await logSession(sessionId, message, failoverText);
-                    }
+                    if (leadStatus === false) console.error("Failed to capture lead data from failover response.");
+                    if (sessionId) await logSession(sessionId, message, failoverText);
                 } catch (dbError) {
                     console.error("Failover post-processing DB error:", dbError);
                 }
@@ -159,29 +112,6 @@ export class AiAgent {
             
             return failoverResult;
         }
-    }
-
-    private buildInstruction(currentMessage: string, history: ChatMessage[], rag: string, ctx?: UserContext, precomputedFlow?: FlowDefinition) {
-        // Find the flow state first
-        const flow = precomputedFlow || determineFlow(currentMessage, history, ctx?.name);
-        const flowPrompt = flow.getPrompt(ctx?.name);
-        const isGuest = !ctx?.name || ctx.name === 'Guest';
-
-        let baseInstruction = "";
-        
-        if (flow.basePersona === 'INTIMATE') {
-            baseInstruction = "[هويتك ودورك الأساسي]\nأنت المساعد الذكي لـ جمال عبد العاطي. لكن العميل الحالي هو صديق أو شخص مقرب جداً لجمال. إياك أن تتحدث كمندوب مبيعات أو تحاول بيع خدماته.\n\n";
-        } else if (flow.basePersona === 'TROLL') {
-            baseInstruction = "[هويتك ودورك الأساسي]\nأنت الآن في وضع (التحفيل). العميل داخل يتسلى أو بيهزر. ممنوع منعاً باتاً التحدث عن البيزنس أو الخدمات أو محاولة البيع.\n\n";
-        } else {
-            baseInstruction = STRICT_INSTRUCTION + "\n\n";
-        }
-
-        const contextInfo = !isGuest 
-            ? `\n\n[CONTEXT]: بيانات العميل المسجلة في النظام:\nالاسم: ${ctx.name}\n${ctx?.phone ? `الهاتف: ${ctx.phone}\n` : ''}${ctx?.email ? `البريد: ${ctx.email}\n` : ''}`
-            : "";
-
-        return baseInstruction + flowPrompt + rag + contextInfo;
     }
 
     private async executeTools(calls: FunctionCall[]) {
@@ -195,30 +125,5 @@ export class AiAgent {
             }
         }
         return responses;
-    }
-
-    private sanitizeHistory(history: ChatMessage[]) {
-        const cleaned = history.map(m => ({
-            role: m.role === 'model' ? 'model' : 'user',
-            parts: [{ text: m.parts?.[0]?.text || m.text || "" }]
-        })).filter(m => m.parts[0].text);
-
-        // Gemini requires strict user/model alternation — merge consecutive same-role messages
-        const merged: typeof cleaned = [];
-        for (const msg of cleaned) {
-            const last = merged[merged.length - 1];
-            if (last && last.role === msg.role) {
-                last.parts[0].text += "\n" + msg.parts[0].text;
-            } else {
-                merged.push({ ...msg, parts: [{ text: msg.parts[0].text }] });
-            }
-        }
-
-        // Gemini requires history to start with 'user' — strip leading 'model' messages
-        while (merged.length > 0 && merged[0].role === 'model') {
-            merged.shift();
-        }
-
-        return merged;
     }
 }

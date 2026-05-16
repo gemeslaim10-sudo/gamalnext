@@ -32,14 +32,14 @@ export function HeroVisuals({ hero }: { hero: HeroData }) {
                             {/* Premium Glowing Outer Ring (Visible on Hover) */}
                             <div className="absolute -inset-1 bg-gradient-to-tr from-blue-500/40 via-cyan-400/20 to-emerald-500/40 rounded-[2.8rem] blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out"></div>
 
-                            <div className="relative w-[180px] h-[180px] sm:w-[260px] sm:h-[260px] lg:w-[320px] lg:h-[320px] 2xl:w-[340px] 2xl:h-[340px] rounded-[2.5rem] overflow-hidden border-2 border-slate-700/50 hover:border-blue-500/50 bg-[#0f172a] flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 z-10">
+                            <div className="relative w-[180px] h-[180px] sm:w-[260px] sm:h-[260px] lg:w-[320px] lg:h-[320px] 2xl:w-[340px] 2xl:h-[340px] rounded-[2.5rem] overflow-hidden border-2 border-slate-700/50 hover:border-blue-500/50 bg-black flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 z-10">
                                 {displayImage ? (
                                     <Image
                                         src={displayImage}
                                         alt={hero.heroTitle}
                                         fill
                                         priority
-                                        className="object-cover object-center grayscale-[15%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105"
+                                        className="object-contain object-center grayscale-[15%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105"
                                         sizes="(max-width: 768px) 180px, 350px"
                                     />
                                 ) : (

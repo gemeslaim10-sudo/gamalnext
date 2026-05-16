@@ -31,7 +31,7 @@ export const STATIC_TOOLS: FeedItem[] = [
         title: "Secure Password Generator",
         description: "Generate cryptographically secure passwords locally on your device without sending any data to the server.",
         fullContent: "Generate cryptographically secure passwords locally on your device without sending any data to the server. Customize length, complexity, and character sets to meet any security requirement.",
-        imageUrl: "https://images.unsplash.com/photo-1614064641913-6b71a25712c4?auto=format&fit=crop&q=80&w=800",
+        imageUrl: "https://images.unsplash.com/photo-1510511459019-5efa326ae50a?auto=format&fit=crop&q=80&w=800",
         gallery: null,
         mediaType: "image",
         link: "/tools/security/password-generator",

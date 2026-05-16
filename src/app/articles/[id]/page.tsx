@@ -63,12 +63,14 @@ export default async function ArticlePage({ params }: Props) {
 
     // eslint-disable-next-line react-hooks/purity
     const createdAtMs = getTimestampMs(article.createdAt) || Date.now();
+    const updatedAtMs = getTimestampMs(article.updatedAt) || null;
 
     // Serialize ID and date
     const serializedArticle = {
         ...article,
         id: id,
-        createdAt: createdAtMs
+        createdAt: createdAtMs,
+        updatedAt: updatedAtMs
     };
 
     const jsonLd = {

@@ -3,9 +3,8 @@ import { useAuth } from "@/context/AuthContext";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "react-hot-toast";
-import { cloudinaryConfig } from "@/lib/cloudinary";
+import { uploadToCloudinary } from "@/lib/cloudinary/upload";
 import { ALLOWED_ADMINS } from "@/lib/constants";
-
 export function useCreatePost() {
     const { user } = useAuth();
     const [content, setContent] = useState("");
@@ -13,37 +12,21 @@ export function useCreatePost() {
     const [images, setImages] = useState<string[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
     const isAdmin = !!(user?.email && ALLOWED_ADMINS.includes(user.email));
-
     // Shared upload logic for both file input and clipboard paste
     const uploadFiles = async (files: File[]) => {
         if (!files.length) return;
-
         if (images.length + files.length > 4) {
             toast.error("You can upload a maximum of 4 images.");
             return;
         }
-
         setIsUploading(true);
         const newUrls: string[] = [];
-
         try {
             for (const file of files) {
-                const formData = new FormData();
-                formData.append("file", file);
-                formData.append("upload_preset", cloudinaryConfig.uploadPreset || "ml_default");
-
-                const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/auto/upload`, {
-                    method: "POST",
-                    body: formData,
-                });
-
-                if (!res.ok) throw new Error("Upload failed");
-                const data = await res.json();
-                newUrls.push(data.secure_url);
+                const url = await uploadToCloudinary(file);
+                newUrls.push(url);
             }
-
             setImages(prev => [...prev, ...newUrls]);
             if (newUrls.length > 0) {
                 toast.success(`${newUrls.length} image${newUrls.length > 1 ? 's' : ''} attached!`, { icon: '📎', duration: 2000 });
@@ -55,18 +38,15 @@ export function useCreatePost() {
             setIsUploading(false);
         }
     };
-
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         await uploadFiles(files);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
-
     // Handle Ctrl+V paste of images from clipboard
     const handlePaste = async (e: React.ClipboardEvent) => {
         const clipboardItems = e.clipboardData?.items;
         if (!clipboardItems) return;
-
         const imageFiles: File[] = [];
         for (let i = 0; i < clipboardItems.length; i++) {
             const item = clipboardItems[i];
@@ -75,31 +55,18 @@ export function useCreatePost() {
                 if (file) imageFiles.push(file);
             }
         }
-
         if (imageFiles.length > 0) {
             e.preventDefault(); // Prevent pasting image data as text
             await uploadFiles(imageFiles);
         }
     };
-
     const updateEditedImage = async (indexToUpdate: number, editedFile: File) => {
         setIsUploading(true);
         try {
-            const formData = new FormData();
-            formData.append("file", editedFile);
-            formData.append("upload_preset", cloudinaryConfig.uploadPreset || "ml_default");
-
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/auto/upload`, {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!res.ok) throw new Error("Upload failed");
-            const data = await res.json();
-            
+            const url = await uploadToCloudinary(editedFile);
             setImages(prev => {
                 const newImages = [...prev];
-                newImages[indexToUpdate] = data.secure_url;
+                newImages[indexToUpdate] = url;
                 return newImages;
             });
             toast.success("Image updated successfully!");
@@ -110,15 +77,12 @@ export function useCreatePost() {
             setIsUploading(false);
         }
     };
-
     const removeImage = (indexToRemove: number) => {
         setImages(prev => prev.filter((_, idx) => idx !== indexToRemove));
     };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!content.trim() && images.length === 0) return;
-
         setIsSubmitting(true);
         try {
             await addDoc(collection(db, "posts"), {
@@ -135,7 +99,6 @@ export function useCreatePost() {
             
             setContent("");
             setImages([]);
-
             if (isAdmin) {
                 toast.success("Post published successfully! 🚀", {
                     duration: 3000,
@@ -154,7 +117,6 @@ export function useCreatePost() {
             setIsSubmitting(false);
         }
     };
-
     return {
         user,
         content,
