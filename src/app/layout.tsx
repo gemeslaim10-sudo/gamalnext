@@ -105,15 +105,15 @@ export default async function RootLayout({
               __html: JSON.stringify({
                 "@context": "https://schema.org",
                 "@type": "Person",
-                "name": "Gamal Abdelaty",
-                "alternateName": ["Gamal Tech", "Gamal Web"],
+                "name": branding?.ownerName || "Gamal Abdelaty",
+                "alternateName": [branding?.siteName || "Gamal Tech"],
                 "url": "https://gamaltech.info",
-                "jobTitle": "Web Developer & E-commerce Expert",
+                "jobTitle": branding?.ownerTitle || "Web Developer & E-commerce Expert",
+                "image": branding?.siteLogo || undefined,
                 "sameAs": [
-                  // Add your real social media links here:
-                  // "https://github.com/your-username",
-                  // "https://linkedin.com/in/your-username"
-                ]
+                  branding?.githubUrl,
+                  branding?.linkedinUrl,
+                ].filter(Boolean)
               })
             }}
           />

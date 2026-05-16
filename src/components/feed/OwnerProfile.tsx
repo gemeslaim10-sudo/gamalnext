@@ -24,7 +24,7 @@ export default function OwnerProfile() {
     const linkedin = branding?.linkedinUrl || "";
     const email = branding?.emailAddress || "";
     const phone = branding?.phoneDisplay || branding?.whatsappNumber || "";
-    const avatar = branding?.siteLogo || "/gamal.jpg"; // Fallback image just in case
+    const avatar = branding?.siteLogo || ""; 
 
     const handleCopy = (text: string, type: string) => {
         if (!text) return;
@@ -189,14 +189,18 @@ export default function OwnerProfile() {
                 </div>
                 
                 <div className="flex items-center gap-4 mb-5 relative z-10">
-                    <div className="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-slate-700 shrink-0 shadow-xl group-hover:border-emerald-500/50 transition-colors">
-                        <Image
-                            src={avatar}
-                            alt={name}
-                            fill
-                            sizes="56px"
-                            className="object-cover"
-                        />
+                    <div className="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-slate-700 shrink-0 shadow-xl group-hover:border-emerald-500/50 transition-colors bg-slate-800 flex items-center justify-center">
+                        {avatar ? (
+                            <Image
+                                src={avatar}
+                                alt={name}
+                                fill
+                                sizes="56px"
+                                className="object-cover"
+                            />
+                        ) : (
+                            <User className="w-7 h-7 text-slate-400" />
+                        )}
                     </div>
                     <div>
                         <div className="flex items-center gap-1.5">

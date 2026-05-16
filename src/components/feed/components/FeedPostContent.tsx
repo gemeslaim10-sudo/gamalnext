@@ -10,10 +10,10 @@ interface FeedPostContentProps {
 
 export function FeedPostContent({ item, isExpanded, hasLongContent, onToggleExpand }: FeedPostContentProps) {
     return (
-        <div className="px-4 sm:px-6 pb-4">
+        <div className="px-3 sm:px-6 pb-3 sm:pb-4">
             <h2
                 style={textDirStyle(item.title)}
-                className="text-xl sm:text-2xl font-bold text-white mb-2 leading-tight"
+                className="text-lg sm:text-2xl font-bold text-white mb-1.5 sm:mb-2 leading-tight"
             >
                 {item.title}
             </h2>

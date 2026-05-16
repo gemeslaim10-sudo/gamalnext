@@ -15,7 +15,7 @@ export const defaultHeroData: HeroData = {
     heroDescription: "Specializing in creating scalable websites, premium e-commerce stores, and intelligent WhatsApp API solutions. I transform complex ideas into elegant digital experiences that drive real business growth.",
     whatsappNumber: "201024531452",
     resumeLink: "#projects",
-    avatarImage: "/gamal.jpg"
+    avatarImage: ""
 };
 
 export const STATS = [

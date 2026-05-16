@@ -13,10 +13,10 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-console.log("🔥 Firebase Config Debug:");
-console.log("API Key:", firebaseConfig.apiKey ? "Set (" + firebaseConfig.apiKey.length + " chars)" : "MISSING");
-console.log("Project ID:", firebaseConfig.projectId ? `"${firebaseConfig.projectId}"` : "MISSING");
-console.log("Auth Domain:", firebaseConfig.authDomain);
+// Debug logging only in development
+if (process.env.NODE_ENV === 'development') {
+    console.log("🔥 Firebase Config:", firebaseConfig.projectId ? "Loaded" : "MISSING");
+}
 
 
 // Initialize Firebase (Singleton pattern)

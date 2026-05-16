@@ -29,14 +29,14 @@ export function useAdminContent() {
                     setValue("heroDescription", data.heroDescription || "");
                     setValue("whatsappNumber", data.whatsappNumber || "201024531452");
                     setValue("resumeLink", data.resumeLink || "#projects");
-                    setValue("avatarImage", data.avatarImage || "/gamal.jpg");
+                    setValue("avatarImage", data.avatarImage || "");
                 } else {
                     setValue("heroTitle", "جمال عبد العاطي");
                     setValue("heroSubtitle", "محلل بيانات & مطور ويب مدعوم بالذكاء الاصطناعي");
                     setValue("heroDescription", "أحول البيانات المعقدة إلى رؤى واضحة، وأبني مواقع ويب ديناميكية تتحدث مع قواعد البيانات وتفهم العملاء باستخدام أحدث تقنيات Gemini AI.");
                     setValue("whatsappNumber", "201024531452");
                     setValue("resumeLink", "#projects");
-                    setValue("avatarImage", "/gamal.jpg");
+                    setValue("avatarImage", "");
                 }
             } catch (err) {
                 console.error(err);

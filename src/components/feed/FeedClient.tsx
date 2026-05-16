@@ -119,7 +119,7 @@ export default function FeedClient() {
 
             {/* Scroll Hint Indicator */}
             {showScrollHint && (
-                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-1 animate-fade-in-up">
+                <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-40 flex-col items-center gap-1 animate-fade-in-up hidden sm:flex">
                     <span className="text-xs text-slate-400 bg-slate-900/80 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/10 shadow-lg">
                         Scroll for more
                     </span>

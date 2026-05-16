@@ -7,19 +7,30 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-hot-toast";
 
+// Module-level cache to prevent re-fetching counts on every mount
+const _likeCountCache = new Map<string, number>();
+
 export default function LikeButton({ articleId }: { articleId: string }) {
     const { user } = useAuth();
     const [liked, setLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(0);
+    const [likeCount, setLikeCount] = useState(_likeCountCache.get(articleId) ?? 0);
     const [userLikeId, setUserLikeId] = useState<string | null>(null);
 
     // Fetch Like Status
     useEffect(() => {
+        // Skip if already cached
+        if (_likeCountCache.has(articleId)) {
+            setLikeCount(_likeCountCache.get(articleId)!);
+            return;
+        }
+
         async function fetchCount() {
             try {
                 const qCount = query(collection(db, "likes"), where("articleId", "==", articleId));
                 const snapshot = await getCountFromServer(qCount);
-                setLikeCount(snapshot.data().count);
+                const count = snapshot.data().count;
+                _likeCountCache.set(articleId, count);
+                setLikeCount(count);
             } catch {
                 console.error("Error fetching likes count");
             }
@@ -61,8 +72,10 @@ export default function LikeButton({ articleId }: { articleId: string }) {
 
         // Optimistic UI
         const prevLiked = liked;
+        const newCount = prevLiked ? likeCount - 1 : likeCount + 1;
         setLiked(!liked);
-        setLikeCount(prevCount => prevLiked ? prevCount - 1 : prevCount + 1);
+        setLikeCount(newCount);
+        _likeCountCache.set(articleId, newCount); // Update cache too
 
         try {
             if (prevLiked && userLikeId) {
@@ -81,6 +94,8 @@ export default function LikeButton({ articleId }: { articleId: string }) {
         } catch {
             // Revert
             setLiked(prevLiked);
+            setLikeCount(likeCount);
+            _likeCountCache.set(articleId, likeCount);
             toast.error("Update failed");
         }
     };
@@ -88,9 +103,10 @@ export default function LikeButton({ articleId }: { articleId: string }) {
     return (
         <button
             onClick={handleToggle}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${liked ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-red-500/50 hover:text-red-400'}`}
+            aria-label={liked ? `Unlike (${likeCount} likes)` : `Like (${likeCount} likes)`}
+            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border transition-all text-xs sm:text-sm ${liked ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-slate-800/50 border-slate-700/50 text-slate-300 hover:bg-slate-800 hover:border-red-500/50 hover:text-red-400'}`}
         >
-            <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+            <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-current' : ''}`} />
             <span className="font-bold">{likeCount}</span>
         </button>
     );
