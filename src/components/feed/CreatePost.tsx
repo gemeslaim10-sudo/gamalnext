@@ -16,6 +16,7 @@ export default function CreatePost() {
         isUploading,
         fileInputRef,
         handleImageUpload,
+        handlePaste,
         removeImage,
         handleSubmit
     } = useCreatePost();
@@ -34,7 +35,8 @@ export default function CreatePost() {
                 <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder="What's on your mind? Share an idea or ask a question..."
+                    onPaste={handlePaste}
+                    placeholder="What's on your mind? Paste images with Ctrl+V..."
                     dir={detectTextDir(content)}
                     className="w-full bg-slate-950/50 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 resize-none transition-all"
                     rows={3}

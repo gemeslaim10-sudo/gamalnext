@@ -16,8 +16,8 @@ export function useCreatePost() {
 
     const isAdmin = !!(user?.email && ALLOWED_ADMINS.includes(user.email));
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []);
+    // Shared upload logic for both file input and clipboard paste
+    const uploadFiles = async (files: File[]) => {
         if (!files.length) return;
 
         if (images.length + files.length > 3) {
@@ -45,12 +45,40 @@ export function useCreatePost() {
             }
 
             setImages(prev => [...prev, ...newUrls]);
+            if (newUrls.length > 0) {
+                toast.success(`${newUrls.length} image${newUrls.length > 1 ? 's' : ''} attached!`, { icon: '📎', duration: 2000 });
+            }
         } catch (error) {
             console.error("Image upload error:", error);
             toast.error("Failed to upload image. Please try again.");
         } finally {
             setIsUploading(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        await uploadFiles(files);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    // Handle Ctrl+V paste of images from clipboard
+    const handlePaste = async (e: React.ClipboardEvent) => {
+        const clipboardItems = e.clipboardData?.items;
+        if (!clipboardItems) return;
+
+        const imageFiles: File[] = [];
+        for (let i = 0; i < clipboardItems.length; i++) {
+            const item = clipboardItems[i];
+            if (item.type.startsWith("image/")) {
+                const file = item.getAsFile();
+                if (file) imageFiles.push(file);
+            }
+        }
+
+        if (imageFiles.length > 0) {
+            e.preventDefault(); // Prevent pasting image data as text
+            await uploadFiles(imageFiles);
         }
     };
 
@@ -108,8 +136,8 @@ export function useCreatePost() {
         isUploading,
         fileInputRef,
         handleImageUpload,
+        handlePaste,
         removeImage,
         handleSubmit
     };
 }
-
