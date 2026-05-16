@@ -1,122 +1,161 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper: Check if user is an admin
+    // ══════════════════════════════════════════════════════════════════
+    // 🔧 Helper Functions
+    // ══════════════════════════════════════════════════════════════════
+
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
     function isAdmin() {
-      return request.auth != null && (
-        request.auth.token.email == 'montasrrm@gmail.com' || 
-        request.auth.token.email == 'gemeslaim10@gmail.com'
+      return isLoggedIn() && (
+        request.auth.token.email == "montasrrm@gmail.com" ||
+        request.auth.token.email == "gemeslaim10@gmail.com"
       );
     }
-    
-    // Helper: Check if user is authenticated
-    function isAuth() {
-        return request.auth != null;
+
+    function isOwner(userId) {
+      return isLoggedIn() && request.auth.uid == userId;
     }
 
-    // 1. Site Content (Hero, Skills, Experience, Projects, AI Settings)
-    // Public: Read-only
-    // Admin: Read/Write
-    match /site_content/{document=**} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    match /settings/{document=**} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // 2. Articles
-    // Public: Read all
-    // Auth: Create
-    // Admin/Owner: Update/Delete
+    // ══════════════════════════════════════════════════════════════════
+    // 📝 Articles
+    // ══════════════════════════════════════════════════════════════════
     match /articles/{articleId} {
-        allow read: if true;
-        allow create: if isAuth(); 
-        allow update, delete: if isAdmin() || (isAuth() && resource.data.authorId == request.auth.uid);
-    }
-    
-    // 3. User Profiles
-    // Public: Read
-    // Owner/Admin: Write
-    match /users/{userId} {
-        allow read: if true; 
-        allow write: if isAuth() && (request.auth.uid == userId || isAdmin());
+      allow read: if true;
+      allow create: if isLoggedIn();
+      allow update: if isAdmin() || isOwner(resource.data.authorId);
+      allow delete: if isAdmin() || isOwner(resource.data.authorId);
     }
 
-    // 4. Comments
-    // Public: Read
-    // Auth: Create
-    // Admin/Owner: Update/Delete
-    match /comments/{commentId} {
-        allow read: if true;
-        allow create: if isAuth();
-        allow update, delete: if isAuth() && (resource.data.userId == request.auth.uid || isAdmin());
+    // ══════════════════════════════════════════════════════════════════
+    // 📰 Posts (User Feed Posts)
+    // ══════════════════════════════════════════════════════════════════
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isLoggedIn();
+      allow update: if isAdmin() || isOwner(resource.data.userId);
+      allow delete: if isAdmin() || isOwner(resource.data.userId);
     }
 
-    // 5. Reviews
-    // Public: Read approved only (or Admin read all)
-    // Any: Create
-    // Admin: Update/Delete
-    match /reviews/{reviewId} {
-        allow read: if (resource.data.status == 'approved') || isAdmin();
-        allow create: if true;
-        allow update, delete: if isAdmin();
-    }
-
-    // 6. Notifications
-    match /notifications/{notifId} {
-        allow read, update: if isAuth() && (resource.data.recipientId == request.auth.uid || (resource.data.recipientId == 'ADMIN' && isAdmin()));
-        allow create: if isAuth();
-        allow delete: if isAdmin() || (isAuth() && resource.data.recipientId == request.auth.uid);
-    }
-    
-    // 7. Likes
+    // ══════════════════════════════════════════════════════════════════
+    // ❤️ Likes
+    // ══════════════════════════════════════════════════════════════════
     match /likes/{likeId} {
-        allow read: if true;
-        allow create: if isAuth();
-        allow delete: if isAuth() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow read: if true;
+      allow create: if isLoggedIn();
+      allow delete: if isLoggedIn() && isOwner(resource.data.userId);
     }
 
-    // 8. AI Chat Sessions
-    match /chat_sessions/{sessionId} {
-      // Allow anyone to create/update their session.
-      // Reading requires knowing the sessionId (which is a UUID for guests, or session_uid for users).
-      allow create, update, read: if true;
+    // ══════════════════════════════════════════════════════════════════
+    // 💬 Comments
+    // ══════════════════════════════════════════════════════════════════
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isLoggedIn();
+      allow update: if isAdmin() || isOwner(resource.data.userId);
+      allow delete: if isAdmin() || isOwner(resource.data.userId);
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // ⭐ Reviews
+    // ══════════════════════════════════════════════════════════════════
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isLoggedIn();
+      allow update: if isAdmin();
       allow delete: if isAdmin();
-
-      // Rules for the messages subcollection
-      match /messages/{messageId} {
-        allow read, create: if true;
-        allow update, delete: if isAdmin();
-      }
     }
 
-    // 9. Leads
-    match /leads/{leadId} {
-      allow create, update: if true;
-      allow read, delete: if isAdmin();
+    // ══════════════════════════════════════════════════════════════════
+    // 👤 Users
+    // ══════════════════════════════════════════════════════════════════
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isLoggedIn();
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
     }
 
-    // 10. User History (Tools Usage)
-    match /user_history/{historyId} {
-      allow read: if isAuth() && resource.data.userId == request.auth.uid;
-      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
-      allow delete: if isAuth() && resource.data.userId == request.auth.uid;
-      allow update: if false; // لا يُسمح بالتعديل
+    // ══════════════════════════════════════════════════════════════════
+    // 🔔 Notifications
+    // ══════════════════════════════════════════════════════════════════
+    match /notifications/{notifId} {
+      allow read: if isLoggedIn();
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn() && isOwner(resource.data.userId);
+      allow delete: if isAdmin();
     }
 
-    // 11. Ads
+    // ══════════════════════════════════════════════════════════════════
+    // 🌐 Site Content (Hero, Settings, Projects, Skills)
+    // ══════════════════════════════════════════════════════════════════
+    match /site_content/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // ⚙️ Settings (AI Config, etc.)
+    // ══════════════════════════════════════════════════════════════════
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 📢 Ads
+    // ══════════════════════════════════════════════════════════════════
     match /ads/{adId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // 12. Tools
+    // ══════════════════════════════════════════════════════════════════
+    // 🛠️ Tools
+    // ══════════════════════════════════════════════════════════════════
     match /tools/{toolId} {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 📞 Leads (AI Chat Captured Leads)
+    // ══════════════════════════════════════════════════════════════════
+    match /leads/{leadId} {
+      allow read: if isAdmin();
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn();
+      allow delete: if isAdmin();
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 💬 Chat Sessions + Messages
+    // ══════════════════════════════════════════════════════════════════
+    match /chat_sessions/{sessionId} {
+      allow read: if isLoggedIn() || isAdmin();
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn();
+      allow delete: if isAdmin();
+
+      match /messages/{messageId} {
+        allow read: if isLoggedIn();
+        allow create: if isLoggedIn();
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 📜 User History (Tool Usage)
+    // ══════════════════════════════════════════════════════════════════
+    match /user_history/{historyId} {
+      allow read: if isLoggedIn() && isOwner(resource.data.userId);
+      allow create: if isLoggedIn();
+      allow delete: if isOwner(resource.data.userId);
+    }
+
   }
 }

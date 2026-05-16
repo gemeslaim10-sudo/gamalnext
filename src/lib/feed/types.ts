@@ -26,4 +26,5 @@ export interface FeedItem {
     link: string;
     createdAt: string;
     author?: string;
+    userId?: string;
 }

@@ -24,6 +24,7 @@ export async function fetchUserPostsFeed(allFeed: FeedItem[]) {
                 link: `/#${docSnap.id}`,
                 createdAt: parseDate(data.createdAt),
                 author: data.userName || "User",
+                userId: data.userId,
             });
         });
     } catch (err) {
