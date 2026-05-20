@@ -126,8 +126,10 @@ export default async function RootLayout({
               </main>
             </div>
           </BrandingProvider>
-          <ChatWrapper />
-          <WhatsAppFloat />
+          <div className="print:hidden">
+            <ChatWrapper />
+            <WhatsAppFloat />
+          </div>
           <Toaster position="bottom-center" toastOptions={{
             style: {
               background: '#1e293b',

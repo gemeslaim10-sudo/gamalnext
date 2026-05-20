@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { QrCode, Ruler, Calendar, Timer, ArrowRight } from 'lucide-react';
+import { QrCode, Ruler, Calendar, Timer, FileBadge, ArrowRight } from 'lucide-react';
 
 const tools = [
     {
@@ -35,6 +35,14 @@ const tools = [
         href: '/tools/utils/stopwatch',
         color: 'text-lime-400',
         bg: 'bg-lime-400/10'
+    },
+    {
+        name: 'منشئ السيرة الذاتية AI',
+        description: 'صمم سيرة ذاتية احترافية بالذكاء الاصطناعي.',
+        icon: FileBadge,
+        href: '/tools/utils/ai-cv-builder',
+        color: 'text-emerald-400',
+        bg: 'bg-emerald-400/10'
     }
 ];
 
@@ -42,7 +50,7 @@ export default function UtilsToolsPage() {
     return (
         <div>
             <h1 className="text-3xl font-bold text-white mb-8">الأدوات العامة (Utilities)</h1>
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {tools.map((tool) => {
                     const Icon = tool.icon;
                     return (

@@ -54,8 +54,8 @@ export default function YoutubeThumbnailPage() {
                 تحميل صور يوتيوب (Thumbnails)
             </h1>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 mb-8">
-                <div className="flex gap-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 mb-8">
+                <div className="flex flex-col sm:flex-row gap-4">
                     <div className="relative flex-1">
                         <input
                             type="text"
@@ -63,13 +63,13 @@ export default function YoutubeThumbnailPage() {
                             onChange={(e) => setUrl(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleFetch()}
                             placeholder="ضع رابط فيديو اليوتيوب هنا..."
-                            className="w-full bg-slate-950 border border-slate-700 rounded-xl py-4 pr-12 pl-4 text-white focus:border-red-500 outline-none"
+                            className="w-full bg-slate-950 border border-slate-700 rounded-xl py-4 pr-12 pl-4 text-white focus:border-red-500 outline-none text-sm sm:text-base"
                         />
                         <Youtube className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
                     </div>
                     <button
                         onClick={handleFetch}
-                        className="bg-red-600 hover:bg-red-700 text-white px-8 rounded-xl font-bold transition-colors"
+                        className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 sm:py-0 rounded-xl font-bold transition-colors w-full sm:w-auto text-sm sm:text-base"
                     >
                         بحث
                     </button>
@@ -77,7 +77,7 @@ export default function YoutubeThumbnailPage() {
             </div>
 
             {videoId && (
-                <div className="grid grid-cols-2 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4">
                     {[
                         { label: 'أعلى جودة (Max Res)', q: 'maxresdefault' },
                         { label: 'جودة عالية (High)', q: 'hqdefault' },

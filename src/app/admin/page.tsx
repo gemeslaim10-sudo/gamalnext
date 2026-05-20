@@ -86,10 +86,19 @@ export default function AdminDashboard() {
             </div>
 
             <div className="mt-8 p-6 rounded-xl bg-slate-900 border border-slate-800">
-                <h2 className="text-lg font-bold text-white mb-3">Quick Actions</h2>
-                <div className="text-slate-400 text-sm">
-                    Select a category from the sidebar to start managing your dynamic content.
-                    Everything you edit will be instantly updated on the live website.
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-lg font-bold text-white mb-2">Quick Actions</h2>
+                        <div className="text-slate-400 text-sm">
+                            Select a category from the sidebar to start managing your dynamic content.
+                            Everything you edit will be instantly updated on the live website.
+                        </div>
+                    </div>
+                    <div>
+                        <a href="/gamal-cv" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-600/30 transition-colors font-medium text-sm whitespace-nowrap">
+                            <FileText className="w-4 h-4" /> View My Static CV
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

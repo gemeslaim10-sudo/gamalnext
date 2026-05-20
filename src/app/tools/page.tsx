@@ -29,7 +29,14 @@ interface Tool {
 export default async function ToolsPage() {
     const dbTools = await getCollection<Tool>("tools");
 
-    let tools: Tool[] = dbTools.length > 0 ? dbTools : (DEFAULT_TOOLS as unknown as Tool[]);
+    let tools: Tool[] = dbTools.length > 0 ? [...dbTools] : [...(DEFAULT_TOOLS as unknown as Tool[])];
+
+    // Ensure newly added default tools are visible even if DB is used but doesn't have them
+    for (const defTool of DEFAULT_TOOLS) {
+        if (!tools.find(t => t.id === defTool.id)) {
+            tools.push(defTool as unknown as Tool);
+        }
+    }
 
     if (dbTools.length > 0) {
         tools = tools.filter(t => t.isActive !== false);
@@ -61,7 +68,7 @@ export default async function ToolsPage() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {displayTools.map((tool) => (
                     <ToolCard key={tool.id} tool={tool} />
                 ))}

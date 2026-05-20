@@ -64,12 +64,21 @@ export function UserProfileCard({ profile, currentUser, profileId }: UserProfile
                     <div className="flex flex-wrap justify-center md:justify-start gap-4 pt-4 border-t border-slate-800 mt-4">
                         {/* Admin Dashboard Button - Only for Admins checking their own profile */}
                         {isOwner && isAdmin && (
-                            <Link
-                                href="/admin"
-                                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                            >
-                                لوحة التحكم (Admin)
-                            </Link>
+                            <>
+                                <Link
+                                    href="/admin"
+                                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                >
+                                    لوحة التحكم (Admin)
+                                </Link>
+                                <Link
+                                    href="/gamal-cv"
+                                    target="_blank"
+                                    className="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-slate-600"
+                                >
+                                    السيرة الذاتية (CV)
+                                </Link>
+                            </>
                         )}
 
                         {isOwner && (

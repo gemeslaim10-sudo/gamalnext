@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
         // 1. Discover Best Available Models
         const candidateModels = await discoverModels(apiKey, config.modelName);
-        const selectedModelName = candidateModels[0] || "gemini-1.5-flash";
+        const selectedModelName = candidateModels[0] || "gemini-2.5-flash";
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: selectedModelName });

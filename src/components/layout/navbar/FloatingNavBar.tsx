@@ -12,7 +12,7 @@ export function FloatingNavBar({ isScrolled, isMobileMenuOpen, setIsMobileMenuOp
     if (!isScrolled) return null;
 
     return (
-        <div className="fixed top-4 right-4 z-[91] flex items-center gap-1">
+        <div style={{ display: 'none' }} className="fixed top-4 right-4 z-[91] flex items-center gap-1">
             {isMobileMenuOpen && (
                 <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-xl px-2 py-1.5 shadow-2xl animate-in slide-in-from-right-4 duration-300">
                     <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${isActive('/') ? 'bg-blue-600/20 text-blue-400' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}>Home</Link>

@@ -24,7 +24,7 @@ export function shuffleAndPick<T>(arr: T[], count: number): T[] {
 }
 
 // ─── Excluded Paths (pages that have their own sidebar) ───────────────────────
-export const EXCLUDED_PREFIXES = ['/admin', '/tools'];
+export const EXCLUDED_PREFIXES = ['/admin', '/tools', '/gamal-cv'];
 
 // ─── Context Info Mapper ──────────────────────────────────────────────────────
 export function getContextInfo(pathname: string) {
