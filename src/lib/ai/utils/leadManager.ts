@@ -1,4 +1,4 @@
-import { adminDb } from "@/lib/firebase-admin";
+import { getAdminDb } from "@/lib/firebase-admin";
 import admin from "firebase-admin";
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -24,7 +24,7 @@ export async function handleLeadCapture(text: string, userId?: string, sessionId
             const sanitizedPhone = data.phone.replace(/[^0-9+]/g, '');
             if (!sanitizedPhone) throw new Error("Invalid phone number format");
 
-            const docRef = adminDb.collection("leads").doc(sanitizedPhone);
+            const docRef = getAdminDb().collection("leads").doc(sanitizedPhone);
             await docRef.set({
                 ...data,
                 updatedAt: admin.firestore.FieldValue.serverTimestamp(),

@@ -1,9 +1,9 @@
-import { adminDb } from "@/lib/firebase-admin";
+import { getAdminDb } from "@/lib/firebase-admin";
 import admin from "firebase-admin";
 
 export async function logSession(sid: string, msg: string, resp: string) {
     try {
-        const sessionRef = adminDb.collection("chat_sessions").doc(sid);
+        const sessionRef = getAdminDb().collection("chat_sessions").doc(sid);
         
         // Update the main session document with the last activity time
         await sessionRef.set({

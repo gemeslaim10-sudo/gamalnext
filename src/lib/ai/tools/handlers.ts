@@ -54,9 +54,9 @@ export const toolHandlers = {
     },
     collect_lead: async (args: CollectLeadArgs) => {
         try {
-            const { adminDb } = await import("@/lib/firebase-admin");
+            const { getAdminDb } = await import("@/lib/firebase-admin");
             const admin = (await import("firebase-admin")).default;
-            const docRef = await adminDb.collection("leads").add({
+            const docRef = await getAdminDb().collection("leads").add({
                 ...args,
                 capturedAt: admin.firestore.FieldValue.serverTimestamp(),
                 source: "ai_tool_calling"
