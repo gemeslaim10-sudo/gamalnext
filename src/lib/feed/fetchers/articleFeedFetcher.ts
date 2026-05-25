@@ -1,11 +1,11 @@
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { parseDate } from "../utils";
 import type { FeedItem } from "../types";
 
 export async function fetchArticlesFeed(allFeed: FeedItem[]) {
     try {
-        const articlesQ = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+        const articlesQ = query(collection(db, "articles"), orderBy("createdAt", "desc"), limit(30));
         const articlesSnap = await getDocs(articlesQ);
         articlesSnap.docs.forEach(docSnap => {
             const data = docSnap.data();

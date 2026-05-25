@@ -2,10 +2,16 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 import { getAiConfig } from "@/lib/ai/config";
 import { discoverModels } from "@/lib/ai/models";
+import { verifyAuthUser } from "@/lib/firebase-admin";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+    try {
+        await verifyAuthUser(req);
+    } catch (authError: unknown) {
+        return NextResponse.json({ error: authError instanceof Error ? authError.message : "Unauthorized" }, { status: 401 });
+    }
     try {
         const { title } = await req.json();
 

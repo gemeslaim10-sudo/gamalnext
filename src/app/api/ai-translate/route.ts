@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+import { getAiConfig } from '@/lib/ai/config';
 
 export async function POST(req: Request) {
     try {
@@ -11,7 +10,15 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Text is required' }, { status: 400 });
         }
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const config = await getAiConfig();
+        const apiKey = config.geminiKey || process.env.GEMINI_API_KEY;
+
+        if (!apiKey) {
+            return NextResponse.json({ error: 'Gemini API Key missing' }, { status: 500 });
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: config.modelName || 'gemini-2.5-flash' });
 
         const prompt = `
         You are a professional translator. Translate the following text from ${sourceLang || 'auto'} to ${targetLang}.

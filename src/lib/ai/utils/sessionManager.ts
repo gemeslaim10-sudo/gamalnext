@@ -1,30 +1,30 @@
-import { doc, setDoc, serverTimestamp, collection, addDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { adminDb } from "@/lib/firebase-admin";
+import admin from "firebase-admin";
 
 export async function logSession(sid: string, msg: string, resp: string) {
     try {
-        const sessionRef = doc(db, "chat_sessions", sid);
+        const sessionRef = adminDb.collection("chat_sessions").doc(sid);
         
         // Update the main session document with the last activity time
-        await setDoc(sessionRef, {
-            lastMessageAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
+        await sessionRef.set({
+            lastMessageAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        const messagesRef = collection(sessionRef, "messages");
+        const messagesRef = sessionRef.collection("messages");
         
         // Add user message
-        await addDoc(messagesRef, {
+        await messagesRef.add({
             role: 'user',
             text: msg,
-            timestamp: serverTimestamp()
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
         });
 
         // Add model response
-        await addDoc(messagesRef, {
+        await messagesRef.add({
             role: 'model',
             text: resp,
-            timestamp: serverTimestamp()
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
         });
         
     } catch (e) {

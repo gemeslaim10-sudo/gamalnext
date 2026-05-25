@@ -1,5 +1,4 @@
-import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { adminDb } from "@/lib/firebase-admin";
 
 export type AiConfig = {
     welcomeMessage: string;
@@ -22,10 +21,9 @@ export async function getAiConfig(): Promise<AiConfig> {
             return cachedConfig;
         }
 
-        const docRef = doc(db, "settings", "ai");
-        const docSnap = await getDoc(docRef);
+        const docSnap = await adminDb.collection("settings").doc("ai").get();
         
-        const data = docSnap.exists() ? docSnap.data() : {};
+        const data = docSnap.exists ? docSnap.data() || {} : {};
         
         cachedConfig = {
             welcomeMessage: data.welcomeMessage || "",

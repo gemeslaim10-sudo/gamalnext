@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import type { WriteFormData } from "../types";
+import { useAuth } from "@/context/AuthContext";
 
 export function useAiArticleEnhancer(
     formData: WriteFormData,
     setFormData: React.Dispatch<React.SetStateAction<WriteFormData>>,
     setImageQuery: React.Dispatch<React.SetStateAction<string>>
 ) {
+    const { user } = useAuth();
     const [generating, setGenerating] = useState(false);
     const [regeneratingImage, setRegeneratingImage] = useState(false);
     const [enhancingTitle, setEnhancingTitle] = useState(false);
@@ -17,9 +19,13 @@ export function useAiArticleEnhancer(
         toast.loading("جاري البحث عن صورة جديدة...", { id: "img-gen" });
 
         try {
+            const token = user ? await user.getIdToken() : "";
             const res = await fetch("/api/generate-image", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    ...(token ? { "Authorization": `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify({ title: formData.title })
             });
 
@@ -47,9 +53,13 @@ export function useAiArticleEnhancer(
         toast.loading("جاري تحسين العنوان ...", { id: "enhance-title" });
 
         try {
+            const token = user ? await user.getIdToken() : "";
             const res = await fetch("/api/enhance-title", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    ...(token ? { "Authorization": `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify({ title: formData.title })
             });
 
@@ -77,9 +87,13 @@ export function useAiArticleEnhancer(
         toast.loading("جاري توليد المقال والصورة بالذكاء الاصطناعي...", { id: "ai-gen" });
 
         try {
+            const token = user ? await user.getIdToken() : "";
             const res = await fetch("/api/generate-article", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    ...(token ? { "Authorization": `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify({ title: formData.title })
             });
 

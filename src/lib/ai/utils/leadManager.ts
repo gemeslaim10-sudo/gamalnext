@@ -1,5 +1,5 @@
-import { setDoc, serverTimestamp, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { adminDb } from "@/lib/firebase-admin";
+import admin from "firebase-admin";
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -18,18 +18,16 @@ export async function handleLeadCapture(text: string, userId?: string, sessionId
             const data = JSON.parse(jsonString);
             if (isDev) console.log("Parsed Lead Data:", data);
             
-            // We CANNOT use getDocs(q) here because the client SDK is restricted by firestore.rules
-            // which prevents non-admins from READING the leads collection.
-            // Instead, we use the sanitized phone number as the Document ID, and use setDoc with merge: true.
-            // This performs an "Upsert" (Update if exists, Create if not) without needing to read the database!
+            // We use the Firebase Admin SDK to write the lead document, which bypasses all security rules.
+            // This allows guest users and API routes on the server to record leads securely.
             
             const sanitizedPhone = data.phone.replace(/[^0-9+]/g, '');
             if (!sanitizedPhone) throw new Error("Invalid phone number format");
 
-            const docRef = doc(db, "leads", sanitizedPhone);
-            await setDoc(docRef, {
+            const docRef = adminDb.collection("leads").doc(sanitizedPhone);
+            await docRef.set({
                 ...data,
-                updatedAt: serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                 userId: userId || "Anonymous",
                 sessionId: sessionId || null
             }, { merge: true });

@@ -26,9 +26,22 @@ export async function GET(request: Request) {
         fetchUserPostsFeed(allFeed)
     ]);
 
-    // Fetch interaction counts for sorting
+    const NOW = Date.now();
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+    // Fetch interaction counts for sorting (only for active items newer than 14 days)
     await Promise.all(allFeed.map(async (item) => {
         try {
+            const time = new Date(item.createdAt).getTime();
+            const ageInDays = (NOW - time) / MS_PER_DAY;
+            
+            // Skip database query if the item is older than 14 days as its decay makes it cold anyway
+            if (ageInDays > 14) {
+                // @ts-expect-error: Temporary field for sorting
+                item.interactionScore = 0;
+                return;
+            }
+
             const [likesSnap, commentsSnap] = await Promise.all([
                 getCountFromServer(query(collection(db, "likes"), where("articleId", "==", item.id))),
                 getCountFromServer(query(collection(db, "comments"), where("articleId", "==", item.id)))
@@ -43,8 +56,6 @@ export async function GET(request: Request) {
 
     // Sort by a blended score of Recency + Engagement
     // Posts lose score as they age, but gain score from likes/comments
-    const NOW = Date.now();
-    const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
     allFeed.sort((a, b) => {
         const timeA = new Date(a.createdAt).getTime();

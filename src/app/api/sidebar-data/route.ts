@@ -26,10 +26,12 @@ export const dynamic = "force-dynamic";
 export async function GET() {
     try {
         // Fetch latest articles
-        const rawArticles = await getCollection<ArticleData>("articles");
+        const rawArticles = await getCollection<ArticleData>("articles", {
+            orderByField: "createdAt",
+            orderDirection: "desc",
+            limitCount: 20
+        });
         const articles = rawArticles
-            .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
-            .slice(0, 20)
             .map(d => ({
                 id: d.id,
                 title: d.title || "Untitled",

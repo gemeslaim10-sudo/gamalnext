@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import { generateImageKeyword, fetchStockImage } from "@/lib/ai/generateImageHelpers";
+import { verifyAuthUser } from "@/lib/firebase-admin";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+    try {
+        await verifyAuthUser(req);
+    } catch (authError: unknown) {
+        return NextResponse.json({ error: authError instanceof Error ? authError.message : "Unauthorized" }, { status: 401 });
+    }
     try {
         const { title } = await req.json();
 

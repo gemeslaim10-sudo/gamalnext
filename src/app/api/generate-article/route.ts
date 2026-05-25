@@ -2,10 +2,16 @@ import { NextResponse } from "next/server";
 import { getArticlePrompt } from "@/lib/services/articleGenerator/prompts";
 import { runGemini, runGroq, runHuggingFace, runOpenRouter, type ArticleResult } from "@/lib/services/articleGenerator/llmProviders";
 import { fetchStockImage } from "@/lib/services/articleGenerator/imageFetcher";
+import { verifyAuthUser } from "@/lib/firebase-admin";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+    try {
+        await verifyAuthUser(req);
+    } catch (authError: unknown) {
+        return NextResponse.json({ error: authError instanceof Error ? authError.message : "Unauthorized" }, { status: 401 });
+    }
     let geminiErrorMsg = "";
     let groqErrorMsg = "";
     let result: ArticleResult | null = null;

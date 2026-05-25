@@ -54,11 +54,11 @@ export const toolHandlers = {
     },
     collect_lead: async (args: CollectLeadArgs) => {
         try {
-            const { db } = await import("@/lib/firebase");
-            const { addDoc, collection, serverTimestamp } = await import("firebase/firestore");
-            const docRef = await addDoc(collection(db, "leads"), {
+            const { adminDb } = await import("@/lib/firebase-admin");
+            const admin = (await import("firebase-admin")).default;
+            const docRef = await adminDb.collection("leads").add({
                 ...args,
-                capturedAt: serverTimestamp(),
+                capturedAt: admin.firestore.FieldValue.serverTimestamp(),
                 source: "ai_tool_calling"
             });
             return { success: true, leadId: docRef.id, message: "تم تسجيل اهتمامك بنجاح، فريق جمال سيتواصل معك قريباً." };
