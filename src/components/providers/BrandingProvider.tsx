@@ -1,0 +1,35 @@
+"use client";
+
+import React, { createContext, useContext } from "react";
+
+export interface BrandingSettings {
+    siteName?: string;
+    siteDescription?: string;
+    siteLogo?: string;
+    siteFavicon?: string;
+    ownerName?: string;
+    ownerTitle?: string;
+    ownerBio?: string;
+    ownerRole?: string;
+    ownerLocation?: string;
+    githubUrl?: string;
+    linkedinUrl?: string;
+    emailAddress?: string;
+    whatsappNumber?: string;
+    phoneDisplay?: string;
+    [key: string]: unknown;
+}
+
+const BrandingContext = createContext<BrandingSettings | null>(null);
+
+export function BrandingProvider({ children, initialBranding }: { children: React.ReactNode, initialBranding: BrandingSettings | null }) {
+    return (
+        <BrandingContext.Provider value={initialBranding}>
+            {children}
+        </BrandingContext.Provider>
+    );
+}
+
+export function useBrandingContext() {
+    return useContext(BrandingContext);
+}

@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gamal Abdel Aty | Data & Web Specialist</title>
+    
+    <!-- Favicon: Code Bracket Icon (Base64 Encoded for stability) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjM2I4MmY2IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBvbHlsaW5lIHBvaW50cz0iMTYgMTggMjIgMTIgMTYgNiIvPjxwb2x5bGluZSBwb2ludHM9IjggNiAyIDEyIDggMTgiLz48L3N2Zz4=" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #020617; /* slate-950 */
+            color: #f8fafc;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+
+        /* Animation Utility Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-1 { transition-delay: 100ms; }
+        .stagger-2 { transition-delay: 200ms; }
+        .stagger-3 { transition-delay: 300ms; }
+        .stagger-4 { transition-delay: 400ms; }
+
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.4;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Gradient Text */
+        .text-gradient {
+            background: linear-gradient(to right, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+
+<link rel="stylesheet" href="/index.css">
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.23.26",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.10.1"
+  }
+}
+</script>
+  <script type="module" crossorigin src="/assets/index-BHJbSnke.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-200">
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300 bg-transparent">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="#home" class="flex items-center gap-2 cursor-pointer z-50 group no-scroll-spy">
+                    <div class="bg-gradient-to-tr from-blue-500 to-cyan-400 p-2 rounded-lg group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
+                        <i data-lucide="terminal" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="font-bold text-xl sm:text-2xl tracking-wider text-white">
+                        GAMAL<span class="text-blue-400">.DEV</span>
+                    </span>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline gap-8">
+                        <a href="#home" class="nav-link px-3 py-2 text-sm font-medium text-white hover:text-blue-400 transition-colors relative group">
+                            الرئيسية
+                            <span class="absolute bottom-0 right-0 h-0.5 w-0 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                        <a href="#skills" class="nav-link px-3 py-2 text-sm font-medium text-slate-300 hover:text-blue-400 transition-colors relative group">
+                            المهارات
+                            <span class="absolute bottom-0 right-0 h-0.5 w-0 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                        <a href="#experience" class="nav-link px-3 py-2 text-sm font-medium text-slate-300 hover:text-blue-400 transition-colors relative group">
+                            الخبرات
+                            <span class="absolute bottom-0 right-0 h-0.5 w-0 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                        <a href="#projects" class="nav-link px-3 py-2 text-sm font-medium text-slate-300 hover:text-blue-400 transition-colors relative group">
+                            أعمالي
+                            <span class="absolute bottom-0 right-0 h-0.5 w-0 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                        <a href="#contact" class="nav-link px-3 py-2 text-sm font-medium text-slate-300 hover:text-blue-400 transition-colors relative group">
+                            تواصل معي
+                            <span class="absolute bottom-0 right-0 h-0.5 w-0 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Mobile Button -->
+                <div class="md:hidden z-50">
+                    <button id="mobile-menu-btn" class="text-slate-400 hover:text-white p-2">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-b border-slate-800 absolute w-full top-20 left-0 transition-all duration-300 shadow-xl z-40">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="mobile-link block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-800">الرئيسية</a>
+                <a href="#skills" class="mobile-link block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-800">المهارات</a>
+                <a href="#experience" class="mobile-link block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-800">الخبرات</a>
+                <a href="#projects" class="mobile-link block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-800">أعمالي</a>
+                <a href="#contact" class="mobile-link block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-800">تواصل معي</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center pt-20 pb-10 overflow-hidden">
+        <!-- Background Shapes -->
+        <div class="blob bg-blue-600 top-20 right-20 w-72 h-72 rounded-full"></div>
+        <div class="blob bg-purple-600 bottom-20 left-20 w-96 h-96 rounded-full" style="animation-delay: -5s;"></div>
+        
+        <!-- Texture Background -->
+        <div class="absolute inset-0 w-full h-full opacity-5 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-4 text-center">
+            <div class="reveal inline-block mb-4 px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-sm font-semibold tracking-wide">
+                مرحباً بك في عالم البيانات والذكاء
+            </div>
+            
+            <h1 class="reveal stagger-1 text-4xl sm:text-6xl md:text-8xl font-black text-white mb-6 leading-tight">
+                جمال عبد العاطي
+            </h1>
+            
+            <div class="reveal stagger-2 text-xl sm:text-2xl md:text-3xl text-slate-300 mb-8 font-light">
+                <span class="text-blue-400 font-semibold">محلل بيانات</span> & <span class="text-purple-400 font-semibold">مطور ويب</span> مدعوم بالذكاء الاصطناعي
+            </div>
+            
+            <p class="reveal stagger-3 max-w-2xl mx-auto text-slate-400 text-lg mb-10 leading-relaxed">
+                أحول البيانات المعقدة إلى رؤى واضحة، وأبني مواقع ويب ديناميكية تتحدث مع قواعد البيانات وتفهم العملاء باستخدام أحدث تقنيات Gemini AI.
+            </p>
+            
+            <div class="reveal stagger-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="#projects" class="px-8 py-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] transition-all duration-300 transform hover:-translate-y-1">
+                    تصفح أعمالي
+                </a>
+                <a href="https://wa.me/201024531452" target="_blank" class="px-8 py-4 rounded-lg border border-green-500/50 hover:border-green-400 text-green-400 hover:text-white hover:bg-green-600 font-medium text-lg glass transition-all duration-300 flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    تواصل عبر واتساب
+                </a>
+            </div>
+        </div>
+
+        <a href="#skills" class="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-slate-400 animate-bounce cursor-pointer">
+            <i data-lucide="chevron-down" class="w-8 h-8"></i>
+        </a>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 bg-slate-900 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
+                    المهارات <span class="text-blue-500">والخبرات</span>
+                </h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">
+                    مزيج قوي من تحليل البيانات وتطوير البرمجيات الحديثة
+                </p>
+            </div>
+
+            <!-- Main Skills Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
+                <!-- Skill 1 -->
+                <div class="reveal stagger-1 glass p-8 rounded-2xl border-slate-700 hover:border-blue-500/50 transition-all duration-300 group">
+                    <div class="bg-slate-800 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="code" class="w-7 h-7 text-blue-400 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">تطوير الويب والـ AI</h3>
+                    <p class="text-slate-400 mb-6">بناء مواقع Full Stack باستخدام Next.js و React مع ربط Gemini AI API وتدريبها.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">Next.js</span>
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">React</span>
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">Gemini API</span>
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">Tailwind</span>
+                    </div>
+                </div>
+
+                <!-- Skill 2 -->
+                <div class="reveal stagger-2 glass p-8 rounded-2xl border-slate-700 hover:border-blue-500/50 transition-all duration-300 group">
+                    <div class="bg-slate-800 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="database" class="w-7 h-7 text-blue-400 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">تحليل البيانات</h3>
+                    <p class="text-slate-400 mb-6">إدارة قواعد بيانات معقدة (SQL/PostgreSQL) واستخراج تقارير تحليلية.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">MySQL</span>
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">PostgreSQL</span>
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">Data Entry</span>
+                    </div>
+                </div>
+                
+                 <!-- Skill 3 -->
+                 <div class="reveal stagger-3 glass p-8 rounded-2xl border-slate-700 hover:border-blue-500/50 transition-all duration-300 group">
+                    <div class="bg-slate-800 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="bar-chart" class="w-7 h-7 text-blue-400 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">تحليل الإعلانات</h3>
+                    <p class="text-slate-400 mb-6">استخراج وتحليل بيانات Meta Ads Manager لتقييم الحملات الإعلانية.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">Meta Ads</span>
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">Marketing Reports</span>
+                    </div>
+                </div>
+
+                 <!-- Skill 4 -->
+                 <div class="reveal stagger-4 glass p-8 rounded-2xl border-slate-700 hover:border-blue-500/50 transition-all duration-300 group">
+                    <div class="bg-slate-800 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="file-text" class="w-7 h-7 text-blue-400 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">إدارة المحتوى</h3>
+                    <p class="text-slate-400 mb-6">خبرة في Shopify و WordPress وتصميم مستندات رسمية.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">Word/Excel</span>
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">Shopify</span>
+                         <span class="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">PowerPoint</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bars & Tools -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Tech Stack Progress -->
+                <div class="reveal glass p-8 rounded-2xl border-slate-700">
+                    <h3 class="text-2xl font-bold text-white mb-8 border-r-4 border-blue-500 pr-4">التقنيات البرمجية</h3>
+                    <div class="space-y-6">
+                         <!-- Items from constants.ts -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-slate-300 font-medium">React.js</span>
+                                <span class="text-blue-400">95%</span>
+                            </div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="progress-bar h-full bg-gradient-to-r from-blue-600 to-cyan-400" style="width: 0%" data-width="95%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-slate-300 font-medium">Supabase</span>
+                                <span class="text-blue-400">90%</span>
+                            </div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="progress-bar h-full bg-gradient-to-r from-blue-600 to-cyan-400" style="width: 0%" data-width="90%"></div>
+                            </div>
+                        </div>
+                         <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-slate-300 font-medium">Firebase</span>
+                                <span class="text-blue-400">85%</span>
+                            </div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="progress-bar h-full bg-gradient-to-r from-blue-600 to-cyan-400" style="width: 0%" data-width="85%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-slate-300 font-medium">Next.js</span>
+                                <span class="text-blue-400">85%</span>
+                            </div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="progress-bar h-full bg-gradient-to-r from-blue-600 to-cyan-400" style="width: 0%" data-width="85%"></div>
+                            </div>
+                        </div>
+                         <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-slate-300 font-medium">MySQL</span>
+                                <span class="text-blue-400">80%</span>
+                            </div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="progress-bar h-full bg-gradient-to-r from-blue-600 to-cyan-400" style="width: 0%" data-width="80%"></div>
+                            </div>
+                        </div>
+                         <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-slate-300 font-medium">Laravel</span>
+                                <span class="text-blue-400">70%</span>
+                            </div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="progress-bar h-full bg-gradient-to-r from-blue-600 to-cyan-400" style="width: 0%" data-width="70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tools Usage Chart & Software Levels -->
+                <div class="space-y-8">
+                     <!-- Software Levels -->
+                    <div class="reveal glass p-8 rounded-2xl border-slate-700">
+                        <h3 class="text-2xl font-bold text-white mb-6 border-r-4 border-purple-500 pr-4">مستوى البرامج</h3>
+                        <div class="flex flex-wrap gap-3">
+                            <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 flex-grow text-center">
+                                <h4 class="text-white text-sm font-bold">Excel/Sheets</h4>
+                                <span class="text-green-400 text-xs">احترافي</span>
+                            </div>
+                            <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 flex-grow text-center">
+                                <h4 class="text-white text-sm font-bold">VS Code</h4>
+                                <span class="text-green-400 text-xs">احترافي</span>
+                            </div>
+                            <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 flex-grow text-center">
+                                <h4 class="text-white text-sm font-bold">PowerPoint</h4>
+                                <span class="text-green-400 text-xs">احترافي</span>
+                            </div>
+                            <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 flex-grow text-center">
+                                <h4 class="text-white text-sm font-bold">Word</h4>
+                                <span class="text-green-400 text-xs">احترافي</span>
+                            </div>
+                            <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 flex-grow text-center">
+                                <h4 class="text-white text-sm font-bold">Photoshop</h4>
+                                <span class="text-yellow-400 text-xs">متوسط</span>
+                            </div>
+                             <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 flex-grow text-center">
+                                <h4 class="text-white text-sm font-bold">Premiere</h4>
+                                <span class="text-yellow-400 text-xs">متوسط</span>
+                            </div>
+                             <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 flex-grow text-center">
+                                <h4 class="text-white text-sm font-bold">After Effects</h4>
+                                <span class="text-slate-400 text-xs">مبتدئ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tools Usage Chart (Visual) -->
+                    <div class="reveal glass p-8 rounded-2xl border-slate-700">
+                         <h3 class="text-2xl font-bold text-white mb-4 border-r-4 border-cyan-500 pr-4">أدوات العمل اليومية</h3>
+                         <div class="space-y-4">
+                             <!-- GeminiPro -->
+                             <div>
+                                 <div class="flex justify-between text-sm mb-1">
+                                     <span class="text-slate-300">GeminiPro</span>
+                                     <span class="text-blue-400 font-mono">60%</span>
+                                 </div>
+                                 <div class="w-full bg-slate-800 rounded-full h-2">
+                                     <div class="bg-[#3b82f6] h-2 rounded-full progress-bar" style="width: 0%" data-width="60%"></div>
+                                 </div>
+                             </div>
+                             <!-- VS Code & Supabase -->
+                             <div class="flex gap-4">
+                                 <div class="w-1/2">
+                                     <div class="flex justify-between text-sm mb-1">
+                                         <span class="text-slate-300">VS Code</span>
+                                         <span class="text-blue-400 font-mono">15%</span>
+                                     </div>
+                                     <div class="w-full bg-slate-800 rounded-full h-2">
+                                         <div class="bg-[#0ea5e9] h-2 rounded-full progress-bar" style="width: 0%" data-width="15%"></div>
+                                     </div>
+                                 </div>
+                                 <div class="w-1/2">
+                                     <div class="flex justify-between text-sm mb-1">
+                                         <span class="text-slate-300">Supabase</span>
+                                         <span class="text-blue-400 font-mono">15%</span>
+                                     </div>
+                                     <div class="w-full bg-slate-800 rounded-full h-2">
+                                         <div class="bg-[#10b981] h-2 rounded-full progress-bar" style="width: 0%" data-width="15%"></div>
+                                     </div>
+                                 </div>
+                             </div>
+                              <!-- Others -->
+                              <div>
+                                 <div class="flex justify-between text-sm mb-1">
+                                     <span class="text-slate-300">Office Suite</span>
+                                     <span class="text-blue-400 font-mono">10%</span>
+                                 </div>
+                                 <div class="w-full bg-slate-800 rounded-full h-2">
+                                     <div class="bg-[#22c55e] h-2 rounded-full progress-bar" style="width: 0%" data-width="10%"></div>
+                                 </div>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="py-20 bg-slate-950">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">الخبرات السابقة</h2>
+                <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2">
+                    <i data-lucide="building-2" class="w-4 h-4 text-blue-400"></i>
+                    <span class="text-blue-300 text-sm font-medium">تدرج وظيفي داخل وكالة إعلانات</span>
+                </div>
+            </div>
+
+            <div class="glass rounded-3xl p-8 border border-slate-700 relative overflow-hidden reveal">
+                <div class="absolute top-0 right-0 w-full h-2 bg-gradient-to-l from-blue-500 to-purple-500 opacity-50"></div>
+                
+                <div class="relative border-r-2 border-slate-700 mr-3 md:mr-4 space-y-10">
+                    <!-- Exp 1 -->
+                    <div class="relative pr-8 md:pr-10">
+                        <div class="absolute -right-[9px] top-1 w-4 h-4 rounded-full border-2 border-slate-900 bg-blue-500"></div>
+                        <div class="flex flex-col sm:flex-row justify-between gap-2 mb-2">
+                            <h4 class="text-lg font-bold text-blue-400">مطور ومصمم مواقع ويب</h4>
+                            <span class="text-xs font-mono text-slate-400 bg-slate-900/50 px-2 py-1 rounded border border-slate-700 w-fit">شهران</span>
+                        </div>
+                        <p class="text-slate-400 text-sm">تطوير مواقع كاملة مع لوحات تحكم ديناميكية.</p>
+                    </div>
+
+                    <!-- Exp 2 -->
+                    <div class="relative pr-8 md:pr-10">
+                        <div class="absolute -right-[9px] top-1 w-4 h-4 rounded-full border-2 border-slate-900 bg-slate-600"></div>
+                        <div class="flex flex-col sm:flex-row justify-between gap-2 mb-2">
+                            <h4 class="text-lg font-bold text-slate-200">محلل بيانات</h4>
+                            <span class="text-xs font-mono text-slate-400 bg-slate-900/50 px-2 py-1 rounded border border-slate-700 w-fit">شهر واحد</span>
+                        </div>
+                        <p class="text-slate-400 text-sm">تحليل الحملات الإعلانية وتقديم تقارير الأداء.</p>
+                    </div>
+
+                    <!-- Exp 3 -->
+                    <div class="relative pr-8 md:pr-10">
+                        <div class="absolute -right-[9px] top-1 w-4 h-4 rounded-full border-2 border-slate-900 bg-slate-600"></div>
+                        <div class="flex flex-col sm:flex-row justify-between gap-2 mb-2">
+                            <h4 class="text-lg font-bold text-slate-200">مدخل بيانات</h4>
+                            <span class="text-xs font-mono text-slate-400 bg-slate-900/50 px-2 py-1 rounded border border-slate-700 w-fit">3 أشهر</span>
+                        </div>
+                        <p class="text-slate-400 text-sm">إدارة وتنظيم البيانات بدقة عالية.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-20 bg-slate-900">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-5xl font-bold text-white">
+                    أحدث <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">المشاريع</span>
+                </h2>
+                <p class="text-slate-400 mt-4">جميع المشاريع تتضمن لوحة تحكم (Dashboard) كاملة</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Project 1 -->
+                <div class="group relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 reveal stagger-1">
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800" alt="Art Vision" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80"></div>
+                    </div>
+                    <div class="absolute bottom-0 w-full p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Art Vision Portfolio</h3>
+                        <div class="flex gap-2 mb-4">
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">React</span>
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">Netlify</span>
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">Dashboard</span>
+                        </div>
+                        <a href="https://artvisionviewportfolio.netlify.app/" target="_blank" class="inline-flex items-center gap-2 text-blue-400 font-bold hover:text-blue-300">
+                            زيارة الموقع <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="group relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 reveal stagger-2">
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800" alt="Noorva Store" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80"></div>
+                    </div>
+                    <div class="absolute bottom-0 w-full p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Noorva Store</h3>
+                        <div class="flex gap-2 mb-4">
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">E-commerce</span>
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">Supabase</span>
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">React</span>
+                        </div>
+                        <a href="https://noorvastore.netlify.app/" target="_blank" class="inline-flex items-center gap-2 text-blue-400 font-bold hover:text-blue-300">
+                            زيارة الموقع <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="group relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 reveal stagger-3">
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800" alt="Zakaryia Law Firm" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80"></div>
+                    </div>
+                    <div class="absolute bottom-0 w-full p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Zakaryia Law Firm</h3>
+                        <div class="flex gap-2 mb-4">
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">Corporate</span>
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">CMS</span>
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">Dynamic</span>
+                        </div>
+                        <a href="https://zakaryialawfirm.netlify.app/" target="_blank" class="inline-flex items-center gap-2 text-blue-400 font-bold hover:text-blue-300">
+                            زيارة الموقع <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                 <!-- Project 4 -->
+                 <div class="group relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 reveal stagger-4">
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800" alt="Framez Vision" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80"></div>
+                    </div>
+                    <div class="absolute bottom-0 w-full p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Framez Vision</h3>
+                        <div class="flex gap-2 mb-4">
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">Cloudflare</span>
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">Media</span>
+                            <span class="text-xs bg-white/10 text-white px-2 py-1 rounded">Animation</span>
+                        </div>
+                        <a href="https://framezvision.pages.dev/" target="_blank" class="inline-flex items-center gap-2 text-blue-400 font-bold hover:text-blue-300">
+                            زيارة الموقع <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-slate-950 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-900/20 rounded-full blur-[80px]"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">تواصل معي</h2>
+                <p class="text-slate-400">متاح للعمل الحر والوظائف بدوام كامل</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Info -->
+                <div class="space-y-6 reveal stagger-1">
+                    <div class="glass p-6 rounded-2xl border-slate-800 hover:border-green-500/30 transition-colors flex items-center gap-4">
+                        <div class="bg-green-500/10 p-3 rounded-xl">
+                            <i data-lucide="message-square" class="w-6 h-6 text-green-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-slate-300 font-semibold text-sm">واتساب</h4>
+                            <p class="text-white font-mono text-lg">01024531452</p>
+                            <p class="text-white font-mono text-sm text-slate-400">01105432048</p>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-2xl border-slate-800 hover:border-blue-500/30 transition-colors flex items-center gap-4">
+                        <div class="bg-blue-500/10 p-3 rounded-xl">
+                            <i data-lucide="mail" class="w-6 h-6 text-blue-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-slate-300 font-semibold text-sm">البريد الإلكتروني</h4>
+                            <p class="text-white font-mono">montasrrm@gmail.com</p>
+                            <p class="text-white font-mono text-sm text-slate-400">gemeslaim10@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-2xl border-slate-800 hover:border-purple-500/30 transition-colors flex items-center gap-4">
+                        <div class="bg-purple-500/10 p-3 rounded-xl">
+                            <i data-lucide="map-pin" class="w-6 h-6 text-purple-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-slate-300 font-semibold text-sm">الإقامة</h4>
+                            <p class="text-white">مدينة نصر، مصر</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 reveal stagger-2">
+                    <h3 class="text-2xl font-bold text-white mb-6">أرسل رسالة مباشرة</h3>
+                    <form id="contact-form" class="space-y-4">
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">الاسم</label>
+                            <input type="text" id="name" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="اسمك الكريم">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">الرسالة</label>
+                            <textarea id="message" required rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="كيف يمكنني مساعدتك؟"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold py-4 rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                            إرسال عبر واتساب
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-8 text-center text-slate-500 text-sm">
+        <p>© 2024 جمال عبد العاطي محمد سليم. جميع الحقوق محفوظة.</p>
+        <p class="mt-2 text-slate-700">محلل بيانات | مطور ويب Full Stack</p>
+    </footer>
+
+    <!-- Floating WhatsApp -->
+    <a href="https://wa.me/201024531452" target="_blank" class="fixed bottom-6 left-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:bg-[#20bd5a] hover:scale-110 transition-all duration-300 border-2 border-slate-900 group">
+        <i data-lucide="message-circle" class="w-8 h-8"></i>
+        <span class="absolute left-full ml-4 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none border border-slate-700 shadow-xl hidden md:block z-50 translate-x-2">
+            تواصل معي مباشرة
+        </span>
+    </a>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Navbar Scroll Effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-slate-900/95', 'backdrop-blur-md', 'shadow-lg', 'border-b', 'border-slate-700');
+                navbar.classList.remove('bg-transparent');
+            } else {
+                navbar.classList.remove('bg-slate-900/95', 'backdrop-blur-md', 'shadow-lg', 'border-b', 'border-slate-700');
+                navbar.classList.add('bg-transparent');
+            }
+        });
+
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Close menu when clicking links & Smooth Scroll Handler
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    // Mobile menu closing
+                    if (!menu.classList.contains('hidden')) {
+                        menu.classList.add('hidden');
+                    }
+
+                    // Calculate offset for fixed navbar
+                    const headerOffset = 80;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                    });
+                }
+            });
+        });
+
+        // Reveal Animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    
+                    // Trigger progress bars if inside this section
+                    const bars = entry.target.querySelectorAll('.progress-bar');
+                    bars.forEach(bar => {
+                        bar.style.width = bar.getAttribute('data-width');
+                    });
+                    
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Contact Form Handler
+        document.getElementById('contact-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const msg = document.getElementById('message').value;
+            const text = `*رسالة جديدة من الموقع*%0A*الاسم:* ${name}%0A*الرسالة:* ${msg}`;
+            window.open(`https://wa.me/201024531452?text=${text}`, '_blank');
+        });
+    </script>
+</body>
+</html>

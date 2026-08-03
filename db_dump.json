@@ -1,0 +1,208 @@
+{
+  "site_content": {
+    "experience": {
+      "items": [
+        {
+          "title": "مطور ومصمم مواقع ويب",
+          "period": "8 شهور",
+          "description": "تطوير مواقع كاملة مع لوحات تحكم ديناميكية.",
+          "active": true
+        },
+        {
+          "title": "محلل بيانات",
+          "period": "شهر واحد",
+          "description": "تحليل الحملات الإعلانية وتقديم تقارير الأداء.",
+          "active": false
+        },
+        {
+          "title": "مدخل بيانات",
+          "period": "3 أشهر",
+          "description": "إدارة وتنظيم البيانات بدقة عالية.",
+          "active": false
+        },
+        {
+          "title": "مطور متجر وورد بريس ",
+          "period": "1 اسبوع",
+          "description": "تخصيص ثيم اكسترا وادارة woo commerce ",
+          "active": false
+        }
+      ]
+    },
+    "hero": {
+      "heroTitle": "",
+      "heroSubtitle": "",
+      "heroDescription": "",
+      "whatsappNumber": "201024531452",
+      "resumeLink": "#projects"
+    },
+    "projects": {
+      "items": [
+        {
+          "title": "Art Vision Portfolio",
+          "link": "https://artvision.pages.dev/",
+          "description": "وصف المشروع هنا",
+          "tags": "React, Cloudflare, Dashboard",
+          "category": "software",
+          "image": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800"
+        },
+        {
+          "title": "Noorva Store",
+          "link": "https://noorva-eg.com",
+          "tags": "E-commerce, Supabase, React",
+          "description": "",
+          "image": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800",
+          "category": "software"
+        },
+        {
+          "title": "Zakaryia Law Firm",
+          "link": "https://zakaryialawfirm.netlify.app/",
+          "description": "",
+          "tags": "Corporate, CMS, Dynamic",
+          "category": "software",
+          "image": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800"
+        },
+        {
+          "image": "",
+          "category": "software",
+          "tags": "Netlify, cloudinary, React",
+          "description": "",
+          "link": "https://wbrain-viluxe.com",
+          "title": "Wbrain-Viluxe"
+        },
+        {
+          "title": "Flow up marketing agency",
+          "link": "https://flow-up.pages.dev/",
+          "description": "",
+          "tags": "Cloudflare, React, Supabase",
+          "category": "design",
+          "image": ""
+        },
+        {
+          "title": "Dream House Store And Website",
+          "link": "https://dreamhouse-eg.net/",
+          "tags": "Sveltia CMS + GitHub SSG",
+          "description": "",
+          "image": "",
+          "category": "software"
+        },
+        {
+          "image": "",
+          "category": "design",
+          "tags": "Cloudflare, React, Firebase",
+          "description": "",
+          "link": "https://profile.dreamhouse-eg.net/",
+          "title": "Profile for QR Code "
+        },
+        {
+          "category": "software",
+          "image": "",
+          "description": "",
+          "tags": "WORDPRESS, WOO COMMERCE , ELEMENTOR,XTRA",
+          "link": "https://alkarawan.sa",
+          "title": "Alkarawan Store"
+        },
+        {
+          "link": "https://artvisionstudio-eg.pages.dev/",
+          "title": "ART VISION STIDIO",
+          "image": "",
+          "category": "design",
+          "tags": "REACT , CLOUDINARY ,FIREBASE",
+          "description": ""
+        },
+        {
+          "title": "Almotaheda",
+          "link": "https://almotaheda-zeta.vercel.app/",
+          "tags": "Next.js+Firebase",
+          "description": "",
+          "image": "",
+          "category": "software"
+        },
+        {
+          "link": "This is Insight Link : https://insight-design.vercel.app/",
+          "title": "Insight Design",
+          "category": "software",
+          "image": "",
+          "description": "",
+          "tags": "Next.js"
+        }
+      ]
+    },
+    "skills": {
+      "mainSkills": [
+        {
+          "title": "تطوير مواقع ويب (Wordpress+AI Agent website Builder)",
+          "description": "بناء مواقع Full Stack باستخدام AI Agents...",
+          "tags": "Next.js, React, Gemini API, Tailwind , Antigravity ,Manus",
+          "icon": "Code"
+        },
+        {
+          "title": "تحليل البيانات",
+          "description": "إدارة قواعد بيانات معقدة...",
+          "tags": "MySQL, PostgreSQL, Data Entry",
+          "icon": "Database"
+        }
+      ],
+      "techStack": [
+        {
+          "name": "React.js",
+          "val": "95%"
+        },
+        {
+          "name": "Next.js",
+          "val": "85%"
+        },
+        {
+          "name": "HTML",
+          "val": "90%"
+        },
+        {
+          "name": "WORD PRESS",
+          "val": "95%"
+        },
+        {
+          "name": "CSS",
+          "val": "85%"
+        },
+        {
+          "name": "Java Script",
+          "val": "90%"
+        }
+      ],
+      "software": [
+        {
+          "name": "VS Code",
+          "level": "احترافي",
+          "color": "text-green-400"
+        },
+        {
+          "name": "Antigravity",
+          "level": "متقدم",
+          "color": "text-green-400"
+        },
+        {
+          "name": "Manus",
+          "level": "متقدم",
+          "color": "text-green-400"
+        },
+        {
+          "name": "Wordpress",
+          "level": "متقدم",
+          "color": "text-green-400"
+        },
+        {
+          "name": "Google workspace",
+          "level": "متقدم",
+          "color": "text-green-400"
+        },
+        {
+          "name": "Microsoft Office",
+          "level": "متقدم",
+          "color": "text-green-400"
+        }
+      ]
+    }
+  },
+  "projects": {},
+  "skills": {},
+  "tools": {}
+}
