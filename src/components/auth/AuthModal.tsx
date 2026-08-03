@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Mail, Lock, User as UserIcon, Loader2, Sparkles } from "lucide-react";
+import { X, Loader2, Sparkles } from "lucide-react";
 import { useAuthModal } from "./hooks/useAuthModal";
 
 interface AuthModalProps {
@@ -9,10 +9,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
-    const {
-        isLogin, setIsLogin, loading, email, setEmail, password, setPassword,
-        name, setName, handleSubmit, handleGoogle
-    } = useAuthModal(onClose);
+    const { loading, handleGoogle } = useAuthModal(onClose);
 
     if (!isOpen) return null;
 
@@ -45,16 +42,16 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             <Sparkles className="w-6 h-6 text-blue-400" />
                         </div>
                         <h2 className="text-2xl font-bold text-white mb-1">
-                            {isLogin ? "Welcome Back" : "Join the Community"}
+                            Welcome Back
                         </h2>
                         <p className="text-slate-400 text-sm">
-                            {isLogin ? "Sign in to like, comment & share" : "Create an account to get started"}
+                            Sign in with Google to continue, like, comment & share
                         </p>
                     </div>
 
                     <div className="px-8 py-6 space-y-4">
 
-                        {/* ── Google Button (Primary) ─────────────────── */}
+                        {/* ── Google Button ─────────────────── */}
                         <button
                             id="google-sign-in-btn"
                             onClick={handleGoogle}
@@ -77,73 +74,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             )}
                         </button>
 
-                        {/* Divider */}
-                        <div className="flex items-center gap-3 py-1">
-                            <div className="h-px bg-white/8 flex-1" />
-                            <span className="text-slate-600 text-xs uppercase tracking-wider">or</span>
-                            <div className="h-px bg-white/8 flex-1" />
-                        </div>
-
-                        {/* ── Email / Password Form ───────────────────── */}
-                        <form onSubmit={handleSubmit} className="space-y-3">
-                            {!isLogin && (
-                                <div className="relative">
-                                    <UserIcon className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
-                                    <input
-                                        type="text"
-                                        placeholder="Full Name"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-600 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all text-sm"
-                                        required
-                                    />
-                                </div>
-                            )}
-                            <div className="relative">
-                                <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
-                                <input
-                                    type="email"
-                                    placeholder="Email Address"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-600 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all text-sm"
-                                    required
-                                />
-                            </div>
-                            <div className="relative">
-                                <Lock className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
-                                <input
-                                    type="password"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-600 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all text-sm"
-                                    required
-                                    minLength={6}
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all flex justify-center items-center gap-2 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm"
-                            >
-                                {loading
-                                    ? <Loader2 className="w-4 h-4 animate-spin" />
-                                    : (isLogin ? "Sign In with Email" : "Create Account")}
-                            </button>
-                        </form>
-
-                        {/* Toggle */}
-                        <p className="text-center text-slate-500 text-xs pt-1">
-                            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-                            <button
-                                onClick={() => setIsLogin(!isLogin)}
-                                className="text-blue-400 hover:text-blue-300 font-semibold"
-                            >
-                                {isLogin ? "Create Account" : "Sign In"}
-                            </button>
-                        </p>
                     </div>
                 </div>
             </div>
