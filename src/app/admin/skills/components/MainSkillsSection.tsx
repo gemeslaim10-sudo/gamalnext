@@ -1,6 +1,8 @@
-import { Plus, Trash, Code, Database, BarChart, FileText } from "lucide-react";
+import { Plus, Trash2, Code, Database, BarChart, FileText } from "lucide-react";
 import { UseFormRegister } from "react-hook-form";
 import { SkillsForm } from "../types";
+import { SectionCard } from "@/components/admin/SectionCard";
+import { Button, Field, Input, Select, Textarea } from "@/components/ui";
 
 export const iconOptions = [
     { value: 'Code', label: 'Code (Web)', icon: Code },
@@ -18,29 +20,56 @@ interface MainSkillsSectionProps {
 
 export function MainSkillsSection({ skillFields, appendSkill, removeSkill, register }: MainSkillsSectionProps) {
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-            <div className="flex justify-between mb-4">
-                <h2 className="text-xl font-bold text-white">Main Services Items</h2>
-                <button type="button" onClick={() => appendSkill({ title: "", description: "", tags: "", icon: "Code" })} className="text-blue-400 flex gap-1 text-sm items-center"><Plus className="w-4 h-4" /> Add Item</button>
-            </div>
-            <div className="space-y-6">
-                {skillFields.map((field, index) => (
-                    <div key={field.id} className="p-4 bg-slate-950 rounded-lg border border-slate-800 grid gap-4">
-                        <div className="flex justify-between">
-                            <span className="text-slate-500 text-sm">Item #{index + 1}</span>
-                            <button type="button" onClick={() => removeSkill(index)} className="text-red-400"><Trash className="w-4 h-4" /></button>
+        <SectionCard
+            title="Main Services Items"
+            action={
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => appendSkill({ title: "", description: "", tags: "", icon: "Code" })}
+                >
+                    <Plus /> Add Item
+                </Button>
+            }
+        >
+            {skillFields.length === 0 ? (
+                <p className="text-sm text-subtle">No items yet.</p>
+            ) : (
+                <div className="divide-y divide-border">
+                    {skillFields.map((field, index) => (
+                        <div key={field.id} className="space-y-4 py-5 first:pt-0 last:pb-0">
+                            <div className="flex items-center justify-between gap-3">
+                                <span className="text-xs text-subtle">Item #{index + 1}</span>
+                                <Button
+                                    variant="danger"
+                                    size="icon-sm"
+                                    onClick={() => removeSkill(index)}
+                                    aria-label={`Remove item ${index + 1}`}
+                                    title="Remove"
+                                >
+                                    <Trash2 />
+                                </Button>
+                            </div>
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <Field label="Title" htmlFor={`skill-${field.id}-title`}>
+                                    <Input id={`skill-${field.id}-title`} {...register(`mainSkills.${index}.title`)} placeholder="Title" />
+                                </Field>
+                                <Field label="Icon" htmlFor={`skill-${field.id}-icon`}>
+                                    <Select id={`skill-${field.id}-icon`} {...register(`mainSkills.${index}.icon`)}>
+                                        {iconOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                    </Select>
+                                </Field>
+                            </div>
+                            <Field label="Description" htmlFor={`skill-${field.id}-description`}>
+                                <Textarea id={`skill-${field.id}-description`} {...register(`mainSkills.${index}.description`)} placeholder="Description" rows={2} />
+                            </Field>
+                            <Field label="Tags" htmlFor={`skill-${field.id}-tags`}>
+                                <Input id={`skill-${field.id}-tags`} {...register(`mainSkills.${index}.tags`)} placeholder="Tags (comma separated)" />
+                            </Field>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input {...register(`mainSkills.${index}.title`)} placeholder="Title" className="bg-slate-900 border border-slate-700 p-2 rounded text-white" />
-                            <select {...register(`mainSkills.${index}.icon`)} className="bg-slate-900 border border-slate-700 p-2 rounded text-white">
-                                {iconOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                            </select>
-                        </div>
-                        <textarea {...register(`mainSkills.${index}.description`)} placeholder="Description" className="bg-slate-900 border border-slate-700 p-2 rounded text-white w-full" rows={2} />
-                        <input {...register(`mainSkills.${index}.tags`)} placeholder="Tags (comma separated)" className="bg-slate-900 border border-slate-700 p-2 rounded text-white w-full" />
-                    </div>
-                ))}
-            </div>
-        </div>
+                    ))}
+                </div>
+            )}
+        </SectionCard>
     );
 }

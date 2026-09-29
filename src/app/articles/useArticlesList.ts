@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "react-hot-toast";
+import { useCopy } from "@/components/providers/CopyProvider";
 import type { FirebaseTimestamp, MediaItem } from "@/types";
 
 // Article type for the articles list (includes slug for URL generation)
@@ -18,6 +19,7 @@ export type Article = {
 }
 
 export function useArticlesList(initialArticles?: Article[]) {
+    const t = useCopy();
     const [articles, setArticles] = useState<Article[]>(initialArticles || []);
     const [loading, setLoading] = useState(!initialArticles);
     const [deleting, setDeleting] = useState<string | null>(null);
@@ -42,19 +44,19 @@ export function useArticlesList(initialArticles?: Article[]) {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!confirm("هل أنت متأكد من حذف هذا المقال؟ لا يمكن التراجع عن هذه العملية.")) {
+        if (!confirm(t("blog.deleteConfirm"))) {
             return;
         }
 
         setDeleting(articleId);
-        toast.loading("جاري حذف المقال...", { id: "delete-article" });
+        toast.loading(t("blog.deleting"), { id: "delete-article" });
 
         try {
             await deleteDoc(doc(db, "articles", articleId));
-            toast.success("تم حذف المقال بنجاح!", { id: "delete-article" });
+            toast.success(t("blog.deleted"), { id: "delete-article" });
         } catch (error) {
             console.error("Delete error:", error);
-            toast.error("فشل حذف المقال", { id: "delete-article" });
+            toast.error(t("blog.deleteFailed"), { id: "delete-article" });
         } finally {
             setDeleting(null);
         }

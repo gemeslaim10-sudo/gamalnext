@@ -1,7 +1,7 @@
 "use client";
 
 import { Save } from "lucide-react";
-import { Toaster } from "react-hot-toast";
+import { Button, LoadingBlock, PageHeader } from "@/components/ui";
 
 import { useSkillsAdmin } from "./useSkillsAdmin";
 import { MainSkillsSection } from "./components/MainSkillsSection";
@@ -16,38 +16,46 @@ export default function SkillsPage() {
         softFields, appendSoft, removeSoft
     } = useSkillsAdmin();
 
-    if (loading) return <div className="text-white">Loading...</div>;
-
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
-            <Toaster />
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-white">Manage Skills</h1>
-                <button onClick={handleSubmit(onSubmit)} className="px-6 py-2 bg-blue-600 rounded-lg text-white font-bold flex gap-2">
-                    <Save className="w-5 h-5" /> Save Changes
-                </button>
-            </div>
-
-            <MainSkillsSection 
-                skillFields={skillFields} 
-                appendSkill={appendSkill} 
-                removeSkill={removeSkill} 
-                register={register} 
+        <div className="max-w-content">
+            <PageHeader
+                title="Manage Skills"
+                description="Services, technical skills and tools shown on the skills page."
+                actions={
+                    !loading && (
+                        <Button onClick={handleSubmit(onSubmit)} className="w-full sm:w-auto">
+                            <Save /> Save Changes
+                        </Button>
+                    )
+                }
             />
 
-            <TechStackSection 
-                techFields={techFields} 
-                appendTech={appendTech} 
-                removeTech={removeTech} 
-                register={register} 
-            />
+            {loading ? (
+                <LoadingBlock />
+            ) : (
+                <div className="space-y-6">
+                    <MainSkillsSection
+                        skillFields={skillFields}
+                        appendSkill={appendSkill}
+                        removeSkill={removeSkill}
+                        register={register}
+                    />
 
-            <SoftwareSection 
-                softFields={softFields} 
-                appendSoft={appendSoft} 
-                removeSoft={removeSoft} 
-                register={register} 
-            />
+                    <TechStackSection
+                        techFields={techFields}
+                        appendTech={appendTech}
+                        removeTech={removeTech}
+                        register={register}
+                    />
+
+                    <SoftwareSection
+                        softFields={softFields}
+                        appendSoft={appendSoft}
+                        removeSoft={removeSoft}
+                        register={register}
+                    />
+                </div>
+            )}
         </div>
     );
 }

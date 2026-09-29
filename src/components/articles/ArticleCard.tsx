@@ -1,84 +1,101 @@
-'use client';
-
+import type { ReactNode } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { TrendingUp, Calendar, ArrowRight } from "lucide-react";
-import { ArticleBase, getArticleSummary, formatArticleDateEn } from "@/lib/articles/articleCardHelpers";
+import { FileText } from "lucide-react";
+import { Card, FadeImg, Skeleton } from "@/components/ui";
+import { cn } from "@/lib/utils";
+import { getTimestampMs } from "@/types";
+import { getArticleSummary, formatArticleDateEn } from "@/lib/articles/articleCardHelpers";
+import type { FirebaseTimestamp, MediaItem } from "@/types";
 
-interface ArticleCardProps {
-    article: ArticleBase;
+/** The fields a card needs; every article list in the app has them. */
+export interface ArticleCardData {
+    id: string;
+    title: string;
+    summary?: string;
+    content?: string;
+    media?: MediaItem[];
+    createdAt?: FirebaseTimestamp;
 }
 
-export default function ArticleCard({ article }: ArticleCardProps) {
+interface ArticleCardProps {
+    article: ArticleCardData;
+    /** Show the cover area (a plain placeholder when the article has no media) */
+    showCover?: boolean;
+    /** Extra controls next to the date, e.g. edit / delete for the author */
+    actions?: ReactNode;
+    className?: string;
+}
+
+/** Lists reserve a cover area only when at least one article has media, so rows line up. */
+export function hasAnyCover(articles: ArticleCardData[]) {
+    return articles.some((article) => Boolean(article.media?.[0]?.url));
+}
+
+/** The one article card: /articles, related articles, user profiles and the profile page. */
+export function ArticleCard({ article, showCover = true, actions, className }: ArticleCardProps) {
+    const cover = article.media?.[0];
+    const summary = getArticleSummary(article, 150);
+    const date = formatArticleDateEn(article.createdAt ?? null);
+    const ms = getTimestampMs(article.createdAt);
+
     return (
-        <Link href={`/articles/${article.id}`} className="block h-full group outline-none">
-            <div className="h-full flex flex-col bg-slate-900/40 backdrop-blur-xl rounded-[1.5rem] md:rounded-[2rem] border border-slate-700/40 hover:border-yellow-500/50 hover:bg-slate-800/60 transition-all duration-500 shadow-xl hover:shadow-[0_0_40px_rgba(234,179,8,0.15)] md:hover:-translate-y-2 overflow-hidden relative">
-                
-                <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-
-                <div className="w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-auto md:h-56 p-1.5 sm:p-2 md:p-3 relative z-10 shrink-0">
-                    <div className="w-full h-full rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden relative shadow-inner bg-slate-950/50">
-                        <div className="absolute inset-0 z-10 bg-gradient-to-t from-slate-950 via-slate-900/20 to-transparent opacity-80 mix-blend-multiply"></div>
-                        
-                        <div className="absolute top-2.5 left-2.5 md:top-3 md:left-3 z-20">
-                            <span className="bg-black/40 backdrop-blur-md border border-white/10 text-white/90 text-[9px] md:text-[10px] font-bold px-2.5 py-1 md:px-3 md:py-1.5 rounded-full uppercase tracking-widest shadow-lg">
-                                Tech
-                            </span>
+        <Card padding="none" interactive className={cn("reveal relative flex flex-col overflow-hidden", className)}>
+            {showCover && (
+                <div className="aspect-video shrink-0 border-b border-border bg-surface-hover">
+                    {cover?.url ? (
+                        cover.type === "video" ? (
+                            <video src={cover.url} muted playsInline preload="metadata" aria-hidden className="size-full object-cover" />
+                        ) : (
+                            // Plain <img>: article media can come from hosts that next/image is not configured for
+                            <FadeImg src={cover.url} alt={article.title} loading="lazy" className="size-full object-cover" />
+                        )
+                    ) : (
+                        <div className="flex size-full items-center justify-center text-subtle">
+                            <FileText aria-hidden className="size-6" />
                         </div>
-                        <div className="absolute top-2.5 right-2.5 md:top-3 md:right-3 z-20">
-                            <div className="bg-yellow-500/90 backdrop-blur-md text-slate-950 text-[9px] md:text-[10px] font-black px-2.5 py-1 md:px-3 md:py-1.5 rounded-full shadow-lg flex items-center gap-1 md:gap-1.5 uppercase tracking-widest">
-                                <TrendingUp className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                                <span className="hidden sm:inline">Trending</span>
-                                <span className="sm:hidden">Hot</span>
-                            </div>
-                        </div>
-
-                        <div className="absolute inset-0 group-hover:scale-105 transition-transform duration-700 ease-out">
-                            {article.media?.[0] ? (
-                                article.media[0].type === 'video' ? (
-                                    <video src={article.media[0].url} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" muted loop playsInline />
-                                ) : (
-                                    <Image
-                                        src={article.media[0].url}
-                                        alt={article.title}
-                                        fill
-                                        className="object-cover opacity-80 group-hover:opacity-100 transition-all duration-700"
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                    />
-                                )
-                            ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-                                    <TrendingUp className="w-10 h-10 md:w-12 md:h-12 text-slate-700/30" />
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    )}
                 </div>
+            )}
 
-                <div className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6 pt-1.5 sm:pt-2 md:pt-3 flex flex-col flex-grow relative z-10" dir="auto">
-                    <h3 className="text-sm sm:text-[1.1rem] md:text-2xl font-bold text-slate-100 mb-1.5 sm:mb-2 md:mb-3 leading-snug md:leading-snug group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-yellow-400 group-hover:to-orange-400 transition-all duration-300 line-clamp-1 sm:line-clamp-2">
+            <div className="flex flex-1 flex-col gap-2 p-4">
+                <h3 dir="auto" className="line-clamp-2 text-base font-semibold leading-snug text-foreground">
+                    {/* The link covers the whole card, so the card is one click target */}
+                    <Link
+                        href={`/articles/${article.id}`}
+                        className="after:absolute after:inset-0 after:rounded-card focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-foreground"
+                    >
                         {article.title}
-                    </h3>
-
-                    <p className="text-slate-400 text-[11px] sm:text-[13px] md:text-sm leading-relaxed line-clamp-1 sm:line-clamp-2 md:line-clamp-3 mb-3 sm:mb-4 md:mb-6 flex-grow group-hover:text-slate-300 transition-colors">
-                        {getArticleSummary(article)}
+                    </Link>
+                </h3>
+                {summary && (
+                    <p dir="auto" className="line-clamp-2 text-sm leading-relaxed text-muted">
+                        {summary}
                     </p>
-
-                    <div className="flex items-center justify-between pt-3 md:pt-4 mt-auto border-t border-slate-800" dir="ltr">
-                        <div className="flex items-center gap-1.5 md:gap-2 text-slate-500">
-                            <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5 text-slate-600" />
-                            <span className="text-[10px] md:text-xs font-semibold tracking-wide uppercase">{formatArticleDateEn(article.createdAt)}</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-1.5 md:gap-2 text-yellow-500 font-bold text-[11px] md:text-sm group-hover:text-yellow-400 transition-colors">
-                            <span className="tracking-wide">Read</span>
-                            <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-yellow-500/10 flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-slate-950 transition-all duration-300 transform group-hover:translate-x-1">
-                                <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
-                            </div>
-                        </div>
+                )}
+                {(date || actions) && (
+                    <div className="mt-auto flex items-center justify-between gap-2 pt-1">
+                        <time dateTime={ms ? new Date(ms).toISOString() : undefined} className="text-xs text-subtle">
+                            {date}
+                        </time>
+                        {/* Above the card link so they stay clickable */}
+                        {actions && <div className="relative z-10 -my-1.5 flex items-center gap-1">{actions}</div>}
                     </div>
-                </div>
+                )}
             </div>
-        </Link>
+        </Card>
+    );
+}
+
+export function ArticleCardSkeleton({ className }: { className?: string }) {
+    return (
+        <Card padding="none" className={cn("overflow-hidden", className)} aria-hidden>
+            <Skeleton className="aspect-video rounded-none" />
+            <div className="space-y-2 p-4">
+                <Skeleton className="h-4 w-4/5" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-2/3" />
+                <Skeleton className="mt-4 h-3 w-24" />
+            </div>
+        </Card>
     );
 }

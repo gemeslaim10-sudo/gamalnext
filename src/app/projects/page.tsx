@@ -1,37 +1,36 @@
+import type { Metadata } from "next";
 import Projects from "@/components/projects/Projects";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import { Page, PageHeader } from "@/components/ui";
+import { SITE_URL } from "@/lib/constants";
 import { getDocument } from "@/lib/server-utils";
-import { Metadata } from "next";
+import { getCopy } from "@/lib/copy/server";
 import type { ProjectsData } from "@/types";
 
-export const metadata: Metadata = {
-    title: "Portfolio | Gamal Abdelaty - Gamal Tech",
-    description: "A review of the most prominent projects and applications I have developed using Next.js, React, and CMS.",
-    keywords: ["Gamal Abdelaty", "Gamal Tech", "Portfolio", "Web Projects", "Websites", "CMS"],
-    alternates: {
-        canonical: './',
-    },
-    openGraph: {
-        title: "Portfolio | Gamal Abdelaty - Gamal Tech",
-        description: "A review of the most prominent projects and applications I have developed using the latest technologies.",
-        images: ["/og-image.png"],
-        url: 'https://gamaltech.info/projects',
-    },
-};
+// Shared links use the site-wide share card with this title and description (see the root layout)
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getCopy();
+    return {
+        title: t("projects.seoTitle"),
+        description: t("projects.seoDescription"),
+        alternates: {
+            canonical: './',
+        },
+    };
+}
 
 export const revalidate = 0; // Revalidate immediately (dynamic)
 
 export default async function ProjectsPage() {
-    const projectsData = await getDocument<ProjectsData>("site_content", "projects");
+    const [projectsData, t] = await Promise.all([
+        getDocument<ProjectsData>("site_content", "projects"),
+        getCopy(),
+    ]);
 
     return (
-        <div className="min-h-screen">
-            <Navbar />
-            <div className="pt-20">
-                <Projects initialData={projectsData ?? undefined} />
-            </div>
-            <Footer />
+        <Page>
+            <PageHeader title={t("projects.title")} description={t("projects.description")} />
+            {/* Without server data (read failed) the list shows a skeleton and loads on the client */}
+            <Projects initialData={projectsData ?? undefined} />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
@@ -41,17 +40,17 @@ export default async function ProjectsPage() {
                         "itemListElement": [{
                             "@type": "ListItem",
                             "position": 1,
-                            "name": "Home",
-                            "item": "https://gamaltech.info"
+                            "name": t("nav.home"),
+                            "item": SITE_URL
                         }, {
                             "@type": "ListItem",
                             "position": 2,
-                            "name": "Portfolio",
-                            "item": "https://gamaltech.info/projects"
+                            "name": t("projects.title"),
+                            "item": `${SITE_URL}/projects`
                         }]
                     })
                 }}
             />
-        </div>
+        </Page>
     );
 }

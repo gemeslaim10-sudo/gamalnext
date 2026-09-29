@@ -1,34 +1,32 @@
-'use client';
+"use client";
 
-import { Send } from 'lucide-react';
+import type { FormEvent } from "react";
+import { Send } from "lucide-react";
+import { Button, Input } from "@/components/ui";
 
 interface ChatInputProps {
     input: string;
     setInput: (val: string) => void;
-    onSubmit: (e: React.FormEvent) => void;
+    onSubmit: (e: FormEvent) => void;
     loading: boolean;
+    placeholder: string;
 }
 
-export default function ChatInput({ input, setInput, onSubmit, loading }: ChatInputProps) {
+export default function ChatInput({ input, setInput, onSubmit, loading, placeholder }: ChatInputProps) {
     return (
-        <form onSubmit={onSubmit} className="p-4 border-t border-slate-800 bg-slate-900/50">
-            <div className="relative">
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Type your message here..."
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 px-4 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
-                    dir="auto"
-                />
-                <button
-                    type="submit"
-                    disabled={!input.trim() || loading}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:bg-slate-700 disabled:cursor-not-allowed"
-                >
-                    <Send className="w-4 h-4" />
-                </button>
-            </div>
+        <form onSubmit={onSubmit} className="flex shrink-0 items-center gap-2 border-t border-border p-3">
+            <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={placeholder}
+                aria-label="Message"
+                dir="auto"
+                maxLength={2000}
+                className="flex-1"
+            />
+            <Button type="submit" size="icon" disabled={!input.trim() || loading} aria-label="Send">
+                <Send />
+            </Button>
         </form>
     );
 }

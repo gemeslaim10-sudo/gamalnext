@@ -1,7 +1,11 @@
-import { getDocument, getCollection } from "@/lib/server-utils";
-import ArticleView from "./ArticleView";
-import { Metadata } from "next";
+import { cache } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getDocument, getCollection } from "@/lib/server-utils";
+import { getCopy } from "@/lib/copy/server";
+import { SHARE_IMAGE, getSiteOpenGraph, getSiteSeo } from "@/lib/seo/server";
+import { SITE_URL } from "@/lib/constants";
+import ArticleView from "./ArticleView";
 import type { ArticleRaw } from "@/types";
 import { getTimestampMs } from "@/types";
 
@@ -9,38 +13,65 @@ type Props = {
     params: Promise<{ id: string }>;
 };
 
+// Cached per request: generateMetadata and the page share one read
+const getArticle = cache((id: string) => getDocument<ArticleRaw>("articles", id));
+
+/** The first image of the article (its cover), if any. */
+function coverImage(article: ArticleRaw) {
+    return article.media?.find((item) => item.type === "image" && item.url)?.url;
+}
+
+/** Markdown → one line of plain text, cut at a word boundary (for search and share descriptions). */
+function plainExcerpt(markdown: string, max = 155) {
+    const text = markdown
+        .replace(/!\[[^\]]*\]\([^)]*\)/g, " ") // images
+        .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // links → their text
+        .replace(/^\s{0,3}(?:#{1,6}|>|[-*+]|\d+\.)\s+/gm, "") // headings, quotes, list markers
+        .replace(/[*_`~]+/g, "") // emphasis and code marks
+        .replace(/\s+/g, " ")
+        .trim();
+    if (text.length <= max) return text;
+    const cut = text.slice(0, max);
+    const lastSpace = cut.lastIndexOf(" ");
+    return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
+
+/** Search description: the article's summary, else the start of its text. */
+function describe(article: ArticleRaw) {
+    return article.summary?.trim() || plainExcerpt(article.content || "");
+}
+
 // Generate SEO Metadata dynamically
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { id } = await params;
-    const article = await getDocument<ArticleRaw>("articles", id);
+    const [article, t] = await Promise.all([getArticle(id), getCopy()]);
 
     if (!article) {
         return {
-            title: "المقال غير موجود",
+            title: t("blog.notFoundTitle"),
         };
     }
 
+    const [{ ownerName }, siteOpenGraph] = await Promise.all([getSiteSeo(), getSiteOpenGraph()]);
+    const cover = coverImage(article);
+
     return {
-        title: article.title,
-        description: article.summary || article.content.substring(0, 150),
-        keywords: article.tags || [],
+        title: t("blog.articleSeoTitle", { title: article.title }),
+        description: describe(article) || t("blog.seoDescription"),
+        // The article's tags; without tags the site-wide keywords stay (the key must then be absent)
+        ...(article.tags?.length ? { keywords: article.tags } : {}),
         alternates: {
             canonical: `/articles/${id}`,
         },
+        // Shared links (X follows): the site-wide card with this title and description, the
+        // article's cover image when it has one, and the article details
         openGraph: {
-            title: article.title,
-            description: article.summary || article.content.substring(0, 150),
-            images: article.media?.[0]?.url ? [article.media[0].url] : ["/og-image.png"],
+            ...siteOpenGraph,
+            ...(cover && { images: [cover] }),
             type: 'article',
             publishedTime: new Date(getTimestampMs(article.createdAt) || Date.now()).toISOString(),
-            authors: ['جمال عبد العاطي'],
+            authors: [article.authorName || ownerName],
         },
-        twitter: {
-            card: 'summary_large_image',
-            title: article.title,
-            description: article.summary || article.content.substring(0, 150),
-            images: article.media?.[0]?.url ? [article.media[0].url] : ["/og-image.png"],
-        }
     };
 }
 
@@ -55,11 +86,15 @@ export const revalidate = 0;
 
 export default async function ArticlePage({ params }: Props) {
     const { id } = await params;
-    const article = await getDocument<ArticleRaw>("articles", id);
+    const article = await getArticle(id);
 
     if (!article) {
         notFound();
     }
+
+    // Owner and site name from the dashboard settings (the same cached read as the root layout)
+    const { ownerName, siteName } = await getSiteSeo();
+    const cover = coverImage(article);
 
     // eslint-disable-next-line react-hooks/purity
     const createdAtMs = getTimestampMs(article.createdAt) || Date.now();
@@ -77,26 +112,26 @@ export default async function ArticlePage({ params }: Props) {
         '@context': 'https://schema.org',
         '@type': 'BlogPosting',
         headline: article.title,
-        image: article.media?.[0]?.url ? [article.media[0].url] : ["https://gamaltech.info/og-image.png"],
+        image: [cover || `${SITE_URL}${SHARE_IMAGE.url}`],
         datePublished: new Date(createdAtMs).toISOString(),
-        dateModified: getTimestampMs(article.updatedAt) ? new Date(getTimestampMs(article.updatedAt)).toISOString() : new Date(createdAtMs).toISOString(),
+        dateModified: updatedAtMs ? new Date(updatedAtMs).toISOString() : new Date(createdAtMs).toISOString(),
         author: {
             '@type': 'Person',
-            name: article.authorName || 'جمال عبد العاطي',
-            url: 'https://gamaltech.info'
+            name: article.authorName || ownerName,
+            url: SITE_URL
         },
         publisher: {
             '@type': 'Organization',
-            name: 'جمال عبد العاطي',
+            name: siteName,
             logo: {
                 '@type': 'ImageObject',
-                url: 'https://gamaltech.info/icon.png'
+                url: `${SITE_URL}/icon.png`
             }
         },
-        description: article.summary || article.content.substring(0, 150),
+        description: describe(article),
         mainEntityOfPage: {
             '@type': 'WebPage',
-            '@id': `https://gamaltech.info/articles/${id}`
+            '@id': `${SITE_URL}/articles/${id}`
         }
     };
 

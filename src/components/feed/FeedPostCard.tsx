@@ -1,6 +1,8 @@
 "use client";
 
 import CommentSection from "@/components/social/CommentSection";
+import { Card } from "@/components/ui";
+import { usePresence } from "@/hooks/usePresence";
 import type { FeedItem } from "./types";
 import { FeedPostHeader } from "./components/FeedPostHeader";
 import { FeedPostContent } from "./components/FeedPostContent";
@@ -38,45 +40,43 @@ export default function FeedPostCard({
     onShare,
     onOpenLightbox,
 }: FeedPostCardProps) {
+    const comments = usePresence(isCommentActive);
+
     return (
-        <article
-            ref={isLast ? lastItemRef : null}
-            className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl hover:border-white/10 transition-colors"
-        >
-            <FeedPostHeader 
-                item={item} 
-                siteLogo={siteLogo} 
-                siteName={siteName} 
-            />
+        <Card padding="none" className="animate-rise-in overflow-hidden" ref={isLast ? lastItemRef : null}>
+            <article>
+                <FeedPostHeader item={item} siteLogo={siteLogo} siteName={siteName} />
 
-            <FeedPostContent 
-                item={item}
-                isExpanded={isExpanded}
-                hasLongContent={hasLongContent}
-                onToggleExpand={onToggleExpand}
-            />
+                <FeedPostContent
+                    item={item}
+                    isExpanded={isExpanded}
+                    hasLongContent={hasLongContent}
+                    onToggleExpand={onToggleExpand}
+                />
 
-            <FeedPostMedia 
-                item={item}
-                index={index}
-                onOpenLightbox={onOpenLightbox}
-            />
+                <FeedPostMedia item={item} index={index} onOpenLightbox={onOpenLightbox} />
 
-            <FeedPostActions 
-                item={item}
-                isCommentActive={isCommentActive}
-                onToggleComments={onToggleComments}
-                onShare={onShare}
-            />
+                <FeedPostActions
+                    item={item}
+                    isCommentActive={isCommentActive}
+                    onToggleComments={onToggleComments}
+                    onShare={onShare}
+                />
 
-            {/* Expandable Comments Section */}
-            {isCommentActive && (
-                <div className="px-4 pb-4 bg-slate-900/40 animate-in slide-in-from-top-4 fade-in duration-300">
-                    <div className="pt-4 border-t border-white/5">
-                        <CommentSection articleId={item.id} />
+                {/* Grid rows 0fr → 1fr lets the section open to its natural height smoothly */}
+                {comments.mounted && (
+                    <div
+                        data-state={comments.state}
+                        className="grid transition-[grid-template-rows,opacity] duration-(--motion-base) ease-out data-[state=closed]:grid-rows-[0fr] data-[state=closed]:opacity-0 data-[state=open]:grid-rows-[1fr]"
+                    >
+                        <div className="overflow-hidden">
+                            <div className="border-t border-border px-4 py-4 sm:px-5">
+                                <CommentSection articleId={item.id} />
+                            </div>
+                        </div>
                     </div>
-                </div>
-            )}
-        </article>
+                )}
+            </article>
+        </Card>
     );
 }

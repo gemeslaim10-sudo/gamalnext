@@ -1,50 +1,39 @@
+import { DEFAULT_MODEL, GEMINI_FALLBACK_MODELS } from "./assistant/shared";
+
 interface GeminiModel {
     name: string;
     supportedGenerationMethods?: string[];
 }
 
+/**
+ * Returns Gemini model ids to try, best first: the preferred model (when given), then the
+ * stable "latest" aliases, then other text models this key can use.
+ */
 export async function discoverModels(apiKey: string, preferredModel?: string): Promise<string[]> {
-    const candidateModels: string[] = [];
-    const isAuto = !preferredModel || preferredModel.toLowerCase() === "auto" || preferredModel.toLowerCase() === "تلقائي";
+    const candidates: string[] = [];
+    const add = (name: string) => {
+        const id = name.replace(/^models\//, "");
+        if (id && !candidates.includes(id)) candidates.push(id);
+    };
 
-    if (preferredModel && !isAuto) {
-        candidateModels.push(preferredModel);
-    }
+    const preferred = (preferredModel || "").trim();
+    if (preferred && preferred !== "auto" && preferred !== "تلقائي") add(preferred);
+    [DEFAULT_MODEL, ...GEMINI_FALLBACK_MODELS].forEach(add);
 
     try {
-        const modelsUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
-        const modelsRes = await fetch(modelsUrl);
-
-        if (modelsRes.ok) {
-            const modelsData = await modelsRes.json();
-
-            const allGeminis: GeminiModel[] = modelsData.models?.filter((m: GeminiModel) =>
-                m.name.includes("gemini") &&
-                m.supportedGenerationMethods?.includes("generateContent")
-            ) || [];
-
-            // Rank strategy: Flash 2.0 > Flash 1.5 > Pro 1.5
-            const flash2 = allGeminis.filter((m) => m.name.includes("gemini-2.0-flash"));
-            const flash15 = allGeminis.filter((m) => m.name.includes("gemini-1.5-flash"));
-            const pro15 = allGeminis.filter((m) => m.name.includes("gemini-1.5-pro"));
-            const otherFlash = allGeminis.filter((m) => m.name.includes("flash") && !flash2.length && !flash15.length);
-            const others = allGeminis.filter((m) => !m.name.includes("flash"));
-
-            [...flash2, ...flash15, ...pro15, ...otherFlash, ...others].forEach(m => {
-                const name = m.name.startsWith("models/") ? m.name : `models/${m.name}`;
-                if (!candidateModels.includes(name)) {
-                    candidateModels.push(name);
-                }
-            });
+        const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", {
+            headers: { "x-goog-api-key": apiKey },
+        });
+        if (res.ok) {
+            const data = (await res.json()) as { models?: GeminiModel[] };
+            (data.models || [])
+                .filter((m) => /gemini-[\d.]+-(flash|pro)$|gemini-(flash|pro)-latest$/.test(m.name))
+                .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
+                .forEach((m) => add(m.name));
         }
     } catch (e) {
         console.error("Model discovery failed:", e);
     }
 
-    // Default Fallbacks if nothing found
-    if (candidateModels.length === 0) {
-        candidateModels.push("models/gemini-2.0-flash-exp", "models/gemini-1.5-flash", "models/gemini-1.5-pro");
-    }
-
-    return candidateModels;
+    return candidates;
 }

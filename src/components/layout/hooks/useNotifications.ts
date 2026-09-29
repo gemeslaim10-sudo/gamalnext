@@ -5,8 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import type { FirebaseTimestamp } from "@/types";
 import { getTimestampMs } from "@/types";
-
-const ADMIN_EMAILS = ["montasrrm@gmail.com", "gemeslaim10@gmail.com"];
+import { ALLOWED_ADMINS } from "@/lib/constants";
 
 export type Notification = {
     id: string;
@@ -22,12 +21,11 @@ export function useNotifications() {
     const router = useRouter();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
-    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
         if (!user) return;
 
-        const isAdmin = user.email && ADMIN_EMAILS.includes(user.email);
+        const isAdmin = user.email && ALLOWED_ADMINS.includes(user.email);
         const unsubscribers: Unsubscribe[] = [];
 
         let userNotifs: Notification[] = [];
@@ -87,7 +85,6 @@ export function useNotifications() {
         if (!notif.read && user) {
             await updateDoc(doc(db, "notifications", notif.id), { read: true });
         }
-        setIsOpen(false);
         if (notif.link) router.push(notif.link);
     };
 
@@ -95,8 +92,6 @@ export function useNotifications() {
         user,
         notifications,
         unreadCount,
-        isOpen,
-        setIsOpen,
         handleRead
     };
 }

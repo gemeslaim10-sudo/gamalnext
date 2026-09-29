@@ -17,7 +17,7 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 async function dumpDB() {
-    const collections = ['site_content', 'projects', 'skills', 'tools'];
+    const collections = ['site_content', 'projects', 'skills'];
     const dump = {};
 
     for (const col of collections) {

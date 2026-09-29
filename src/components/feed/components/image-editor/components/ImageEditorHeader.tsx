@@ -1,31 +1,38 @@
-import { Undo2, X } from "lucide-react";
+import { Undo2 } from "lucide-react";
+import { Button, Spinner } from "@/components/ui";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 interface ImageEditorHeaderProps {
     canUndo: boolean;
     onUndo: () => void;
-    onClose: () => void;
+    onCancel: () => void;
+    onSave: () => void;
+    saving: boolean;
 }
 
-export function ImageEditorHeader({ canUndo, onUndo, onClose }: ImageEditorHeaderProps) {
+export function ImageEditorHeader({ canUndo, onUndo, onCancel, onSave, saving }: ImageEditorHeaderProps) {
+    const t = useCopy();
     return (
-        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-800 bg-slate-900/50 shrink-0">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                Edit Image
-            </h2>
-            <div className="flex items-center gap-2">
-                <button 
-                    onClick={onUndo} 
-                    disabled={!canUndo} 
-                    className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+        <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-3 sm:px-4">
+            <h2 className="min-w-0 truncate text-base font-semibold text-foreground">{t("account.editorTitle")}</h2>
+            <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onUndo}
+                    disabled={!canUndo || saving}
+                    aria-label="Undo"
+                    title={t("account.editorUndo")}
                 >
-                    <Undo2 className="w-5 h-5" />
-                </button>
-                <button 
-                    onClick={onClose} 
-                    className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                >
-                    <X className="w-5 h-5" />
-                </button>
+                    <Undo2 />
+                </Button>
+                <Button variant="ghost" onClick={onCancel} disabled={saving}>
+                    {t("account.editorCancel")}
+                </Button>
+                <Button onClick={onSave} disabled={saving}>
+                    {saving && <Spinner className="size-4 text-primary-foreground" />}
+                    {t("account.editorSave")}
+                </Button>
             </div>
         </div>
     );

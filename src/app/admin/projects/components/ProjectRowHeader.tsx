@@ -1,4 +1,5 @@
-import { ChevronDown, Trash } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { Badge, Button } from "@/components/ui";
 import { CATEGORY_CONFIG, type ProjectItem } from "../types";
 
 interface ProjectRowHeaderProps {
@@ -18,56 +19,63 @@ export function ProjectRowHeader({
 
     return (
         <div
-            className="flex items-center gap-3 px-3 py-2.5 cursor-pointer select-none hover:bg-slate-800/30 transition-colors"
+            className="flex cursor-pointer select-none items-center gap-2 px-4 py-3 transition-colors hover:bg-surface-hover @md:gap-3"
             onClick={() => onToggleExpand(fieldId)}
         >
             {/* Index */}
-            <span className="text-[10px] font-mono text-slate-600 w-5 text-center shrink-0">
+            <span className="hidden w-5 shrink-0 text-center text-xs tabular-nums text-subtle @md:inline">
                 {index + 1}
             </span>
 
             {/* Thumbnail */}
-            <div className="w-10 h-10 rounded-lg bg-slate-800 overflow-hidden shrink-0">
+            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-control border border-border bg-surface-hover text-subtle">
                 {item?.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.image} alt="" className="w-full h-full object-cover" />
+                    <img src={item.image} alt="" className="size-full object-cover" />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-600">
-                        <CatIcon className="w-4 h-4" />
-                    </div>
+                    <CatIcon aria-hidden className="size-4" />
                 )}
             </div>
 
             {/* Title + Tags */}
-            <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">
-                    {item?.title || <span className="text-slate-600 italic">Untitled</span>}
+            <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">
+                    {item?.title || <span className="font-normal text-subtle">Untitled</span>}
                 </p>
                 {item?.tags && (
-                    <p className="text-[10px] text-slate-500 truncate">{item.tags}</p>
+                    <p className="truncate text-xs text-subtle">{item.tags}</p>
                 )}
             </div>
 
             {/* Category Badge */}
-            <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-md ${catConfig.bg} ${catConfig.color} ${catConfig.border} border shrink-0`}>
-                <CatIcon className="w-3 h-3" />
-                <span className="hidden sm:inline">{catConfig.label}</span>
-            </span>
+            <Badge className="hidden shrink-0 @md:inline-flex">
+                <CatIcon aria-hidden />
+                {catConfig.label}
+            </Badge>
 
             {/* Actions */}
-            <button
-                type="button"
+            <Button
+                variant="danger"
+                size="icon-sm"
                 onClick={(e) => { e.stopPropagation(); onRemove(index); }}
-                className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all shrink-0"
+                aria-label={`Delete ${item?.title || "project"}`}
                 title="Delete"
+                className="shrink-0"
             >
-                <Trash className="w-3.5 h-3.5" />
-            </button>
+                <Trash2 />
+            </Button>
 
             {/* Expand Arrow */}
-            <div className={`transition-transform duration-200 text-slate-500 ${isExpanded ? 'rotate-180' : ''}`}>
-                <ChevronDown className="w-4 h-4" />
-            </div>
+            <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={(e) => { e.stopPropagation(); onToggleExpand(fieldId); }}
+                aria-label={isExpanded ? "Collapse" : "Expand"}
+                aria-expanded={isExpanded}
+                className="shrink-0"
+            >
+                {isExpanded ? <ChevronUp /> : <ChevronDown />}
+            </Button>
         </div>
     );
 }

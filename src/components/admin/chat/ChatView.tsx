@@ -1,94 +1,116 @@
-'use client';
+"use client";
 
-import { User, Bot, MessageSquare } from 'lucide-react';
-import type { FirebaseTimestamp } from '@/types';
-import { getTimestampMs } from '@/types';
+import { ArrowLeft, MessageCircle, Phone } from "lucide-react";
+import { formatTimestamp, getTimestampMs } from "@/types";
+import { Badge, Button, ButtonLink, LoadingBlock } from "@/components/ui";
+import ChatMarkdown from "@/components/chat/ChatMarkdown";
+import { stripLegacyTags } from "@/lib/ai/assistant/history";
+import { normalizePhone } from "@/lib/leads/schema";
+import { cn } from "@/lib/utils";
+import { sessionName, sessionPhone, type ChatLogMessage, type ChatSessionSummary } from "./types";
 
-interface Message {
-    role: 'user' | 'model';
-    text: string;
-    timestamp: FirebaseTimestamp;
-}
-
-interface Session {
-    id: string;
-    userId: string;
-    sessionId: string;
-    userName?: string;
-    lastMessageAt: FirebaseTimestamp;
-    preview: string;
-    messages: Message[];
-    startedAt?: FirebaseTimestamp;
-    userContext?: Record<string, string>;
+/** wa.me needs the country code; local Egyptian numbers (01…) get +20. */
+function whatsappLink(phone: string) {
+    let digits = normalizePhone(phone).replace(/\D/g, "");
+    if (/^0\d{9,10}$/.test(digits)) digits = `20${digits.slice(1)}`;
+    return `https://wa.me/${digits}`;
 }
 
 interface ChatViewProps {
-    session: Session | undefined;
+    session: ChatSessionSummary | undefined;
+    messages: ChatLogMessage[];
+    loading: boolean;
     onBack: () => void;
 }
 
-export default function ChatView({ session, onBack }: ChatViewProps) {
+export default function ChatView({ session, messages, loading, onBack }: ChatViewProps) {
     if (!session) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center text-slate-500 bg-slate-900">
-                <MessageSquare className="w-16 h-16 mb-4 opacity-20" />
-                <p>Select a chat session to view history</p>
-                <p className="text-sm opacity-50 mt-2">Chats are archived here automatically.</p>
+            <div className="hidden flex-1 flex-col items-center justify-center gap-1 p-6 text-center lg:flex">
+                <p className="text-sm text-muted">Select a conversation to read it</p>
+                <p className="text-xs text-subtle">Every chat with the site assistant is saved here automatically.</p>
             </div>
         );
     }
 
+    const name = sessionName(session);
+    const phone = sessionPhone(session);
+    const started = getTimestampMs(session.startedAt)
+        ? formatTimestamp(session.startedAt, "en-US", { month: "short", day: "numeric", year: "numeric" })
+        : null;
+
     return (
-        <div className="flex-1 flex flex-col bg-slate-900">
-            {/* Header */}
-            <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950/50 backdrop-blur">
-                <div className="flex items-center gap-3">
-                    <button onClick={onBack} className="md:hidden text-slate-400">
-                        ← Back
-                    </button>
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold">
-                        {(session.userContext?.name?.[0] || "A").toUpperCase()}
-                    </div>
-                    <div className="text-right">
-                        <h2 className="font-bold text-white">
-                            {session.userContext?.name || session.userId || "Anonymous"}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-border px-4 py-3">
+                <Button variant="ghost" size="icon" onClick={onBack} aria-label="Back to conversations" className="-ml-2 lg:hidden">
+                    <ArrowLeft />
+                </Button>
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <span
+                        aria-hidden
+                        className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface-hover text-sm font-medium text-foreground"
+                    >
+                        {(name[0] || "V").toUpperCase()}
+                    </span>
+                    <div className="min-w-0">
+                        <h2 dir="auto" className="truncate text-sm font-semibold text-foreground">
+                            {name}
                         </h2>
-                        <p className="text-xs text-slate-400">
-                            ID: {session.id.substring(0, 8)}...
+                        <p className="truncate text-xs text-subtle">
+                            {started ? `Started ${started}` : `ID ${session.id.slice(0, 8)}…`}
+                            {session.lead?.service ? ` · ${session.lead.service}` : ""}
                         </p>
                     </div>
                 </div>
-                <div className="flex gap-2 text-sm text-slate-400">
-                    {session.userContext?.phone && (
-                        <span className="px-3 py-1 bg-green-900/20 text-green-400 rounded-full border border-green-900/50">
-                            📞 {session.userContext.phone}
-                        </span>
-                    )}
-                </div>
+                {phone && (
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant={session.lead ? "success" : "neutral"}>
+                            <Phone aria-hidden />
+                            <span dir="ltr">{phone}</span>
+                        </Badge>
+                        <ButtonLink href={whatsappLink(phone)} external variant="secondary" size="sm">
+                            <MessageCircle /> WhatsApp
+                        </ButtonLink>
+                    </div>
+                )}
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-900/50">
-                {session.messages?.map((msg, idx) => {
-                    const isUser = msg.role === 'user';
-                    return (
-                        <div key={idx} className={`flex items-start gap-4 ${isUser ? 'flex-row-reverse' : ''}`}>
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isUser ? 'bg-purple-600' : 'bg-blue-600'}`}>
-                                {isUser ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
-                            </div>
-                            <div className={`max-w-[80%] rounded-2xl p-4 ${isUser ? 'bg-purple-900/20 border border-purple-500/20 text-purple-100' : 'bg-slate-800 border border-slate-700 text-slate-200'}`}>
-                                <div style={{ whiteSpace: "pre-wrap" }} className={`text-sm leading-relaxed ${isUser ? 'text-right' : 'text-right'}`}>
-                                    {msg.text}
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4 sm:p-6">
+                {loading ? (
+                    <LoadingBlock label="Loading messages…" />
+                ) : messages.length === 0 ? (
+                    <p className="py-10 text-center text-sm text-subtle">No messages in this conversation (the visitor may have cleared it).</p>
+                ) : (
+                    messages.map((msg) => {
+                        const isUser = msg.role === "user";
+                        const ms = getTimestampMs(msg.timestamp);
+                        const time = ms ? new Date(ms).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }) : "";
+                        const text = stripLegacyTags(msg.text).trim();
+                        return (
+                            <div key={msg.id} className={cn("flex", isUser ? "justify-end" : "justify-start")}>
+                                <div
+                                    className={cn(
+                                        "max-w-[85%] rounded-card px-3.5 py-2.5 text-sm leading-relaxed",
+                                        isUser ? "bg-primary text-primary-foreground" : "bg-surface-hover text-foreground"
+                                    )}
+                                >
+                                    {isUser ? (
+                                        <div dir="auto" className="whitespace-pre-wrap break-words">
+                                            {text}
+                                        </div>
+                                    ) : (
+                                        <ChatMarkdown text={text} />
+                                    )}
+                                    {time && (
+                                        <div className={cn("mt-1.5 text-xs", isUser ? "text-right text-primary-foreground/60" : "text-left text-subtle")}>
+                                            {time}
+                                        </div>
+                                    )}
                                 </div>
-                                <div className={`text-[10px] mt-2 opacity-50 ${isUser ? 'text-right' : 'text-left'}`}>
-                                    {getTimestampMs(msg.timestamp)
-                                        ? new Date(getTimestampMs(msg.timestamp)).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
-                                        : ''}
-                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })
+                )}
             </div>
         </div>
     );

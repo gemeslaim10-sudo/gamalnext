@@ -5,8 +5,10 @@ import { db } from "@/lib/firebase";
 import { toast } from "react-hot-toast";
 import { uploadToCloudinary } from "@/lib/cloudinary/upload";
 import { ALLOWED_ADMINS } from "@/lib/constants";
+import { useCopy } from "@/components/providers/CopyProvider";
 export function useCreatePost() {
     const { user } = useAuth();
+    const t = useCopy();
     const [content, setContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [images, setImages] = useState<string[]>([]);
@@ -17,7 +19,7 @@ export function useCreatePost() {
     const uploadFiles = async (files: File[]) => {
         if (!files.length) return;
         if (images.length + files.length > 4) {
-            toast.error("You can upload a maximum of 4 images.");
+            toast.error(t("home.maxImages"));
             return;
         }
         setIsUploading(true);
@@ -29,11 +31,11 @@ export function useCreatePost() {
             }
             setImages(prev => [...prev, ...newUrls]);
             if (newUrls.length > 0) {
-                toast.success(`${newUrls.length} image${newUrls.length > 1 ? 's' : ''} attached!`, { icon: '📎', duration: 2000 });
+                toast.success(t("home.imagesAttached", { count: newUrls.length }), { duration: 2000 });
             }
         } catch (error) {
             console.error("Image upload error:", error);
-            toast.error("Failed to upload image. Please try again.");
+            toast.error(t("home.uploadFailed"));
         } finally {
             setIsUploading(false);
         }
@@ -69,10 +71,10 @@ export function useCreatePost() {
                 newImages[indexToUpdate] = url;
                 return newImages;
             });
-            toast.success("Image updated successfully!");
+            toast.success(t("home.imageUpdated"));
         } catch (error) {
             console.error("Image update error:", error);
-            toast.error("Failed to update edited image.");
+            toast.error(t("home.imageUpdateFailed"));
         } finally {
             setIsUploading(false);
         }
@@ -89,6 +91,7 @@ export function useCreatePost() {
                 userId: user?.uid,
                 userName: user?.displayName || "User",
                 userEmail: user?.email,
+                userPhoto: user?.photoURL || null,
                 content: content.trim(),
                 mediaUrl: images[0] || null,
                 gallery: images,
@@ -100,19 +103,17 @@ export function useCreatePost() {
             setContent("");
             setImages([]);
             if (isAdmin) {
-                toast.success("Post published successfully! 🚀", {
+                toast.success(t("home.postPublished"), {
                     duration: 3000,
-                    icon: '✅'
                 });
             } else {
-                toast.success("Post submitted for approval! It will appear once an admin approves it.", {
+                toast.success(t("home.postPending"), {
                     duration: 5000,
-                    icon: '⏳'
                 });
             }
         } catch (error) {
             console.error("Error creating post:", error);
-            toast.error("Failed to submit post. Please try again.");
+            toast.error(t("home.postFailed"));
         } finally {
             setIsSubmitting(false);
         }

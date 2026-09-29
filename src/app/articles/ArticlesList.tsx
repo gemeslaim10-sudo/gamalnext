@@ -1,10 +1,16 @@
 "use client";
 
+import { FileText, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useCopy } from "@/components/providers/CopyProvider";
+import { Button, ButtonLink, EmptyState } from "@/components/ui";
 import { useArticlesList, type Article } from "./useArticlesList";
-import { ArticleCard } from "./components/ArticleCard";
+import { ArticleCard, ArticleCardSkeleton, hasAnyCover } from "@/components/articles/ArticleCard";
+
+const GRID = "grid gap-4 sm:grid-cols-2 lg:grid-cols-3";
 
 export default function ArticlesList({ initialArticles }: { initialArticles?: Article[] }) {
+    const t = useCopy();
     const { articles, loading, deleting, handleDelete } = useArticlesList(initialArticles);
     const { user } = useAuth();
 
@@ -14,27 +20,53 @@ export default function ArticlesList({ initialArticles }: { initialArticles?: Ar
 
     if (loading) {
         return (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-                {[1, 2, 3].map(i => (
-                    <div key={i} className="bg-slate-900 rounded-2xl h-96 animate-pulse"></div>
+            <div className={GRID}>
+                {[1, 2, 3].map((i) => (
+                    <ArticleCardSkeleton key={i} />
                 ))}
             </div>
         );
     }
 
     if (articles.length === 0) {
-        return <div className="text-center text-slate-500 py-20">لا توجد مقالات مضافة بعد.</div>;
+        return <EmptyState icon={<FileText />} title={t("blog.empty")} />;
     }
 
+    const showCovers = hasAnyCover(articles);
+
     return (
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+        <div className={GRID}>
             {articles.map((article) => (
-                <ArticleCard 
-                    key={article.id} 
-                    article={article} 
-                    canEdit={!!isAuthor(article)} 
-                    isDeleting={deleting === article.id}
-                    onDelete={handleDelete}
+                <ArticleCard
+                    key={article.id}
+                    article={article}
+                    showCover={showCovers}
+                    actions={
+                        isAuthor(article) ? (
+                            <>
+                                <ButtonLink
+                                    href={`/articles/${article.id}/edit`}
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    aria-label={t("blog.editTooltip")}
+                                    title={t("blog.editTooltip")}
+                                >
+                                    <Pencil />
+                                </ButtonLink>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    onClick={(e) => handleDelete(article.id, e)}
+                                    disabled={deleting === article.id}
+                                    aria-label={t("blog.deleteTooltip")}
+                                    title={t("blog.deleteTooltip")}
+                                    className="hover:bg-danger/10 hover:text-danger"
+                                >
+                                    <Trash2 />
+                                </Button>
+                            </>
+                        ) : undefined
+                    }
                 />
             ))}
         </div>

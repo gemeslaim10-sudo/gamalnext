@@ -1,61 +1,54 @@
 "use client";
 
-import Navbar from "@/components/layout/Navbar";
-import { Toaster } from "react-hot-toast";
-import { Loader2, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { useCopy } from "@/components/providers/CopyProvider";
+import { BackLink, LoadingBlock, Page, PageHeader } from "@/components/ui";
 import { useEditArticle } from "./useEditArticle";
 import { EditArticleForm } from "./components/EditArticleForm";
 import { LoginPrompt } from "@/components/auth/LoginPrompt";
 
-export default function EditArticlePage({ params }: { params: { id: string } }) {
-    const { user, loading, saving, formData, setFormData, handleSubmit } = useEditArticle(params.id);
+export default function EditArticlePage() {
+    const t = useCopy();
+    // `params` is a Promise in Next 16, so the id is read from the router instead
+    const { id } = useParams<{ id: string }>();
+    const { loading: authLoading } = useAuth();
+    const { user, loading, saving, formData, setFormData, handleSubmit } = useEditArticle(id);
+
+    if (authLoading) {
+        return (
+            <Page>
+                <LoadingBlock label={t("blog.loading")} />
+            </Page>
+        );
+    }
 
     if (!user) {
-        return (
-            <LoginPrompt 
-                title="Welcome Back" 
-                description="Please sign in to edit your articles." 
-            />
-        );
+        return <LoginPrompt title={t("blog.editLoginTitle")} description={t("blog.editLoginText")} />;
     }
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-            </div>
+            <Page>
+                <LoadingBlock label={t("blog.loading")} />
+            </Page>
         );
     }
 
     return (
-        <div className="min-h-screen pb-20">
-            <Navbar />
+        <Page>
+            <div className="mx-auto max-w-content">
+                <BackLink href={`/articles/${id}`}>{t("blog.backToArticle")}</BackLink>
 
-            <div className="pt-32 px-4 max-w-4xl mx-auto">
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-                    <div className="flex items-center gap-4 mb-6">
-                        <Link
-                            href={`/articles/${params.id}`}
-                            className="text-slate-400 hover:text-white transition-colors"
-                        >
-                            <ArrowLeft className="w-6 h-6" />
-                        </Link>
-                        <div>
-                            <h1 className="text-3xl font-bold text-white">Edit Article ✏️</h1>
-                            <p className="text-slate-400 mt-2">Update the content of your article</p>
-                        </div>
-                    </div>
+                <PageHeader title={t("blog.editTitle")} description={t("blog.editDescription")} />
 
-                    <EditArticleForm
-                        formData={formData}
-                        setFormData={setFormData}
-                        saving={saving}
-                        onSubmit={handleSubmit}
-                    />
-                </div>
+                <EditArticleForm
+                    formData={formData}
+                    setFormData={setFormData}
+                    saving={saving}
+                    onSubmit={handleSubmit}
+                />
             </div>
-            <Toaster />
-        </div>
+        </Page>
     );
 }

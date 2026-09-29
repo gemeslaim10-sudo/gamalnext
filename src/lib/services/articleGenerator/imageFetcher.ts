@@ -1,28 +1,24 @@
 export const fetchStockImage = async (imageKeyword: string): Promise<string> => {
     let imageUrl = "";
     const unsplashKeyword = encodeURIComponent(imageKeyword || "technology");
+    const unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
 
-    try {
-        const unsplashRes = await fetch(
-            `https://api.unsplash.com/photos/random?query=${unsplashKeyword}&orientation=landscape&client_id=YOUR_ACCESS_KEY_OR_DEMO`,
-            {
-                headers: process.env.UNSPLASH_ACCESS_KEY ?
-                    { 'Authorization': `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` } :
-                    {}
-            }
-        );
+    if (unsplashAccessKey) {
+        try {
+            const unsplashRes = await fetch(
+                `https://api.unsplash.com/photos/random?query=${unsplashKeyword}&orientation=landscape`,
+                { headers: { 'Authorization': `Client-ID ${unsplashAccessKey}` } }
+            );
 
-        if (unsplashRes.ok) {
-            const unsplashData = await unsplashRes.json();
-            if (unsplashData.urls?.regular) {
-                imageUrl = unsplashData.urls.regular;
+            if (unsplashRes.ok) {
+                const unsplashData = await unsplashRes.json();
+                if (unsplashData.urls?.regular) {
+                    imageUrl = unsplashData.urls.regular;
+                }
             }
-        } else {
-            imageUrl = `https://source.unsplash.com/1280x720/?${unsplashKeyword}`;
+        } catch (error) {
+            console.error("Unsplash fetch error:", error);
         }
-    } catch (error) {
-        console.error("Unsplash fetch error:", error);
-        imageUrl = `https://source.unsplash.com/1280x720/?${unsplashKeyword}`;
     }
 
     const pexelsApiKey = process.env.PEXELS_API_KEY;

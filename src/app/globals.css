@@ -1,37 +1,184 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Design tokens — the single source of truth for how the site looks.
+   Change a value here and it updates on every page (site + admin).
+
+   Tailwind's default palette is disabled, so colors can ONLY come from the
+   tokens below. Use them through utilities, e.g.:
+     bg-background  bg-surface  bg-surface-hover
+     text-foreground  text-muted  text-subtle
+     border-border  border-border-strong
+     bg-primary text-primary-foreground   (main action buttons)
+     text-danger / bg-danger/10           (errors, destructive actions)
+   ═══════════════════════════════════════════════════════════════════════════ */
 @theme {
-  --font-sans: var(--font-cairo), sans-serif;
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-*: initial;
+
+  /* Surfaces */
+  --color-background: #0a0a0a;      /* page background */
+  --color-surface: #111111;         /* cards, panels, menus */
+  --color-surface-hover: #1a1a1a;   /* hover state, inputs, chips */
+  --color-overlay: rgb(0 0 0 / 0.72); /* modal & lightbox backdrop */
+
+  /* Lines */
+  --color-border: #242424;          /* default hairline */
+  --color-border-strong: #3a3a3a;   /* hover / focus / emphasis */
+
+  /* Text */
+  --color-foreground: #ededed;      /* headings, body */
+  --color-muted: #a1a1a1;           /* secondary text */
+  --color-subtle: #808080;          /* meta text: dates, hints */
+
+  /* Main action (monochrome) */
+  --color-primary: #ededed;
+  --color-primary-hover: #ffffff;
+  --color-primary-foreground: #0a0a0a;
+
+  /* Feedback — functional only, never decorative */
+  --color-danger: #f87171;
+  --color-success: #4ade80;
+  --color-warning: #facc15;
+
+  /* Printable documents (CV page) */
+  --color-paper: #ffffff;
+  --color-ink: #171717;
+  --color-ink-muted: #525252;
+  --color-ink-border: #e5e5e5;
+
+  /* Shape */
+  --radius-card: 0.75rem;           /* rounded-card: cards, panels, modals */
+  --radius-control: 0.5rem;         /* rounded-control: buttons, inputs */
+  --shadow-popover: 0 12px 32px rgb(0 0 0 / 0.5);
+
+  /* Layout widths */
+  --container-page: 70rem;          /* max-w-page: site container */
+  --container-content: 42rem;       /* max-w-content: feed, articles, forms */
+
+  /* Type */
+  --font-sans: var(--font-cairo), ui-sans-serif, system-ui, sans-serif;
+
+  /* Motion curves: `ease-out` for things appearing, `ease-in` for things leaving */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Entrance animations (opacity + transform only, so they stay on the GPU).
+     `backwards` = styles apply only until the animation ends, then the element is left untouched. */
+  --animate-fade-in: fade-in var(--motion-base) var(--ease-out) backwards;
+  --animate-rise-in: rise-in var(--motion-slow) var(--ease-out) backwards;
+  --animate-page-in: page-in var(--motion-slow) var(--ease-out) backwards;
+  --animate-zoom-in: zoom-in var(--motion-base) var(--ease-out) backwards;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+  }
+
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(10px); }
+  }
+
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(6px); }
+  }
+
+  @keyframes zoom-in {
+    from { opacity: 0; transform: scale(0.96); }
+  }
+
+  @keyframes bar-fill {
+    from { transform: scaleX(0); }
+  }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Motion timing — one place to make every animation faster or slower.
+   Open/close UI (menus, modals, lightbox, drawers) uses these through
+   `data-state="open|closed"` classes; see src/hooks/usePresence.ts.
+   ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --background: #030712; /* Richer dark background */
-  --foreground: #f1f5f9;
-  
-  /* Premium Brand Colors */
-  --primary-glow: rgba(59, 130, 246, 0.5);
-  --secondary-glow: rgba(168, 85, 247, 0.5);
-  --accent-glow: rgba(14, 165, 233, 0.5);
+  --motion-fast: 140ms;   /* hover, press, small fades, closing */
+  --motion-base: 220ms;   /* menus, dropdowns, modals opening */
+  --motion-slow: 340ms;   /* page, panels, images fading in */
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  background-image: 
-    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.08), transparent 25%);
-  font-feature-settings: "rlig" 1, "calt" 1;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-  min-height: 100vh;
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+
+  html {
+    color-scheme: dark;
+    scroll-padding-top: 4.5rem; /* keeps anchors clear of the sticky navbar */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
-/* Custom Scrollbar */
+/* ── Scroll reveal ─────────────────────────────────────────────────────────────
+   Cards rise in as they enter the viewport. Pure CSS (scroll-driven animation):
+   no JavaScript, no work while idle, and browsers without support just show them. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: rise-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+
+    /* Progress bars fill from the left as they scroll into view */
+    .reveal-bar {
+      transform-origin: left;
+      animation: bar-fill linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 40%;
+    }
+  }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────────────
+   Visitors who ask their device for less motion get instant changes everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  ::before,
+  ::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* ── Scrollbars ────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -39,228 +186,18 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  background: var(--color-border);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Specific custom slim scrollbars */
-.custom-scrollbar::-webkit-scrollbar,
-.sidebar-scroll::-webkit-scrollbar {
-  width: 2px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track,
-.sidebar-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb,
-.sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover,
-.sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* Animation Utility Classes */
-.reveal {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.reveal.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.stagger-1 { transition-delay: 100ms; }
-.stagger-2 { transition-delay: 200ms; }
-.stagger-3 { transition-delay: 300ms; }
-.stagger-4 { transition-delay: 400ms; }
-
-/* Enhanced Blob Animation */
-.blob {
-  position: absolute;
-  filter: blur(80px);
-  z-index: 0;
-  opacity: 0.5;
-  will-change: transform;
-  animation: float 20s infinite ease-in-out;
-}
-
-@keyframes float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(20px, -20px) scale(1.1); }
-  50% { transform: translate(-10px, 20px) scale(0.95); }
-  75% { transform: translate(-20px, -10px) scale(1.05); }
-}
-
-/* Premium Glassmorphism */
-.glass {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-}
-
-.glass-card {
-  background: rgba(30, 41, 59, 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.3s ease;
-}
-
-.glass-card:hover {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
-}
-
-/* Gradient Text */
-.text-gradient {
-  background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #f472b6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  background-size: 200% 200%;
-  animation: gradient-shift 5s ease infinite;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Prevent scroll spy jumping */
-.no-scroll-spy {
-  scroll-margin-top: 100px;
-}
-
-/* Hero dot-grid background */
-.hero-grid-bg {
-  background-image: radial-gradient(circle, rgba(59, 130, 246, 0.15) 1px, transparent 1px);
-  background-size: 36px 36px;
-  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
-}
-
-/* Floating particles */
-@keyframes float-particle {
-  0%, 100% { transform: translateY(0px) scale(1); opacity: 0.3; }
-  50% { transform: translateY(-18px) scale(1.15); opacity: 0.7; }
-}
-.animate-float-particle {
-  animation: float-particle 4s ease-in-out infinite;
-}
-
-/* Scroll hint fade-in-up */
-@keyframes fade-in-up {
-  0% { opacity: 0; transform: translate(-50%, 20px); }
-  100% { opacity: 1; transform: translate(-50%, 0); }
-}
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
-}
-
-/* Hero highlight underline for subtitle */
-.hero-highlight-blue {
-  background: linear-gradient(120deg, #60a5fa 0%, #38bdf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.hero-highlight-purple {
-  background: linear-gradient(120deg, #c084fc 0%, #f472b6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Stats card subtle shine on hover */
-.hero-stats-grid > div::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%);
-  pointer-events: none;
+  background: var(--color-border-strong);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Article Content – RTL/LTR Aware Styling
-   Uses CSS logical properties so Arabic (RTL) and English (LTR) both work.
+   Article content — RTL/LTR aware.
+   Uses logical properties so Arabic (RTL) and English (LTR) both work.
    ═══════════════════════════════════════════════════════════════════════════ */
-
-/* ── Unordered Lists (Bullet Points) ─────────────────────────────────────── */
-.article-ul .article-li {
-  padding-inline-start: 1.5rem;
-}
-
-.article-ul .article-li::before {
-  content: '';
-  position: absolute;
-  top: 0.75rem;
-  width: 0.5rem;
-  height: 0.5rem;
-  background: #3b82f6;
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
-}
-
-/* RTL: bullet on the right */
-.article-ul .article-li:dir(rtl)::before,
-[dir="rtl"] .article-ul .article-li::before {
-  right: 0;
-  left: auto;
-}
-
-/* LTR: bullet on the left */
-.article-ul .article-li:dir(ltr)::before,
-[dir="ltr"] .article-ul .article-li::before {
-  left: 0;
-  right: auto;
-}
-
-/* Fallback for dir="auto" – detect by checking parent direction */
-.article-content[dir="auto"] .article-ul .article-li::before {
-  inset-inline-start: 0;
-}
-
-/* ── Ordered Lists (Numbered) ────────────────────────────────────────────── */
-.article-ol {
-  list-style-type: decimal;
-  list-style-position: inside;
-  padding-inline-start: 0.5rem;
-}
-
-.article-ol .article-li {
-  padding-inline-start: 0.5rem;
-}
-
-.article-ol .article-li::before {
-  display: none; /* No custom bullet for numbered lists */
-}
-
-/* ── Blockquotes ─────────────────────────────────────────────────────────── */
-.article-blockquote {
-  border-inline-start: 4px solid #3b82f6;
-  border-radius: 0;
-  border-start-end-radius: 1rem;
-  border-end-end-radius: 1rem;
-}
-
-/* ── General Article Text ────────────────────────────────────────────────── */
 .article-content {
   text-align: start;
   word-wrap: break-word;
@@ -274,14 +211,13 @@ body {
   text-align: start;
 }
 
-/* ── Mixed Content (Arabic with English terms) ───────────────────────────── */
+/* Mixed Arabic/English paragraphs pick their own direction */
 .article-content p,
 .article-content li,
 .article-content blockquote {
   unicode-bidi: plaintext;
 }
 
-/* ── Better Spacing for Arabic typography ────────────────────────────────── */
 .article-content p + p {
   margin-top: 1rem;
 }
@@ -291,17 +227,43 @@ body {
   margin-top: 0.5rem;
 }
 
-/* ── Reset prose overrides that break RTL ─────────────────────────────────── */
-.article-content.prose ul,
-.article-content.prose ol {
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 0;
-  padding-right: 0;
+/* Bullet lists */
+.article-ul .article-li {
+  position: relative;
+  padding-inline-start: 1.25rem;
 }
 
-/* ── RTL Article Overrides (Arabic Content) ──────────────────────────────── */
-/* prose forces text-align: left. We override it for RTL articles. */
+.article-ul .article-li::before {
+  content: "";
+  position: absolute;
+  top: 0.7em;
+  inset-inline-start: 0.25rem;
+  width: 0.375rem;
+  height: 0.375rem;
+  background: var(--color-muted);
+  border-radius: 9999px;
+}
+
+/* Numbered lists */
+.article-ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  padding-inline-start: 0.5rem;
+}
+
+.article-ol .article-li {
+  padding-inline-start: 0.5rem;
+}
+
+.article-ol .article-li::before {
+  display: none;
+}
+
+.article-blockquote {
+  border-inline-start: 3px solid var(--color-border-strong);
+}
+
+/* Arabic articles */
 .article-rtl,
 .article-rtl p,
 .article-rtl h1,
@@ -325,3 +287,10 @@ body {
   padding-inline-start: 0;
 }
 
+/* ── Print ─────────────────────────────────────────────────────────────────── */
+@media print {
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+}

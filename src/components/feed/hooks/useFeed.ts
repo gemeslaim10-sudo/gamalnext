@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "react-hot-toast";
 
-import type { FeedItem, FeedAd } from "../types";
-
-import { fetchAdsOnce } from "./fetchAds";
+import type { FeedItem } from "../types";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 export function useFeed() {
+    const t = useCopy();
     const [items, setItems] = useState<FeedItem[]>([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -13,13 +13,10 @@ export function useFeed() {
     const [error, setError] = useState<string | null>(null);
     const [activeComments, setActiveComments] = useState<string | null>(null);
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+    // The last opened images stay in state after closing so the viewer can animate out
     const [lightbox, setLightbox] = useState<{ images: string[]; index: number; title: string } | null>(null);
-    const [inFeedAds, setInFeedAds] = useState<FeedAd[]>([]);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
     const observer = useRef<IntersectionObserver | null>(null);
-
-    useEffect(() => {
-        fetchAdsOnce().then(setInFeedAds);
-    }, []);
 
     const lastItemElementRef = useCallback((node: HTMLDivElement | null) => {
         if (loading) return;
@@ -57,14 +54,14 @@ export function useFeed() {
             } catch (error) {
                 console.error("Failed to load feed", error);
                 setError(error instanceof Error ? error.message : "Failed to load content");
-                toast.error("Failed to load content");
+                toast.error(t("home.loadFailed"));
             } finally {
                 setLoading(false);
             }
         };
 
         fetchFeed();
-    }, [page]);
+    }, [page, t]);
 
     const handleShare = async (item: FeedItem) => {
         const shareData = {
@@ -78,10 +75,10 @@ export function useFeed() {
                 await navigator.share(shareData);
             } else {
                 await navigator.clipboard.writeText(shareData.url);
-                toast.success('Link copied to clipboard! 📋');
+                toast.success(t("home.linkCopied"));
             }
         } catch {
-            toast.error('Failed to copy link.');
+            toast.error(t("home.copyFailed"));
         }
     };
 
@@ -100,19 +97,10 @@ export function useFeed() {
 
     const openLightbox = (images: string[], index: number, title: string) => {
         setLightbox({ images, index, title });
+        setLightboxOpen(true);
     };
 
-    const closeLightbox = () => setLightbox(null);
-
-    const prevImage = () => {
-        if (!lightbox) return;
-        setLightbox(prev => prev ? { ...prev, index: (prev.index - 1 + prev.images.length) % prev.images.length } : null);
-    };
-
-    const nextImage = () => {
-        if (!lightbox) return;
-        setLightbox(prev => prev ? { ...prev, index: (prev.index + 1) % prev.images.length } : null);
-    };
+    const closeLightbox = () => setLightboxOpen(false);
 
     return {
         items,
@@ -122,7 +110,7 @@ export function useFeed() {
         activeComments,
         expandedItems,
         lightbox,
-        inFeedAds,
+        lightboxOpen,
         setError,
         setPage,
         lastItemElementRef,
@@ -130,8 +118,6 @@ export function useFeed() {
         toggleComments,
         toggleExpand,
         openLightbox,
-        closeLightbox,
-        prevImage,
-        nextImage
+        closeLightbox
     };
 }

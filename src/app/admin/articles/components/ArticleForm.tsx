@@ -1,5 +1,6 @@
 import { X, Save } from "lucide-react";
 import { MediaUpload } from "@/components/admin/MediaUpload";
+import { Button, Card, Field, Input, Textarea } from "@/components/ui";
 import type { MediaItem } from "../types";
 
 interface ArticleFormProps {
@@ -32,43 +33,47 @@ export function ArticleForm({
     handleSubmit
 }: ArticleFormProps) {
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 shadow-2xl animate-in fade-in slide-in-from-top-4">
-            <div className="flex justify-between mb-6">
-                <h2 className="text-xl font-bold text-blue-400">{currentId ? "Edit Article" : "Create New Article"}</h2>
-                <button onClick={resetForm} className="text-slate-400 hover:text-white"><X className="w-6 h-6" /></button>
+        <Card padding="lg" className="mb-6">
+            <div className="mb-5 flex items-center justify-between gap-4">
+                <h2 className="text-base font-semibold text-foreground">{currentId ? "Edit Article" : "Create New Article"}</h2>
+                <Button variant="ghost" size="icon-sm" onClick={resetForm} aria-label="Close editor">
+                    <X />
+                </Button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-2">Title</label>
-                        <input
+            <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid gap-4 md:grid-cols-2">
+                    <Field label="Title" htmlFor="article-title">
+                        <Input
+                            id="article-title"
+                            dir="auto"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
                             required
                         />
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-2">Slug (Auto-generated if empty)</label>
-                        <input
+                    </Field>
+                    <Field label="Slug (Auto-generated if empty)" htmlFor="article-slug">
+                        <Input
+                            id="article-slug"
                             value={formData.slug}
                             onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                             placeholder={formData.title ? generateSlug(formData.title) : ""}
-                            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-slate-300 font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="font-mono"
                         />
-                    </div>
+                    </Field>
                 </div>
 
-                <div>
-                    <label className="block text-sm text-slate-400 mb-2">Summary (SEO Description)</label>
-                    <textarea
+                <Field label="Summary (SEO Description)" htmlFor="article-summary">
+                    <Textarea
+                        id="article-summary"
+                        dir="auto"
                         value={formData.summary}
                         onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none h-24 resize-none"
+                        rows={3}
+                        className="resize-none"
                         required
                     />
-                </div>
+                </Field>
 
                 {/* Media Upload */}
                 <MediaUpload
@@ -76,24 +81,25 @@ export function ArticleForm({
                     onChange={(media) => setFormData({ ...formData, media })}
                 />
 
-                <div>
-                    <label className="block text-sm text-slate-400 mb-2">Content (Supports Markdown/HTML)</label>
-                    <textarea
+                <Field label="Content (Supports Markdown/HTML)" htmlFor="article-content">
+                    <Textarea
+                        id="article-content"
+                        dir="auto"
                         value={formData.content}
                         onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none h-64 font-mono leading-relaxed"
+                        className="h-64 font-mono"
                         placeholder="Write your article content here..."
                         required
                     />
-                </div>
+                </Field>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
-                    <button type="button" onClick={resetForm} className="px-6 py-2 text-slate-400 hover:text-white font-bold">Cancel</button>
-                    <button type="submit" className="px-8 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold flex items-center gap-2">
-                        <Save className="w-5 h-5" /> Save Article
-                    </button>
+                <div className="flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end">
+                    <Button variant="ghost" onClick={resetForm}>Cancel</Button>
+                    <Button type="submit">
+                        <Save /> Save Article
+                    </Button>
                 </div>
             </form>
-        </div>
+        </Card>
     );
 }

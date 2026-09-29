@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { 
-    STATIC_TOOLS, 
-    FeedItem, 
+import {
+    FeedItem,
     fetchArticlesFeed, 
     fetchProjectsFeed, 
     fetchUserPostsFeed 
@@ -18,7 +17,7 @@ export async function GET(request: Request) {
     const pageSize = 5;
     const offset = (page - 1) * pageSize;
 
-    const allFeed: FeedItem[] = [...STATIC_TOOLS];
+    const allFeed: FeedItem[] = [];
 
     await Promise.all([
         fetchArticlesFeed(allFeed),

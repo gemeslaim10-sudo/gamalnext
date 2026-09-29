@@ -1,12 +1,15 @@
 "use client";
 
-import { Image as ImageIcon, Send, Loader2, X, Shield, Edit2 } from "lucide-react";
+import { ImagePlus, Pencil, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { detectTextDir } from "@/lib/utils";
+import { Button, Card, Spinner, Textarea } from "@/components/ui";
 import { useCreatePost } from "./hooks/useCreatePost";
+import { useCopy } from "@/components/providers/CopyProvider";
 import { ImageEditorModal } from "./components/ImageEditorModal";
 
+/** Composer for signed-in users. Visitors don't see it; they can log in from the navbar. */
 export default function CreatePost() {
     const {
         user,
@@ -24,99 +27,82 @@ export default function CreatePost() {
         handleSubmit
     } = useCreatePost();
     const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null);
+    const t = useCopy();
 
-    if (!user) {
-        return (
-            <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-[2rem] p-6 text-center text-slate-400">
-                Please <button onClick={() => document.dispatchEvent(new CustomEvent('open-auth-modal'))} className="text-blue-400 font-bold hover:underline">Sign In</button> to share a post.
-            </div>
-        );
-    }
+    if (!user) return null;
 
     return (
-        <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-[2rem] p-4 sm:p-6 mb-8 shadow-xl">
-            <form onSubmit={handleSubmit}>
-                <textarea
+        <Card>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <Textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     onPaste={handlePaste}
-                    placeholder="What's on your mind? Paste images with Ctrl+V..."
+                    placeholder={t("home.composerPlaceholder")}
+                    aria-label="Post content"
                     dir={detectTextDir(content)}
-                    className="w-full bg-slate-950/50 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 resize-none transition-all"
                     rows={3}
+                    className="resize-none"
                 />
 
-                {/* Image Previews */}
                 {images.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-3">
+                    <div className="flex flex-wrap gap-2">
                         {images.map((img, idx) => (
-                            <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-700 group">
+                            <div key={idx} className="relative size-20 overflow-hidden rounded-control border border-border bg-surface-hover">
                                 <Image src={img} alt={`Upload ${idx + 1}`} fill sizes="80px" className="object-cover" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[1px]">
+                                <div className="absolute right-1 top-1 flex gap-1">
                                     <button
                                         type="button"
                                         onClick={() => setEditingImageIndex(idx)}
-                                        className="bg-blue-500/80 hover:bg-blue-500 text-white rounded-full p-1.5 transition-colors"
+                                        aria-label={`Edit image ${idx + 1}`}
+                                        className="flex size-6 items-center justify-center rounded-full bg-overlay text-foreground hover:bg-background"
                                     >
-                                        <Edit2 className="w-3 h-3" />
+                                        <Pencil className="size-3" />
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => removeImage(idx)}
-                                        className="bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1.5 transition-colors"
+                                        aria-label={`Remove image ${idx + 1}`}
+                                        className="flex size-6 items-center justify-center rounded-full bg-overlay text-foreground hover:bg-background"
                                     >
-                                        <X className="w-3 h-3" />
+                                        <X className="size-3" />
                                     </button>
                                 </div>
                             </div>
                         ))}
                     </div>
                 )}
-                
-                <div className="flex items-center justify-between mt-4 border-t border-slate-800 pt-4">
-                    <div className="flex items-center gap-4">
-                        <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={images.length >= 4 || isUploading}
-                            className="flex items-center gap-2 text-slate-400 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                            {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
-                            <span className="text-sm font-medium">{images.length}/4 Images</span>
-                        </button>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            ref={fileInputRef}
-                            onChange={handleImageUpload}
-                            className="hidden"
-                        />
-                        
-                        {isAdmin ? (
-                            <div className="text-xs text-emerald-400/80 hidden sm:flex items-center gap-2 border-l border-slate-800 pl-4">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                Publishes instantly
-                            </div>
-                        ) : (
-                            <div className="text-xs text-amber-500/70 hidden sm:flex items-center gap-2 border-l border-slate-800 pl-4">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500/50"></span>
-                                Requires admin approval
-                            </div>
-                        )}
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={(!content.trim() && images.length === 0) || isSubmitting || isUploading}
-                        className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                            isAdmin 
-                                ? 'bg-emerald-600 hover:bg-emerald-500 text-white' 
-                                : 'bg-blue-600 hover:bg-blue-500 text-white'
-                        }`}
+
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={images.length >= 4 || isUploading}
                     >
-                        {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : isAdmin ? <Shield className="w-4 h-4" /> : <Send className="w-4 h-4" />}
-                        {isAdmin ? 'Publish' : 'Post'}
-                    </button>
+                        {isUploading ? <Spinner className="size-4" /> : <ImagePlus />}
+                        {t("home.composerPhotos")} {images.length > 0 && `${images.length}/4`}
+                    </Button>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        ref={fileInputRef}
+                        onChange={handleImageUpload}
+                        className="hidden"
+                    />
+                    <span className="text-xs text-subtle">
+                        {isAdmin ? t("home.composerAdminHint") : t("home.composerUserHint")}
+                    </span>
+                    <Button
+                        type="submit"
+                        size="sm"
+                        className="ml-auto"
+                        disabled={(!content.trim() && images.length === 0) || isSubmitting || isUploading}
+                    >
+                        {isSubmitting && <Spinner className="size-4 text-primary-foreground" />}
+                        {isAdmin ? t("home.composerPublish") : t("home.composerPost")}
+                    </Button>
                 </div>
             </form>
 
@@ -131,7 +117,6 @@ export default function CreatePost() {
                     }
                 }}
             />
-        </div>
+        </Card>
     );
 }
-

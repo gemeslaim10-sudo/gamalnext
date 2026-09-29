@@ -1,12 +1,13 @@
-import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { parseDate } from "../utils";
 import type { FeedItem } from "../types";
+import { ALLOWED_ADMINS } from "@/lib/constants";
 
 export async function fetchUserPostsFeed(allFeed: FeedItem[]) {
     try {
         const postsSnap = await getDocs(
-            query(collection(db, "posts"), where("status", "==", "approved"), orderBy("createdAt", "desc"), limit(30))
+            query(collection(db, "posts"), where("status", "==", "approved"), orderBy("createdAt", "desc"))
         );
         postsSnap.docs.forEach(docSnap => {
             const data = docSnap.data();
@@ -24,6 +25,8 @@ export async function fetchUserPostsFeed(allFeed: FeedItem[]) {
                 link: `/#${docSnap.id}`,
                 createdAt: parseDate(data.createdAt),
                 author: data.userName || "User",
+                authorPhoto: data.userPhoto || null,
+                byOwner: ALLOWED_ADMINS.includes(data.userEmail),
                 userId: data.userId,
             });
         });

@@ -1,33 +1,33 @@
-import Reveal from '../Reveal';
+import { Card } from '@/components/ui';
+import type { TechStackItem } from './data';
 
-interface TechStackItem {
-    name: string;
-    val: string;
-}
-
-interface TechStackProgressProps {
-    techStack: TechStackItem[];
-}
-
-export function TechStackProgress({ techStack }: TechStackProgressProps) {
-    if (!techStack || techStack.length === 0) return null;
-
+export function TechStackProgress({ techStack }: { techStack: TechStackItem[] }) {
     return (
-        <Reveal className="glass p-6 md:p-8 rounded-2xl border-slate-700">
-            <h3 className="text-xl md:text-2xl font-bold text-white mb-8 border-l-4 border-blue-500 pl-4">Tech Stack</h3>
-            <div className="space-y-6">
-                {techStack.map(item => (
-                    <div key={item.name}>
-                        <div className="flex justify-between mb-2 text-sm md:text-base">
-                            <span className="text-slate-300 font-medium">{item.name}</span>
-                            <span className="text-blue-400">{item.val}</span>
-                        </div>
-                        <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                            <div className="progress-bar h-full bg-gradient-to-r from-blue-600 to-cyan-400 transition-all duration-1000 ease-out" style={{ width: '100%', maxWidth: item.val }}></div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </Reveal>
+        <Card padding="lg">
+            <ul className="grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-1">
+                {techStack.map((item, i) => {
+                    const value = toPercent(item.val);
+                    return (
+                        <li key={`${item.name}-${i}`}>
+                            <div className="flex items-baseline justify-between gap-4">
+                                <span dir="auto" className="min-w-0 truncate text-sm text-foreground">
+                                    {item.name}
+                                </span>
+                                <span className="shrink-0 text-xs tabular-nums text-subtle">{value}%</span>
+                            </div>
+                            <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-hover">
+                                <div className="reveal-bar h-full rounded-full bg-foreground" style={{ width: `${value}%` }} />
+                            </div>
+                        </li>
+                    );
+                })}
+            </ul>
+        </Card>
     );
+}
+
+/** "95%", "95" or 95 → 95, clamped to 0–100. */
+function toPercent(val: string | number | undefined) {
+    const n = parseFloat(String(val ?? ''));
+    return Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : 0;
 }

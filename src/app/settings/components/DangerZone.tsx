@@ -1,25 +1,21 @@
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { Button, Card } from "@/components/ui";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 interface DangerZoneProps {
     handleDeleteAccount: () => void;
 }
 
 export function DangerZone({ handleDeleteAccount }: DangerZoneProps) {
+    const t = useCopy();
     return (
-        <div className="mt-12 pt-8 border-t border-red-500/20">
-            <h2 className="text-xl font-bold text-red-500 mb-4 flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" /> منطقة الخطر
-            </h2>
-            <p className="text-slate-400 text-sm mb-6">
-                بمجرد حذف حسابك، لا يمكن التراجع عن هذا الإجراء. سيتم حذف جميع بياناتك نهائياً.
-            </p>
-            <button
-                type="button"
-                onClick={handleDeleteAccount}
-                className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
-            >
-                <Trash2 className="w-4 h-4" /> حذف الحساب نهائياً
-            </button>
-        </div>
+        <Card padding="lg" className="border-danger/30">
+            <h2 className="text-base font-semibold text-foreground">{t("account.settingsDangerTitle")}</h2>
+            <p className="mt-1 text-sm leading-relaxed text-muted">{t("account.settingsDangerText")}</p>
+            <Button variant="danger" className="mt-4" onClick={handleDeleteAccount}>
+                <Trash2 />
+                {t("account.settingsDeleteButton")}
+            </Button>
+        </Card>
     );
 }

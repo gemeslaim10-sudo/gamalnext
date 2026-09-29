@@ -1,7 +1,7 @@
 // ── Feed Types ─────────────────────────────────────────────────────────────
 export type FeedItem = {
     id: string;
-    type: "article" | "project" | "tool" | "post";
+    type: "article" | "project" | "post";
     title: string;
     description: string;
     fullContent?: string;
@@ -12,14 +12,9 @@ export type FeedItem = {
     link: string;
     createdAt: string;
     author?: string;
+    /** Photo of the post's author (community posts only) */
+    authorPhoto?: string | null;
+    /** True when the site owner wrote it, so the owner's photo is shown */
+    byOwner?: boolean;
     userId?: string;
 };
-
-export interface FeedAd {
-    id: string;
-    title: string;
-    description: string;
-    imageUrl: string;
-    whatsappMessage: string;
-    whatsappNumber: string;
-}

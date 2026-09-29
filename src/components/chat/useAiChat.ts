@@ -1,106 +1,114 @@
-import { useEffect } from "react";
+import { useEffect, type FormEvent } from "react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useChatStore } from "@/store/chatStore";
+import { fillWelcome, isRealName } from "@/lib/ai/assistant/shared";
+
+/** How many earlier messages go with each request (the server trims further). */
+const HISTORY_LIMIT = 30;
+
+/**
+ * Safety-net texts, shown only when a request fails. Everything else the widget shows comes
+ * from the dashboard (GET /api/chat). Picked by the language of the visitor's message.
+ */
+const ERROR_TEXT = {
+    en: {
+        failed: "Sorry, I couldn't reply just now. Please try again in a moment.",
+        busy: "You're sending messages quickly. Please wait a minute and try again.",
+        offline: "Can't reach the server right now. Check your connection and try again.",
+    },
+    ar: {
+        failed: "معلش، مقدرتش أرد دلوقتي. جرّب تاني بعد لحظات.",
+        busy: "بتبعت رسائل كتير ورا بعض. استنى دقيقة وجرّب تاني.",
+        offline: "مش قادر أوصل للسيرفر دلوقتي. اتأكد من الاتصال وجرّب تاني.",
+    },
+};
+
+class ChatRequestError extends Error {
+    constructor(readonly status: number) {
+        super(`Chat request failed (${status})`);
+    }
+}
 
 export function useAiChat(isOpen: boolean) {
-    const { user } = useAuth();
-    const store = useChatStore();
+    const { user, loading: authLoading } = useAuth();
+    const pathname = usePathname();
+
+    const messages = useChatStore((s) => s.messages);
+    const input = useChatStore((s) => s.input);
+    const loading = useChatStore((s) => s.loading);
+    const userContext = useChatStore((s) => s.userContext);
+    const sessionId = useChatStore((s) => s.sessionId);
+    const config = useChatStore((s) => s.config);
+    const configStatus = useChatStore((s) => s.configStatus);
+    const setInput = useChatStore((s) => s.setInput);
+    const setLoading = useChatStore((s) => s.setLoading);
+    const addMessage = useChatStore((s) => s.addMessage);
+    const initChat = useChatStore((s) => s.initChat);
+    const loadConfig = useChatStore((s) => s.loadConfig);
+    const clearChat = useChatStore((s) => s.clearChat);
+
+    // The dashboard texts load right away; the conversation waits for Firebase auth, so a signed-in
+    // visitor gets their own conversation instead of a guest one
+    useEffect(() => {
+        if (isOpen) void loadConfig();
+    }, [isOpen, loadConfig]);
 
     useEffect(() => {
-        if (isOpen) {
-            store.initChat(user);
-        }
-    }, [isOpen, user, store]);
+        if (isOpen && !authLoading) void initChat(user);
+    }, [isOpen, authLoading, user, initChat]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const welcome = config ? fillWelcome(config.welcomeMessage, isRealName(userContext.name) ? userContext.name : null) : "";
+
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        
-        if (!store.input.trim() || store.loading) return;
+        const text = input.trim();
+        if (!text || loading) return;
 
-        const userMessage = store.input.trim();
-        store.setInput("");
-        store.addMessage({ role: 'user', text: userMessage });
-        store.setLoading(true);
+        const history = messages
+            .filter((m) => !m.isError)
+            .slice(-HISTORY_LIMIT)
+            .map((m) => ({ role: m.role, parts: [{ text: m.text }] }));
+
+        setInput("");
+        addMessage({ role: "user", text });
+        setLoading(true);
 
         try {
-            // Build clean history: filter errors, then merge consecutive same-role messages
-            const cleanMessages = store.messages.filter(m => !m.isError);
-            const history: { role: string; parts: { text: string }[] }[] = [];
-            
-            for (const m of cleanMessages) {
-                const last = history[history.length - 1];
-                if (last && last.role === m.role) {
-                    last.parts[0].text += "\n" + m.text;
-                } else {
-                    history.push({ role: m.role, parts: [{ text: m.text }] });
+            const headers: Record<string, string> = { "Content-Type": "application/json" };
+            // Signed-in visitors prove who they are, so their chat can be saved to their account
+            if (user) {
+                try {
+                    headers.Authorization = `Bearer ${await user.getIdToken()}`;
+                } catch {
+                    // Chatting still works without it
                 }
             }
-            
-            // Gemini requires history to start with 'user'
-            while (history.length > 0 && history[0].role === 'model') {
-                history.shift();
-            }
 
-            const requestBody = {
-                message: userMessage,
-                history,
-                userContext: store.userContext,
-                sessionId: store.sessionId
-            };
-
-            const res = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody),
+            const res = await fetch("/api/chat", {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                    message: text,
+                    history,
+                    userContext: { name: userContext.name, phone: userContext.phone },
+                    sessionId,
+                    page: pathname,
+                }),
             });
+            const data = (await res.json().catch(() => ({}))) as { response?: unknown };
+            if (!res.ok || typeof data.response !== "string" || !data.response.trim()) throw new ChatRequestError(res.status);
 
-            const rawText = await res.text();
-            
-            let data: Record<string, unknown>;
-            try {
-                data = JSON.parse(rawText);
-            } catch {
-                throw new Error("Invalid response from server");
-            }
-
-            if (!res.ok || data.error) {
-                const errorMessage = (data.error || data.details || "Failed to connect to the server") as string;
-                throw new Error(errorMessage);
-            }
-
-            const responseText = (data.response || data.text || data.message || "") as string;
-            if (!responseText) {
-                throw new Error("Received empty response from AI");
-            }
-
-            store.addMessage({ role: 'model', text: responseText });
-
+            addMessage({ role: "model", text: data.response });
         } catch (error) {
-            console.error("Chat Error:", error);
-
-            const errMsg = error instanceof Error ? error.message : "An unexpected error occurred";
-            let userFriendlyError = `⚠️ Sorry, an error occurred: ${errMsg}`;
-
-            if (errMsg.includes("Failed to fetch") || errMsg.includes("NetworkError")) {
-                userFriendlyError = "⚠️ Sorry, cannot connect to the server right now. The server might be updating or restarting. Please try again in a few seconds.";
-            }
-
-            store.addMessage({
-                role: 'model',
-                text: userFriendlyError,
-                isError: true
-            });
+            console.error("Chat error:", error);
+            const copy = /[؀-ۿ]/.test(text) ? ERROR_TEXT.ar : ERROR_TEXT.en;
+            const status = error instanceof ChatRequestError ? error.status : 0;
+            addMessage({ role: "model", isError: true, text: status === 429 ? copy.busy : status === 0 ? copy.offline : copy.failed });
         } finally {
-            store.setLoading(false);
+            setLoading(false);
         }
     };
 
-    return {
-        messages: store.messages,
-        input: store.input,
-        setInput: store.setInput,
-        loading: store.loading,
-        handleSubmit,
-        clearChat: store.clearChat
-    };
+    return { messages, input, setInput, loading, handleSubmit, clearChat, config, configStatus, welcome };
 }

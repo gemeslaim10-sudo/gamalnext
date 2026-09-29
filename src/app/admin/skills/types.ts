@@ -32,6 +32,6 @@ export const defaultSkillsData: SkillsForm = {
         { name: "Next.js", val: "85%" }
     ],
     software: [
-        { name: "VS Code", level: "احترافي", color: "text-green-400" }
+        { name: "VS Code", level: "احترافي", color: "" }
     ]
 };

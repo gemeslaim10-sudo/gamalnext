@@ -7,6 +7,8 @@ export interface ProjectData {
     category?: string;
     tags?: string;
     image?: string;
+    imageUrl?: string;
+    images?: string[];
     gallery?: string[];
     link?: string;
     videoUrl?: string;

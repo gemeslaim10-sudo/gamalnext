@@ -1,4 +1,5 @@
-import { Check, Edit, Trash } from "lucide-react";
+import { Check, Pencil, Trash2, Video } from "lucide-react";
+import { Badge, Button } from "@/components/ui";
 import type { Article } from "../types";
 
 interface ArticleListItemProps {
@@ -14,56 +15,52 @@ export function ArticleListItem({
     handleEdit,
     handleDelete
 }: ArticleListItemProps) {
-    return (
-        <div className={`bg-slate-900 border ${article.status === 'pending' ? 'border-yellow-500/50' : 'border-slate-800'} p-4 rounded-xl flex flex-col md:flex-row gap-6 items-start hover:border-blue-500/30 transition-colors`}>
-            {/* Thumbnail */}
-            <div className="w-full md:w-48 aspect-video bg-slate-950 rounded-lg overflow-hidden flex-shrink-0 border border-slate-800 group relative">
-                {article.media?.[0] ? (
-                    article.media[0].type === 'video' ? (
-                        <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-600 font-bold">VIDEO</div>
-                    ) : (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={article.media[0].url} alt={article.title} className="w-full h-full object-cover" />
-                    )
-                ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-600 text-xs">No Media</div>
-                )}
-                {article.status === 'pending' && (
-                    <div className="absolute inset-0 bg-yellow-500/20 flex items-center justify-center">
-                        <span className="bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded">PENDING</span>
-                    </div>
-                )}
-            </div>
+    const isPending = article.status === 'pending';
 
-            <div className="flex-1">
-                <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                    {article.title}
-                    {article.status === 'pending' && <span className="bg-yellow-500/10 text-yellow-500 text-[10px] px-2 py-0.5 rounded border border-yellow-500/20">NEEDS REVIEW</span>}
-                </h3>
-                <p className="text-slate-400 text-sm line-clamp-2 md:line-clamp-1 mb-3">{article.summary}</p>
-                <div className="flex items-center gap-4 text-xs text-slate-500 font-mono">
-                    <span className="text-blue-400">By: {article.authorName || 'Admin'}</span>
-                    <span>/{article.slug}</span>
-                    <span>{article.media?.length || 0} Media Items</span>
+    return (
+        <li className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center">
+            <div className="flex min-w-0 flex-1 gap-3">
+                {/* Thumbnail */}
+                <div className="flex aspect-video w-20 shrink-0 items-center justify-center overflow-hidden rounded-control border border-border bg-surface-hover text-xs text-subtle sm:w-28">
+                    {article.media?.[0] ? (
+                        article.media[0].type === 'video' ? (
+                            <Video aria-label="Video" className="size-4" />
+                        ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={article.media[0].url} alt={article.title} className="size-full object-cover" />
+                        )
+                    ) : (
+                        <span>No Media</span>
+                    )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <h3 className="min-w-0 truncate text-sm font-medium text-foreground">{article.title}</h3>
+                        {isPending ? <Badge variant="warning">Needs review</Badge> : <Badge variant="success">Published</Badge>}
+                    </div>
+                    <p className="mt-0.5 line-clamp-2 text-sm text-muted sm:line-clamp-1">{article.summary}</p>
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-subtle">
+                        <span>By: {article.authorName || 'Admin'}</span>
+                        <span className="max-w-full truncate">/{article.slug}</span>
+                        <span>{article.media?.length || 0} Media Items</span>
+                    </div>
                 </div>
             </div>
 
-            <div className="flex items-center gap-2 self-end md:self-center">
-                {article.status === 'pending' && (
-                    <button
-                        onClick={() => handleApprove(article)}
-                        className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
-                    >
-                        <Check className="w-4 h-4" /> Approve
-                    </button>
+            <div className="flex shrink-0 items-center justify-end gap-1">
+                {isPending && (
+                    <Button variant="secondary" size="sm" onClick={() => handleApprove(article)}>
+                        <Check /> Approve
+                    </Button>
                 )}
-                <button onClick={() => handleEdit(article)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
-                    <Edit className="w-5 h-5" />
-                </button>
-                <button onClick={() => handleDelete(article.id)} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                    <Trash className="w-5 h-5" />
-                </button>
+                <Button variant="ghost" size="icon-sm" onClick={() => handleEdit(article)} aria-label={`Edit ${article.title}`} title="Edit">
+                    <Pencil />
+                </Button>
+                <Button variant="danger" size="icon-sm" onClick={() => handleDelete(article.id)} aria-label={`Delete ${article.title}`} title="Delete">
+                    <Trash2 />
+                </Button>
             </div>
-        </div>
+        </li>
     );
 }

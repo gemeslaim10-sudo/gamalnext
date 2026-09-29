@@ -1,31 +1,35 @@
+import type { Metadata } from "next";
 import Contact from "@/components/sections/Contact";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { Metadata } from "next";
+import { Page, PageHeader } from "@/components/ui";
+import { LEAD_CAPTURE_DOC, normalizeLeadCapture } from "@/components/leads/settings";
+import { getCopy } from "@/lib/copy/server";
+import { getDocument } from "@/lib/server-utils";
 
-export const metadata: Metadata = {
-    title: "Contact Me | Gamal Abdelaty - Web Services",
-    description: "Contact me to discuss your next project, build a website, a Shopify store, or for any technical inquiries.",
-    keywords: ["Gamal Abdelaty", "Gamal Tech", "Web Services", "How to create a website", "Contact Me", "Web Developer"],
-    alternates: {
-        canonical: './',
-    },
-    openGraph: {
-        title: "Contact Me | Gamal Abdelaty - Gamal Web",
-        description: "Contact me to discuss your next project, web development and e-commerce services, or any technical inquiries.",
-        images: ["/og-image.png"],
-        url: 'https://gamaltech.info/contact',
-    },
-};
+// Texts are edited in the dashboard (/admin/leads/capture), so always render the latest
+export const revalidate = 0;
 
-export default function ContactPage() {
+// Google title/description: /admin/copy → Contact page (shared-link data follows them)
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getCopy();
+    return {
+        title: t("contact.seoTitle") || undefined,
+        description: t("contact.seoDescription") || undefined,
+        alternates: {
+            canonical: './',
+        },
+    };
+}
+
+export default async function ContactPage() {
+    // Falls back to the code defaults only if the read fails
+    const settings = normalizeLeadCapture(
+        await getDocument<Record<string, unknown>>(LEAD_CAPTURE_DOC.collection, LEAD_CAPTURE_DOC.id)
+    );
+
     return (
-        <div className="min-h-screen">
-            <Navbar />
-            <div className="pt-20">
-                <Contact />
-            </div>
-            <Footer />
-        </div>
+        <Page>
+            <PageHeader title={settings.contactTitle} description={settings.contactDescription} />
+            <Contact settings={settings} />
+        </Page>
     );
 }

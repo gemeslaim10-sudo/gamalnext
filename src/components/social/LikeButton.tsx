@@ -5,24 +5,33 @@ import { Heart } from "lucide-react";
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, getCountFromServer } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
+import { useCopy } from "@/components/providers/CopyProvider";
 import { toast } from "react-hot-toast";
+import { Button } from "@/components/ui";
+import { cn } from "@/lib/utils";
 
 // Module-level cache to prevent re-fetching counts on every mount
 const _likeCountCache = new Map<string, number>();
 
 export default function LikeButton({ articleId }: { articleId: string }) {
+    const t = useCopy();
     const { user } = useAuth();
     const [liked, setLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(_likeCountCache.get(articleId) ?? 0);
+    // null = still loading (a placeholder shows instead of a made-up 0)
+    const [likeCount, setLikeCount] = useState<number | null>(_likeCountCache.get(articleId) ?? null);
     const [userLikeId, setUserLikeId] = useState<string | null>(null);
+    const [countFor, setCountFor] = useState(articleId);
+
+    // A different article: start from its cached count (adjusted during render, not in an effect)
+    if (countFor !== articleId) {
+        setCountFor(articleId);
+        setLikeCount(_likeCountCache.get(articleId) ?? null);
+    }
 
     // Fetch Like Status
     useEffect(() => {
         // Skip if already cached
-        if (_likeCountCache.has(articleId)) {
-            setLikeCount(_likeCountCache.get(articleId)!);
-            return;
-        }
+        if (_likeCountCache.has(articleId)) return;
 
         async function fetchCount() {
             try {
@@ -33,6 +42,8 @@ export default function LikeButton({ articleId }: { articleId: string }) {
                 setLikeCount(count);
             } catch {
                 console.error("Error fetching likes count");
+                // Only when the count can't be read: start from zero (not cached, so the next visit retries)
+                setLikeCount((current) => current ?? 0);
             }
         }
         fetchCount();
@@ -66,13 +77,14 @@ export default function LikeButton({ articleId }: { articleId: string }) {
 
     const handleToggle = async () => {
         if (!user) {
-            toast.error("You must log in to like this article");
+            toast.error(t("blog.likeLoginRequired"));
             return;
         }
 
         // Optimistic UI
         const prevLiked = liked;
-        const newCount = prevLiked ? likeCount - 1 : likeCount + 1;
+        const prevCount = likeCount ?? 0;
+        const newCount = prevLiked ? prevCount - 1 : prevCount + 1;
         setLiked(!liked);
         setLikeCount(newCount);
         _likeCountCache.set(articleId, newCount); // Update cache too
@@ -94,20 +106,26 @@ export default function LikeButton({ articleId }: { articleId: string }) {
         } catch {
             // Revert
             setLiked(prevLiked);
-            setLikeCount(likeCount);
-            _likeCountCache.set(articleId, likeCount);
-            toast.error("Update failed");
+            setLikeCount(prevCount);
+            _likeCountCache.set(articleId, prevCount);
+            toast.error(t("blog.likeFailed"));
         }
     };
 
     return (
-        <button
+        <Button
+            variant="ghost"
+            size="sm"
             onClick={handleToggle}
-            aria-label={liked ? `Unlike (${likeCount} likes)` : `Like (${likeCount} likes)`}
-            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border transition-all text-xs sm:text-sm ${liked ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-slate-800/50 border-slate-700/50 text-slate-300 hover:bg-slate-800 hover:border-red-500/50 hover:text-red-400'}`}
+            aria-label={liked ? `Unlike (${likeCount ?? 0} likes)` : `Like (${likeCount ?? 0} likes)`}
+            className={cn(liked && "text-foreground")}
         >
-            <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-current' : ''}`} />
-            <span className="font-bold">{likeCount}</span>
-        </button>
+            <Heart className={cn(liked && "fill-current")} />
+            {likeCount === null ? (
+                <span aria-hidden className="h-3 w-3 animate-pulse rounded-control bg-surface-hover" />
+            ) : (
+                <span className="tabular-nums">{likeCount}</span>
+            )}
+        </Button>
     );
 }

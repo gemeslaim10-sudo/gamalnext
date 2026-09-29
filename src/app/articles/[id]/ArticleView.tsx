@@ -1,20 +1,22 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
+import { useCopy } from "@/components/providers/CopyProvider";
+import { Page } from "@/components/ui";
+import CommentSection from "@/components/social/CommentSection";
 import RelatedArticles from "./RelatedArticles";
 import type { FirebaseTimestamp } from "@/types";
-import { formatTimestamp } from "@/types";
+import { formatTimestamp, getTimestampMs } from "@/types";
 
 import { ArticleHeader } from "./components/ArticleHeader";
 import { ArticleMedia } from "./components/ArticleMedia";
 import { ArticleBody } from "./components/ArticleBody";
+import { ArticleActions } from "./components/ArticleActions";
 
 type Article = {
     id: string;
@@ -24,9 +26,11 @@ type Article = {
     media: { url: string; type: 'image' | 'video' }[];
     createdAt?: FirebaseTimestamp;
     authorId: string;
+    authorName?: string;
 }
 
 export default function ArticleView({ article }: { article: Article }) {
+    const t = useCopy();
     const { user } = useAuth();
     const router = useRouter();
     const [deleting, setDeleting] = useState(false);
@@ -43,57 +47,67 @@ export default function ArticleView({ article }: { article: Article }) {
     }, [article.title, article.content]);
 
     const handleDelete = async () => {
-        if (!confirm("Are you sure you want to delete this article? This action cannot be undone.")) {
+        if (!confirm(t("blog.deleteConfirm"))) {
             return;
         }
 
         setDeleting(true);
-        toast.loading("Deleting article...", { id: "delete" });
+        toast.loading(t("blog.deleting"), { id: "delete" });
 
         try {
             await deleteDoc(doc(db, "articles", article.id));
-            toast.success("Article deleted successfully!", { id: "delete" });
+            toast.success(t("blog.deleted"), { id: "delete" });
             router.push("/articles");
         } catch (error) {
             console.error("Delete error:", error);
-            toast.error("Failed to delete article", { id: "delete" });
+            toast.error(t("blog.deleteFailed"), { id: "delete" });
             setDeleting(false);
         }
     };
 
     // Handle date formatting
-    const formattedDate = formatTimestamp(article.createdAt, 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || 'Recently';
+    const formattedDate = formatTimestamp(article.createdAt, 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || t("blog.dateUnknown");
+    const createdAtMs = getTimestampMs(article.createdAt);
 
     return (
-        <div className="min-h-screen bg-[#020617] relative selection:bg-blue-500/30 selection:text-blue-200">
-            {/* Rich Background Effects */}
-            <div className="absolute top-0 inset-x-0 h-[800px] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.15),rgba(255,255,255,0))] pointer-events-none"></div>
-            <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-5 pointer-events-none"></div>
+        <Page>
+            <article className="mx-auto max-w-content">
+                <ArticleHeader
+                    title={article.title}
+                    authorId={article.authorId}
+                    authorName={article.authorName}
+                    formattedDate={formattedDate}
+                    isoDate={createdAtMs ? new Date(createdAtMs).toISOString() : undefined}
+                    contentDir={contentDir}
+                />
 
-            <Navbar />
+                {article.media?.length > 0 && (
+                    <div className="mt-8">
+                        <ArticleMedia media={article.media} title={article.title} />
+                    </div>
+                )}
 
-            <ArticleHeader
-                articleId={article.id}
-                title={article.title}
-                summary={article.summary}
-                isAuthor={isAuthor || false}
-                deleting={deleting}
-                formattedDate={formattedDate}
-                handleDelete={handleDelete}
-            />
+                <div className="mt-8">
+                    <ArticleBody content={article.content} contentDir={contentDir} />
+                </div>
 
-            <ArticleMedia media={article.media} title={article.title} />
+                <div className="mt-10">
+                    <ArticleActions
+                        articleId={article.id}
+                        title={article.title}
+                        summary={article.summary}
+                        isAuthor={!!isAuthor}
+                        deleting={deleting}
+                        handleDelete={handleDelete}
+                    />
+                </div>
 
-            <ArticleBody
-                articleId={article.id}
-                content={article.content}
-                contentDir={contentDir}
-            />
+                <div className="mt-10">
+                    <CommentSection articleId={article.id} />
+                </div>
+            </article>
 
             <RelatedArticles currentArticleId={article.id} />
-
-            <Footer />
-            <Toaster />
-        </div>
+        </Page>
     );
 }

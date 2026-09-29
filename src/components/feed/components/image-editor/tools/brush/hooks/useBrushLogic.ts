@@ -1,5 +1,15 @@
 import { useRef, useState, useEffect, PointerEvent } from "react";
-import { applyCanvasOverlay } from "../../../shared/utils";
+import { applyCanvasOverlay, fitCanvasToImage } from "../../../shared/utils";
+
+/** Sizes the canvas to the image and sets the stroke shape (resizing resets the context). */
+function prepareCanvas(canvas: HTMLCanvasElement, img: HTMLImageElement) {
+    fitCanvasToImage(canvas, img);
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+    }
+}
 
 interface UseBrushLogicProps {
     imageSrc: string;
@@ -24,18 +34,20 @@ export function useBrushLogic({ imageSrc, isActive, onCommit, color, size, opaci
         img.onload = () => {
             imageRef.current = img;
             setImageLoaded(true);
-            if (canvasRef.current) {
-                canvasRef.current.width = img.width;
-                canvasRef.current.height = img.height;
-                const ctx = canvasRef.current.getContext("2d");
-                if (ctx) {
-                    ctx.lineCap = "round";
-                    ctx.lineJoin = "round";
-                }
-            }
+            // Canvas already on screen (a commit changed the image while the tool stays open)
+            if (canvasRef.current) prepareCanvas(canvasRef.current, img);
         };
         img.src = imageSrc;
     }, [imageSrc]);
+
+    // The canvas only mounts once the tool is active and the image has loaded — usually after the
+    // onload above already ran — so size it here as well. Otherwise it keeps the default 300×150
+    // until the first commit and the first stroke lands in the wrong place.
+    useEffect(() => {
+        if (isActive && imageLoaded && canvasRef.current && imageRef.current) {
+            prepareCanvas(canvasRef.current, imageRef.current);
+        }
+    }, [isActive, imageLoaded]);
 
     const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
         if (!isActive) return;

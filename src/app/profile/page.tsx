@@ -1,30 +1,30 @@
-import Navbar from "@/components/layout/Navbar";
+import type { Metadata } from "next";
 import Hero from "@/components/sections/Hero";
+import Services from "@/components/sections/Services";
 import FeaturedProjects from "@/components/projects/FeaturedProjects";
-import FeaturedTools from "@/components/sections/FeaturedTools";
 import TrendingArticles from "@/components/articles/TrendingArticles";
 import Reviews from "@/components/reviews/Reviews";
-import Footer from "@/components/layout/Footer";
+import { Container } from "@/components/ui";
+import { getCopy } from "@/lib/copy/server";
 
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-    title: "Profile",
-    description: "Welcome to my personal portfolio and professional profile.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getCopy();
+    return {
+        title: t("profile.seoTitle") || undefined,
+        description: t("profile.seoDescription") || undefined,
+    };
+}
 
 export const revalidate = 0; // Revalidate immediately (dynamic)
 
 export default function ProfilePage() {
-  return (
-    <main className="min-h-screen flex flex-col">
-      <Navbar />
-      <Hero />
-      <FeaturedProjects />
-      <FeaturedTools />
-      <TrendingArticles />
-      <Reviews />
-      <Footer />
-    </main>
-  );
+    return (
+        <Container>
+            <Hero />
+            <Services />
+            <FeaturedProjects />
+            <TrendingArticles />
+            <Reviews />
+        </Container>
+    );
 }

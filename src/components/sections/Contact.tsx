@@ -1,76 +1,118 @@
 'use client';
-import { MessageSquare, Mail, MapPin, Send } from 'lucide-react';
-import Reveal from './Reveal';
-import { useContact } from './hooks/useContact';
 
-export default function Contact() {
-    const { contact, handleSubmit } = useContact();
+import { useState } from 'react';
+import { MapPin } from 'lucide-react';
+import { useBrandingContext } from '@/components/providers/BrandingProvider';
+import { useCopy } from '@/components/providers/CopyProvider';
+import { SocialIcon } from '@/components/icons/SocialIcon';
+import { LeadForm } from '@/components/leads/LeadForm';
+import { LeadSuccess } from '@/components/leads/LeadSuccess';
+import { fillName, type LeadCaptureSettings } from '@/components/leads/settings';
+import { ButtonLink, Card } from '@/components/ui';
+import type { CopyKey } from '@/config/copy';
+import { getSocialLinks, type SocialKind } from '@/lib/social';
+import { cn } from '@/lib/utils';
+
+/** Labels above each value in the contact details column (/admin/copy → Contact page). */
+const DETAIL_LABELS: Record<SocialKind, CopyKey> = {
+    whatsapp: 'contact.whatsappLabel',
+    email: 'contact.emailLabel',
+    github: 'contact.githubLabel',
+    linkedin: 'contact.linkedinLabel',
+};
+
+/**
+ * Contact form + contact details. Form texts and headings come from `settings` (site_content/lead_capture,
+ * /admin/leads/capture); the detail labels are editable texts; the values come from the owner settings.
+ */
+export default function Contact({ settings }: { settings: LeadCaptureSettings }) {
+    const t = useCopy();
+    const branding = useBrandingContext();
+    const links = getSocialLinks(branding);
+    const whatsapp = links.find((link) => link.kind === 'whatsapp');
+    const location = branding?.ownerLocation || '';
+    const hasDetails = links.length > 0 || Boolean(location);
+    const [sentName, setSentName] = useState<string | null>(null);
+
+    const whatsappButton = whatsapp && (
+        <ButtonLink href={whatsapp.href} external variant="secondary" className="w-full sm:w-auto">
+            <SocialIcon kind="whatsapp" />
+            {settings.whatsappLabel}
+        </ButtonLink>
+    );
 
     return (
-        <section id="contact" className="py-16 md:py-20 bg-slate-950 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-900/20 rounded-full blur-[80px]"></div>
+        <div className={cn('grid items-start gap-6', hasDetails ? 'lg:grid-cols-3' : 'max-w-content')}>
+            <Card padding="lg" className={cn(hasDetails && 'lg:col-span-2')}>
+                {sentName !== null ? (
+                    <LeadSuccess
+                        compact
+                        title={fillName(settings.successTitle, sentName)}
+                        message={settings.successMessage}
+                        actions={whatsappButton && <div className="flex flex-wrap gap-2">{whatsappButton}</div>}
+                    />
+                ) : (
+                    <>
+                        <h2 className="text-base font-semibold text-foreground">{settings.contactFormTitle}</h2>
+                        <p className="mt-1 text-sm text-muted">{settings.contactFormDescription}</p>
+                        <LeadForm
+                            className="mt-5"
+                            source="contact"
+                            showMessage
+                            texts={{
+                                ...settings,
+                                messageLabel: settings.contactMessageLabel,
+                                messagePlaceholder: settings.contactMessagePlaceholder,
+                                submitLabel: settings.contactSubmitLabel,
+                            }}
+                            onSuccess={setSentName}
+                            actions={whatsappButton}
+                        />
+                    </>
+                )}
+            </Card>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-                <Reveal className="text-center mb-12 md:mb-16">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Contact Us</h2>
-                    <p className="text-slate-400">We welcome discussing collaboration and strategic partnership opportunities.</p>
-                </Reveal>
+            {hasDetails && (
+                <Card padding="none" className="overflow-hidden">
+                    {/* Same top padding as the form card so both headings line up on wide screens */}
+                    <h2 className="border-b border-border px-5 pb-4 pt-5 text-base font-semibold text-foreground sm:px-6 sm:pt-6">
+                        {settings.contactDetailsTitle}
+                    </h2>
+                    <ul className="divide-y divide-border">
+                        {links.map((link) => (
+                            <li key={link.kind}>
+                                <a
+                                    href={link.href}
+                                    target={link.kind === 'email' ? undefined : '_blank'}
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-surface-hover sm:px-6"
+                                >
+                                    <SocialIcon kind={link.kind} className="size-4 shrink-0 text-muted" />
+                                    <DetailText label={t(DETAIL_LABELS[link.kind])} value={link.display} />
+                                </a>
+                            </li>
+                        ))}
+                        {location && (
+                            <li className="flex items-center gap-3 px-5 py-3 sm:px-6">
+                                <MapPin aria-hidden className="size-4 shrink-0 text-muted" />
+                                <DetailText label={t('contact.locationLabel')} value={location} />
+                            </li>
+                        )}
+                    </ul>
+                </Card>
+            )}
+        </div>
+    );
+}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                    {/* Info */}
-                    <Reveal className="stagger-1 space-y-5 md:space-y-6">
-                        <div className="glass-card p-6 rounded-2xl flex items-center gap-5 group hover:bg-slate-800/40 transition-colors">
-                            <div className="bg-green-500/10 p-4 rounded-xl border border-green-500/20 group-hover:border-green-500/50 transition-colors">
-                                <MessageSquare className="w-6 h-6 text-green-500" />
-                            </div>
-                            <div>
-                                <h4 className="text-slate-400 font-medium text-xs mb-1">Instant Contact</h4>
-                                <p className="text-white font-mono text-xl font-bold tracking-wider">{contact.phoneDisplay}</p>
-                                <p className="text-slate-500 font-mono text-sm">{contact.phoneAlt}</p>
-                            </div>
-                        </div>
-                        <div className="glass-card p-6 rounded-2xl flex items-center gap-5 group hover:bg-slate-800/40 transition-colors">
-                            <div className="bg-blue-500/10 p-4 rounded-xl border border-blue-500/20 group-hover:border-blue-500/50 transition-colors">
-                                <Mail className="w-6 h-6 text-blue-500" />
-                            </div>
-                            <div className="overflow-hidden">
-                                <h4 className="text-slate-400 font-medium text-xs mb-1">Official Emails</h4>
-                                <p className="text-white font-mono font-bold truncate hover:text-blue-400 transition-colors cursor-pointer">{contact.emailPrimary}</p>
-                                <p className="text-slate-500 font-mono text-sm truncate">{contact.emailSecondary}</p>
-                            </div>
-                        </div>
-                        <div className="glass-card p-6 rounded-2xl flex items-center gap-5 group hover:bg-slate-800/40 transition-colors">
-                            <div className="bg-purple-500/10 p-4 rounded-xl border border-purple-500/20 group-hover:border-purple-500/50 transition-colors">
-                                <MapPin className="w-6 h-6 text-purple-500" />
-                            </div>
-                            <div>
-                                <h4 className="text-slate-400 font-medium text-xs mb-1">Location</h4>
-                                <p className="text-white font-bold">{contact.location}</p>
-                            </div>
-                        </div>
-                    </Reveal>
-
-                    {/* Form */}
-                    <Reveal className="stagger-2 glass-card p-8 rounded-3xl relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-transparent"></div>
-                        <h3 className="text-2xl font-bold text-white mb-8">Direct Contact Form</h3>
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="space-y-2">
-                                <label htmlFor="name" className="text-slate-300 text-sm font-medium pl-1">Full Name</label>
-                                <input type="text" id="name" name="name" required className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder:text-slate-600" placeholder="Please enter your name..." />
-                            </div>
-                            <div className="space-y-2">
-                                <label htmlFor="message" className="text-slate-300 text-sm font-medium pl-1">Message Content</label>
-                                <textarea id="message" name="message" required rows={5} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none placeholder:text-slate-600" placeholder="Please clarify the nature of your inquiry or proposed project..."></textarea>
-                            </div>
-                            <button type="submit" className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-3">
-                                <Send className="w-5 h-5" />
-                                Send Inquiry
-                            </button>
-                        </form>
-                    </Reveal>
-                </div>
-            </div>
-        </section>
+function DetailText({ label, value }: { label: string; value: string }) {
+    return (
+        <span className="min-w-0 flex-1">
+            <span className="block text-xs text-subtle">{label}</span>
+            {/* dir="auto" keeps Arabic values readable; text-left keeps them lined up with the label */}
+            <span dir="auto" className="block truncate text-left text-sm text-foreground">
+                {value}
+            </span>
+        </span>
     );
 }

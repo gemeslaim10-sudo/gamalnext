@@ -11,6 +11,8 @@ export interface BrandingSettings {
     ownerBio?: string;
     ownerRole?: string;
     ownerLocation?: string;
+    availabilityStatus?: string;
+    ownerBadges?: string;
     githubUrl?: string;
     linkedinUrl?: string;
     emailAddress?: string;

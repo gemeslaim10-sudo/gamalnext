@@ -1,4 +1,5 @@
 import { ToolDisplayProps } from "../../shared/types";
+import { useCopy } from "@/components/providers/CopyProvider";
 import { useTextLogic } from "./hooks/useTextLogic";
 
 export interface TextToolProps extends ToolDisplayProps {
@@ -19,26 +20,27 @@ export function TextTool({ imageSrc, isActive, onCommit, color, size, align, dir
         handlePointerDown,
         handleApplyText
     } = useTextLogic({ imageSrc, isActive, onCommit, color, size, align, dir });
+    const t = useCopy();
 
     if (!isActive) return null;
 
     return (
-        <div ref={containerRef} className="relative inline-flex max-w-full max-h-[65vh] rounded-lg overflow-hidden shadow-xl">
-            <img 
-                src={imageSrc} 
-                alt="Draw target" 
-                className="max-w-full max-h-[65vh] block pointer-events-none"
+        <div ref={containerRef} className="relative inline-flex max-h-[65vh] max-w-full overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+                src={imageSrc}
+                alt="Draw target"
+                className="pointer-events-none block max-h-[65vh] max-w-full"
                 crossOrigin="anonymous"
             />
             {imageLoaded && (
                 <canvas
                     ref={canvasRef}
                     onPointerDown={handlePointerDown}
-                    className="absolute inset-0 w-full h-full cursor-text"
-                    style={{ touchAction: "none" }}
+                    className="absolute inset-0 h-full w-full cursor-text touch-none"
                 />
             )}
-            
+
             {textInput.visible && (
                 <input
                     ref={inputRef}
@@ -51,8 +53,9 @@ export function TextTool({ imageSrc, isActive, onCommit, color, size, align, dir
                     onBlur={() => {
                         setTimeout(handleApplyText, 150);
                     }}
-                    className="absolute bg-transparent border-b-2 border-blue-500 border-dashed outline-none"
+                    className="absolute border-b-2 border-dashed border-foreground bg-transparent outline-none"
                     style={{
+                        // Text color and size are the user's choices from the toolbar
                         left: textInput.x,
                         top: textInput.y,
                         color: color,
@@ -63,7 +66,7 @@ export function TextTool({ imageSrc, isActive, onCommit, color, size, align, dir
                         textAlign: align,
                         direction: dir
                     }}
-                    placeholder="Type..."
+                    placeholder={t("account.editorTextPlaceholder")}
                 />
             )}
         </div>

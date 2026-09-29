@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "react-hot-toast";
-import { revalidateProjects } from "@/app/actions";
+import { refreshSite } from "@/lib/refreshSite";
 import { type ProjectsForm } from "../types";
 
 export function useProjectsAdmin() {
@@ -60,7 +60,7 @@ export function useProjectsAdmin() {
     const onSubmit = async (data: ProjectsForm) => {
         try {
             await setDoc(doc(db, "site_content", "projects"), data);
-            await revalidateProjects();
+            await refreshSite();
             toast.success("تم تحديث المشاريع بنجاح!");
         } catch {
             toast.error("حدث خطأ أثناء الحفظ.");

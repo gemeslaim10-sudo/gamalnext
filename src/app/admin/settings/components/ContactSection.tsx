@@ -1,5 +1,7 @@
 import { UseFormRegister } from "react-hook-form";
 import { SettingsForm } from "../types";
+import { SectionCard } from "@/components/admin/SectionCard";
+import { Field, Input } from "@/components/ui";
 
 interface ContactSectionProps {
     register: UseFormRegister<SettingsForm>;
@@ -7,30 +9,27 @@ interface ContactSectionProps {
 
 export function ContactSection({ register }: ContactSectionProps) {
     return (
-        <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Social Media & Contact</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">GitHub URL</label>
-                    <input {...register("githubUrl")} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">LinkedIn URL</label>
-                    <input {...register("linkedinUrl")} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">Email Address</label>
-                    <input {...register("emailAddress")} type="email" className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">Phone Number</label>
-                    <input {...register("phoneDisplay")} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">WhatsApp Number</label>
-                    <input {...register("whatsappNumber")} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
+        <SectionCard title="Social Media & Contact" description="Links and numbers visitors use to reach you.">
+            <div className="grid gap-4 md:grid-cols-2">
+                <Field label="GitHub URL" htmlFor="settings-github">
+                    <Input id="settings-github" {...register("githubUrl")} />
+                </Field>
+                <Field label="LinkedIn URL" htmlFor="settings-linkedin">
+                    <Input id="settings-linkedin" {...register("linkedinUrl")} />
+                </Field>
+                <Field label="Email Address" htmlFor="settings-email">
+                    <Input id="settings-email" {...register("emailAddress")} type="email" />
+                </Field>
+                <Field label="Phone Number" htmlFor="settings-phone">
+                    <Input id="settings-phone" inputMode="tel" {...register("phoneDisplay")} />
+                </Field>
+                <Field label="WhatsApp Number" htmlFor="settings-whatsapp">
+                    <Input id="settings-whatsapp" inputMode="tel" {...register("whatsappNumber")} />
+                </Field>
+                <Field label="Availability Badge (leave empty to hide)" htmlFor="settings-availability">
+                    <Input id="settings-availability" {...register("availabilityStatus")} placeholder="Available" />
+                </Field>
             </div>
-        </div>
+        </SectionCard>
     );
 }

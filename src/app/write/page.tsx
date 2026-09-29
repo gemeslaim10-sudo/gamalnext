@@ -1,13 +1,19 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { getCopy } from "@/lib/copy/server";
 import WriteClientPage from "./WriteClientPage";
 
-export const metadata: Metadata = {
-    title: "كتابة مقال جديد | جمال تك",
-    description: "شارك خبراتك ومعرفتك. اكتب مقالات تقنية وانشرها على جمال تك.",
-    alternates: {
-        canonical: './',
-    },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getCopy();
+    return {
+        title: t("account.writeSeoTitle"),
+        description: t("account.writeSeoDescription"),
+        alternates: {
+            canonical: "./",
+        },
+        // Only useful to signed-in members (robots.txt already disallows /write)
+        robots: { index: false, follow: false },
+    };
+}
 
 export default function Page() {
     return <WriteClientPage />;

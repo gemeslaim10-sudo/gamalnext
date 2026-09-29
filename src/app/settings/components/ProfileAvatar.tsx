@@ -1,4 +1,6 @@
 import { Camera } from "lucide-react";
+import { Avatar, Button } from "@/components/ui";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 interface ProfileAvatarProps {
     photoURL: string;
@@ -6,22 +8,16 @@ interface ProfileAvatarProps {
     handlePhotoUpload: () => void;
 }
 
+/** Photo row at the top of the profile card. The new photo is stored with "Save". */
 export function ProfileAvatar({ photoURL, name, handlePhotoUpload }: ProfileAvatarProps) {
+    const t = useCopy();
     return (
-        <div className="flex justify-center mb-8 relative">
-            <div className="relative group cursor-pointer" onClick={handlePhotoUpload}>
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-slate-800 bg-slate-950 shadow-xl">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src={photoURL || "https://ui-avatars.com/api/?name=" + (name || "User") + "&background=0D8ABC&color=fff"}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                    />
-                </div>
-                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Camera className="w-8 h-8 text-white" />
-                </div>
-            </div>
+        <div className="flex items-center gap-4 border-b border-border pb-6">
+            <Avatar src={photoURL} alt={name || "Profile photo"} size={64} />
+            <Button variant="secondary" onClick={handlePhotoUpload}>
+                <Camera />
+                {t("account.settingsChangePhoto")}
+            </Button>
         </div>
     );
 }

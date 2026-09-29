@@ -2,45 +2,55 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useCopy } from '@/components/providers/CopyProvider';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Star, Send, User } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { Button, Card, Field, Skeleton, Textarea } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
+/**
+ * Review form on the profile page. The security rules only accept reviews from signed-in members
+ * (with `userId` = their uid), so visitors get a log in prompt instead of a form that can't be sent.
+ * Every text is editable in /admin/copy → Profile page.
+ */
 export default function AddReview({ onAdded }: { onAdded?: () => void }) {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
+    const t = useCopy();
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState("");
-    const [guestName, setGuestName] = useState("");
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
 
-        if (!user && !guestName.trim()) {
-            toast.error("Please enter your name to continue");
+        if (!comment.trim()) {
+            setError(t("profile.reviewCommentRequired"));
             return;
         }
 
         setLoading(true);
         try {
             await addDoc(collection(db, "reviews"), {
-                uid: user ? user.uid : "guest",
-                userName: user ? (user.displayName || "Anonymous") : guestName,
-                userImage: user ? (user.photoURL || "") : "",
+                uid: user.uid,
+                userId: user.uid, // required by the reviews security rule
+                userName: user.displayName || t("profile.reviewAnonymous"),
+                userImage: user.photoURL || "",
                 rating,
-                comment,
+                comment: comment.trim(),
                 status: "pending", // Default pending approval
                 createdAt: serverTimestamp(),
-                isGuest: !user
+                isGuest: false
             });
-            toast.success("Review received successfully, pending approval.");
+            toast.success(t("profile.reviewSuccess"));
             setComment("");
-            setGuestName("");
             setRating(5);
             if (onAdded) onAdded();
         } catch (e) {
-            toast.error("Failed to submit review, please try again later");
+            toast.error(t("profile.reviewFailed"));
             console.error(e);
         } finally {
             setLoading(false);
@@ -48,73 +58,69 @@ export default function AddReview({ onAdded }: { onAdded?: () => void }) {
     };
 
     return (
-        <div className="glass-card border border-slate-800 rounded-3xl p-8 max-w-2xl mx-auto relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-transparent opacity-50"></div>
+        <Card padding="lg" className="max-w-content">
+            <h3 className="text-base font-semibold text-foreground">{t("profile.reviewFormTitle")}</h3>
 
-            <h3 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
-                <div className="bg-yellow-500/10 p-2 rounded-xl">
-                    <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+            {authLoading ? (
+                // Signed-in state is only known in the browser; a quiet placeholder avoids flashing the wrong view
+                <Skeleton className="mt-4 h-10" />
+            ) : !user ? (
+                <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm leading-relaxed text-muted">{t("profile.reviewLoginText")}</p>
+                    {/* The navbar owns the sign-in dialog and opens it on this event */}
+                    <Button
+                        variant="secondary"
+                        onClick={() => document.dispatchEvent(new CustomEvent("open-auth-modal"))}
+                        className="shrink-0 self-start sm:self-auto"
+                    >
+                        {t("profile.reviewLoginButton")}
+                    </Button>
                 </div>
-                Share your Review
-            </h3>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-3">Rating</label>
-                    <div className="flex gap-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                                key={star}
-                                type="button"
-                                onClick={() => setRating(star)}
-                                className="focus:outline-none transition-transform hover:scale-110"
-                            >
-                                <Star
-                                    className={`w-8 h-8 transition-colors ${rating >= star ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]' : 'text-slate-700'}`}
-                                />
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {!user && (
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                value={guestName}
-                                onChange={(e) => setGuestName(e.target.value)}
-                                required
-                                className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-4 pl-12 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder:text-slate-600"
-                                placeholder="Please enter your name..."
-                            />
-                            <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" />
+            ) : (
+                <form onSubmit={handleSubmit} noValidate className="mt-5 space-y-5">
+                    <fieldset>
+                        <legend className="text-sm font-medium text-foreground">{t("profile.reviewRating")}</legend>
+                        <div className="mt-1.5 flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                    key={star}
+                                    type="button"
+                                    onClick={() => setRating(star)}
+                                    aria-label={`Rate ${star} out of 5`}
+                                    aria-pressed={rating === star}
+                                    className="flex size-10 items-center justify-center rounded-control transition-colors hover:bg-surface-hover"
+                                >
+                                    <Star
+                                        aria-hidden
+                                        className={cn('size-6', rating >= star ? 'fill-current text-foreground' : 'text-subtle')}
+                                    />
+                                </button>
+                            ))}
                         </div>
-                    </div>
-                )}
+                    </fieldset>
 
-                <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">General Impression and Comments</label>
-                    <textarea
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        required
-                        rows={4}
-                        className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none placeholder:text-slate-600"
-                        placeholder="Please write your comments here..."
-                    />
-                </div>
+                    <Field label={t("profile.reviewComment")} htmlFor="review-comment" error={error}>
+                        <Textarea
+                            id="review-comment"
+                            value={comment}
+                            onChange={(e) => {
+                                setComment(e.target.value);
+                                if (error) setError("");
+                            }}
+                            aria-required
+                            aria-invalid={Boolean(error)}
+                            rows={4}
+                            dir="auto"
+                            className="resize-y"
+                            placeholder={t("profile.reviewCommentPlaceholder")}
+                        />
+                    </Field>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/25 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:-translate-y-1 active:scale-[0.98]"
-                >
-                    <Send className="w-5 h-5" />
-                    {loading ? "Processing..." : "Submit Review"}
-                </button>
-            </form>
-        </div>
+                    <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+                        {loading ? t("profile.reviewSubmitting") : t("profile.reviewSubmit")}
+                    </Button>
+                </form>
+            )}
+        </Card>
     );
 }

@@ -1,144 +1,151 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Bot, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-
-// Extracted Sub-components
-import ChatHeader from "../chat/ChatHeader";
-import ChatMessage from "../chat/ChatMessage";
-import ChatInput from "../chat/ChatInput";
-
+import { useEffect, useRef, useState } from "react";
+import { MessageCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { usePresence } from "@/hooks/usePresence";
+import ChatHeader from "./ChatHeader";
+import ChatMessage from "./ChatMessage";
+import ChatInput from "./ChatInput";
 import { useAiChat } from "./useAiChat";
-import { usePathname } from "next/navigation";
+import { OVERLAY_TRANSITION, Skeleton, Spinner } from "@/components/ui";
 
-interface AiChatWidgetProps {
-    inline?: boolean;
-}
+/** Shown only if the dashboard texts can't be loaded. */
+const FALLBACK = { title: "Assistant", placeholder: "Type your message…" };
 
-export default function AiChatWidget({ inline = false }: AiChatWidgetProps = {}) {
-    const [isOpen, setIsOpen] = useState(inline);
-    const pathname = usePathname();
-    const isHomePage = pathname === '/';
-    
-    const { messages, input, setInput, loading, handleSubmit, clearChat } = useAiChat(isOpen);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+/** The only entry point to the assistant: a round button that opens a chat panel. */
+export default function AiChatWidget() {
+    const [isOpen, setIsOpen] = useState(false);
+    const { messages, input, setInput, loading, handleSubmit, clearChat, config, configStatus, welcome } = useAiChat(isOpen);
+    const endRef = useRef<HTMLDivElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
+    const launcherRef = useRef<HTMLButtonElement>(null);
+    const wasOpen = useRef(false);
+    // Keeps the panel on screen while it animates out
+    const { mounted, state } = usePresence(isOpen);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
+    const configLoading = configStatus === "idle" || configStatus === "loading";
+    const title = config?.assistantName || (configLoading ? "" : FALLBACK.title);
 
     useEffect(() => {
-        scrollToBottom();
-    }, [messages, isOpen]);
+        endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, [messages, loading, isOpen]);
 
-    // Listen for external open trigger (from GlobalSidebar)
+    // Any component can open the chat with: document.dispatchEvent(new CustomEvent("open-chat-widget"))
     useEffect(() => {
-        const handleOpenChat = () => setIsOpen(true);
-        document.addEventListener('open-chat-widget', handleOpenChat);
-        return () => document.removeEventListener('open-chat-widget', handleOpenChat);
+        const open = () => setIsOpen(true);
+        document.addEventListener("open-chat-widget", open);
+        return () => document.removeEventListener("open-chat-widget", open);
     }, []);
 
-    // Completely hide the floating widget on the homepage for ALL devices, 
-    // because we display it inline instead
-    if (!inline && isHomePage) {
-        return null;
-    }
+    // Opening moves focus into the panel (not the input, so phones don't pop up the keyboard);
+    // closing gives it back to the chat button
+    useEffect(() => {
+        if (isOpen) panelRef.current?.focus({ preventScroll: true });
+        else if (wasOpen.current) launcherRef.current?.focus({ preventScroll: true });
+        wasOpen.current = isOpen;
+    }, [isOpen]);
 
-    const inlineClasses = "w-full h-[500px] md:h-[600px] bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl shadow-xl flex flex-col overflow-hidden";
-    const floatingClasses = "w-[calc(100vw-32px)] sm:w-[400px] h-[80dvh] sm:h-[600px] max-h-[800px] bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl flex flex-col overflow-hidden";
+    useEffect(() => {
+        if (!isOpen) return undefined;
+        const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsOpen(false);
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+    }, [isOpen]);
 
-    const chatWindowClasses = inline ? inlineClasses : floatingClasses;
-
-    const handleCopyChat = () => {
-        if (messages.length === 0) return;
-        const formattedChat = messages.map(msg => {
-            const sender = msg.role === 'model' ? '🤖 Smart Assistant' : '👤 Guest/Client';
-            return `${sender}:\n${msg.text}\n`;
-        }).join('\n');
-        
-        navigator.clipboard.writeText(formattedChat);
-        import('react-hot-toast').then(({ toast }) => {
-            toast.success('Chat copied to clipboard!');
-        });
+    const handleCopyChat = async () => {
+        if (messages.length === 0) return false;
+        const formatted = messages
+            .filter((msg) => !msg.isError)
+            .map((msg) => `${msg.role === "model" ? title || FALLBACK.title : "Me"}:\n${msg.text}\n`)
+            .join("\n");
+        try {
+            await navigator.clipboard.writeText(formatted);
+            return true;
+        } catch {
+            return false;
+        }
     };
-
-    const chatContent = (
-        <div className={chatWindowClasses}>
-            {/* Header Component */}
-            <ChatHeader 
-                onClose={inline ? undefined : () => setIsOpen(false)} 
-                onCopyChat={handleCopyChat}
-                onClearChat={clearChat}
-            />
-
-            {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-                {messages.length === 0 && loading && (
-                    <div className="text-center mt-10 space-y-4">
-                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto" />
-                        <p className="text-slate-400 text-sm">Preparing...</p>
-                    </div>
-                )}
-
-                {messages.map((msg, idx) => (
-                    <ChatMessage key={idx} role={msg.role} text={msg.text} isError={msg.isError} />
-                ))}
-
-                {loading && messages.length > 0 && (
-                    <div className="flex items-center gap-2 text-slate-500 text-sm p-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Typing...</span>
-                    </div>
-                )}
-                <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input Area Component */}
-            <ChatInput
-                input={input}
-                setInput={setInput}
-                onSubmit={handleSubmit}
-                loading={loading}
-            />
-        </div>
-    );
-
-    if (inline) {
-        return chatContent;
-    }
 
     return (
         <>
-            {/* Toggle Button */}
-            {!isOpen && (
-                <motion.button
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsOpen(true)}
-                    className="fixed bottom-[80px] sm:bottom-[104px] right-4 sm:right-6 z-50 p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-lg shadow-blue-500/20 text-white cursor-pointer group"
-                >
-                    <Bot className="w-7 h-7 sm:w-8 sm:h-8 group-hover:rotate-12 transition-transform" />
-                    <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-red-500 rounded-full animate-pulse border-2 border-slate-900"></span>
-                </motion.button>
-            )}
-
-            {/* Chat Window */}
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 50, scale: 0.9 }}
-                        transition={{ duration: 0.2 }}
-                        className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-50 origin-bottom-right"
-                    >
-                        {chatContent}
-                    </motion.div>
+            {/* The button stays mounted and fades out under the panel, so opening and closing feel like one motion */}
+            <button
+                ref={launcherRef}
+                type="button"
+                onClick={() => setIsOpen(true)}
+                aria-label="Open chat assistant"
+                aria-expanded={isOpen}
+                inert={isOpen}
+                data-state={isOpen ? "closed" : "open"}
+                className={cn(
+                    "fixed bottom-4 right-4 z-30 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-popover hover:bg-primary-hover active:scale-95 sm:bottom-6 sm:right-6",
+                    OVERLAY_TRANSITION,
+                    "data-[state=closed]:scale-75 data-[state=closed]:opacity-0"
                 )}
-            </AnimatePresence>
+            >
+                <MessageCircle className="size-5" />
+            </button>
+
+            {mounted && (
+                <div
+                    ref={panelRef}
+                    role="dialog"
+                    aria-label={title || "Chat assistant"}
+                    tabIndex={-1}
+                    data-state={state}
+                    className={cn(
+                        "fixed inset-x-0 bottom-0 z-50 flex h-[85dvh] origin-bottom-right flex-col overflow-hidden rounded-t-card border border-border bg-surface shadow-popover outline-none sm:inset-x-auto sm:bottom-6 sm:right-6 sm:h-[560px] sm:w-[380px] sm:rounded-card",
+                        OVERLAY_TRANSITION,
+                        // Phones: slides up like a sheet. Wider screens: grows out of the chat button's corner.
+                        "data-[state=closed]:translate-y-8 sm:data-[state=closed]:translate-y-2 sm:data-[state=closed]:scale-95 data-[state=closed]:opacity-0"
+                    )}
+                >
+                    <ChatHeader
+                        title={title}
+                        subtitle={config?.subtitle || ""}
+                        loading={configLoading}
+                        onClose={() => setIsOpen(false)}
+                        onCopyChat={handleCopyChat}
+                        onClearChat={clearChat}
+                    />
+
+                    <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
+                        {/* Welcome message from the dashboard */}
+                        {configLoading ? (
+                            <div className="flex justify-start">
+                                <div className="w-3/4 space-y-2 rounded-card bg-surface-hover px-3.5 py-3">
+                                    <Skeleton className="h-3 w-full bg-border" />
+                                    <Skeleton className="h-3 w-2/3 bg-border" />
+                                </div>
+                            </div>
+                        ) : (
+                            welcome && <ChatMessage role="model" text={welcome} />
+                        )}
+
+                        {messages.map((msg, idx) => (
+                            <ChatMessage key={idx} role={msg.role} text={msg.text} isError={msg.isError} />
+                        ))}
+
+                        {loading && (
+                            <div className="flex animate-fade-in justify-start" role="status" aria-label="Typing">
+                                <div className="rounded-card bg-surface-hover px-3.5 py-2.5">
+                                    <Spinner className="size-4" />
+                                </div>
+                            </div>
+                        )}
+                        <div ref={endRef} />
+                    </div>
+
+                    <ChatInput
+                        input={input}
+                        setInput={setInput}
+                        onSubmit={handleSubmit}
+                        loading={loading}
+                        placeholder={config?.placeholder || (configLoading ? "" : FALLBACK.placeholder)}
+                    />
+                </div>
+            )}
         </>
     );
 }
