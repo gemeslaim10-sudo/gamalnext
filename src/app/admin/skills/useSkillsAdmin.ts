@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { refreshSite } from "@/lib/refreshSite";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { SkillsForm, defaultSkillsData } from "./types";
@@ -38,6 +39,7 @@ export function useSkillsAdmin() {
     const onSubmit = async (data: SkillsForm) => {
         try {
             await setDoc(doc(db, "site_content", "skills"), data);
+            await refreshSite();
             toast.success("Skills updated!");
         } catch {
             toast.error("Error saving.");

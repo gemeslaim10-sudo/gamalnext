@@ -8,7 +8,7 @@ export const runOpenRouter = async (prompt: string, apiKey: string): Promise<Art
             "Authorization": `Bearer ${apiKey}`,
             "Content-Type": "application/json",
             "HTTP-Referer": "https://gamaltech.info",
-            "X-Title": "GamalTech"
+            "X-Title": "GTech"
         },
         body: JSON.stringify({
             model: "google/gemini-2.0-flash-exp:free",

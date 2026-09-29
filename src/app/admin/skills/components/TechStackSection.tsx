@@ -1,6 +1,8 @@
-import { Plus, Trash } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { UseFormRegister } from "react-hook-form";
 import { SkillsForm } from "../types";
+import { SectionCard } from "@/components/admin/SectionCard";
+import { Button, Input } from "@/components/ui";
 
 interface TechStackSectionProps {
     techFields: Record<"id", string>[];
@@ -11,20 +13,47 @@ interface TechStackSectionProps {
 
 export function TechStackSection({ techFields, appendTech, removeTech, register }: TechStackSectionProps) {
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-            <div className="flex justify-between mb-4">
-                <h2 className="text-xl font-bold text-white">Technical Skills (Progress)</h2>
-                <button type="button" onClick={() => appendTech({ name: "", val: "50%" })} className="text-blue-400 flex gap-1 text-sm items-center"><Plus className="w-4 h-4" /> Add Skill</button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {techFields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2 items-center">
-                        <input {...register(`techStack.${index}.name`)} placeholder="Name (e.g React)" className="bg-slate-950 border border-slate-700 p-2 rounded text-white flex-1" />
-                        <input {...register(`techStack.${index}.val`)} placeholder="90%" className="bg-slate-950 border border-slate-700 p-2 rounded text-white w-20" />
-                        <button type="button" onClick={() => removeTech(index)} className="text-red-400"><Trash className="w-4 h-4" /></button>
-                    </div>
-                ))}
-            </div>
-        </div>
+        <SectionCard
+            title="Technical Skills (Progress)"
+            description="Name and level, e.g. React · 90%."
+            action={
+                <Button variant="secondary" size="sm" onClick={() => appendTech({ name: "", val: "50%" })}>
+                    <Plus /> Add Skill
+                </Button>
+            }
+        >
+            {techFields.length === 0 ? (
+                <p className="text-sm text-subtle">No skills yet.</p>
+            ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                    {techFields.map((field, index) => (
+                        <div key={field.id} className="flex items-center gap-2">
+                            <Input
+                                {...register(`techStack.${index}.name`)}
+                                placeholder="Name (e.g React)"
+                                aria-label={`Skill ${index + 1} name`}
+                                className="min-w-0 flex-1"
+                            />
+                            <Input
+                                {...register(`techStack.${index}.val`)}
+                                placeholder="90%"
+                                aria-label={`Skill ${index + 1} level`}
+                                className="w-20 shrink-0"
+                            />
+                            <Button
+                                variant="danger"
+                                size="icon-sm"
+                                onClick={() => removeTech(index)}
+                                aria-label={`Remove skill ${index + 1}`}
+                                title="Remove"
+                                className="shrink-0"
+                            >
+                                <Trash2 />
+                            </Button>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </SectionCard>
     );
 }

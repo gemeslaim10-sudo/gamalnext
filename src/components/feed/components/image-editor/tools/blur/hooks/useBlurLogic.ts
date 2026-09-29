@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { type Crop } from "react-image-crop";
 import { toast } from "react-hot-toast";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 export function useBlurLogic(imageSrc: string, isActive: boolean, onCommit: (newSrc: string, keepMode?: boolean) => void) {
     const [crop, setCrop] = useState<Crop>();
     const imageRef = useRef<HTMLImageElement | null>(null);
+    const t = useCopy();
 
     useEffect(() => {
         if (!isActive) setCrop(undefined);
@@ -45,7 +47,7 @@ export function useBlurLogic(imageSrc: string, isActive: boolean, onCommit: (new
             setCrop(undefined); // Reset selection
         } catch (e) {
             console.error("Blur failed", e);
-            toast.error("Failed to blur image");
+            toast.error(t("account.editorBlurFailed"));
         }
     };
 

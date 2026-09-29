@@ -1,3 +1,12 @@
+/**
+ * Gives a tool's drawing canvas the image's real pixel size (this also clears it). The canvas is
+ * stretched over the displayed image, so pointer positions are scaled up to these pixels.
+ */
+export const fitCanvasToImage = (canvas: HTMLCanvasElement, image: HTMLImageElement) => {
+    canvas.width = image.width;
+    canvas.height = image.height;
+};
+
 export const applyCanvasOverlay = async (
     originalImageSrc: string,
     overlayCanvas: HTMLCanvasElement

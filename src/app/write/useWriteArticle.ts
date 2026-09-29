@@ -2,18 +2,21 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { ALLOWED_ADMINS } from "@/lib/constants";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useCopy } from "@/components/providers/CopyProvider";
 import type { WriteFormData } from "./types";
 import { useAiArticleEnhancer } from "./hooks/useAiArticleEnhancer";
 
 export function useWriteArticle() {
     const { user } = useAuth();
     const router = useRouter();
-    
+    const t = useCopy();
+
     const [loading, setLoading] = useState(false);
     const [imageQuery, setImageQuery] = useState("");
-    
+
     const [formData, setFormData] = useState<WriteFormData>({
         title: "",
         content: "",
@@ -27,10 +30,23 @@ export function useWriteArticle() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) return;
+
+        // The form skips the browser's own validation so these messages can be edited in the dashboard
+        if (!formData.title.trim()) {
+            toast.error(t("account.writeTitleRequired"));
+            document.getElementById("article-title")?.focus();
+            return;
+        }
+        if (!formData.content.trim()) {
+            toast.error(t("account.writeContentRequired"));
+            document.getElementById("article-content")?.focus();
+            return;
+        }
+
         setLoading(true);
 
         // Check if Admin
-        const isAdmin = user.email === "montasrrm@gmail.com" || user.email === "gemeslaim10@gmail.com";
+        const isAdmin = ALLOWED_ADMINS.includes(user.email || "");
         const status = isAdmin ? "published" : "pending";
 
         try {
@@ -43,7 +59,7 @@ export function useWriteArticle() {
                 likesCount: 0,
                 commentsCount: 0,
                 slug: formData.title.toLowerCase().replace(/\s+/g, '-'),
-                tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean), // Process tags
+                tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean), // Process tags
                 createdAt: serverTimestamp()
             });
 
@@ -58,16 +74,16 @@ export function useWriteArticle() {
                     read: false,
                     createdAt: serverTimestamp()
                 });
-                toast.success("تم إرسال المقال للمراجعة بنجاح! سيتم نشره بعد الموافقة.");
+                toast.success(t("account.writeSubmitted"));
                 router.push("/users/" + user.uid);
             } else {
-                toast.success("تم نشر المقال بنجاح!");
+                toast.success(t("account.writePublished"));
                 router.push(`/articles/${articleRef.id}`);
             }
 
         } catch (error) {
             console.error(error);
-            toast.error("حدث خطأ أثناء النشر");
+            toast.error(t("account.writePublishFailed"));
         } finally {
             setLoading(false);
         }

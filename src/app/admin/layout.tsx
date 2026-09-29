@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import AdminClientLayout from "./AdminClientLayout";
 
 export const metadata: Metadata = {
-    title: "لوحة التحكم | جمال تك",
+    title: "لوحة التحكم",
     robots: {
         index: false,
         follow: false,

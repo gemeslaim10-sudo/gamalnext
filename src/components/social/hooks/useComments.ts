@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { collection, query, where, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
+import { useCopy } from "@/components/providers/CopyProvider";
 import { toast } from "react-hot-toast";
 
 export type Comment = {
@@ -14,8 +15,10 @@ export type Comment = {
 }
 
 export function useComments(articleId: string) {
+    const t = useCopy();
     const { user } = useAuth();
-    const [comments, setComments] = useState<Comment[]>([]);
+    // Comments of the article they were loaded for; until the first answer for `articleId` it is loading
+    const [loaded, setLoaded] = useState<{ articleId: string | null; comments: Comment[] }>({ articleId: null, comments: [] });
     const [newComment, setNewComment] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
@@ -28,21 +31,24 @@ export function useComments(articleId: string) {
 
         const unsubscribe = onSnapshot(q, (snap) => {
             const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Comment));
-            setComments(data);
+            setLoaded({ articleId, comments: data });
         }, (error) => {
             console.error("Comments subscription error:", error);
+            // Keep comments that already arrived for this article; otherwise show none
+            setLoaded((prev) => (prev.articleId === articleId ? prev : { articleId, comments: [] }));
             if (error.code === 'failed-precondition') {
-                toast.error("Comments Index creation required (check console)");
+                // A missing Firestore index; the console error above has the link to create it
+                toast.error(t("blog.commentsLoadFailed"));
             }
         });
 
         return () => unsubscribe();
-    }, [articleId]);
+    }, [articleId, t]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) {
-            toast.error("You must log in to comment");
+            toast.error(t("blog.commentLoginRequired"));
             return;
         }
         if (!newComment.trim()) return;
@@ -52,20 +58,20 @@ export function useComments(articleId: string) {
             await addDoc(collection(db, "comments"), {
                 articleId,
                 userId: user.uid,
-                userName: user.displayName || "User",
+                userName: user.displayName || t("blog.commentDefaultName"),
                 userPhoto: user.photoURL || "",
                 content: newComment,
                 createdAt: serverTimestamp()
             });
             setNewComment("");
-            toast.success("Comment added successfully");
+            toast.success(t("blog.commentAdded"));
         } catch (e: unknown) {
             console.error("Error submitting comment:", e);
             const errorObj = e as { code?: string };
             if (errorObj.code === 'permission-denied') {
-                toast.error("Sorry, you don't have permission to comment. Please log in again.");
+                toast.error(t("blog.commentNotAllowed"));
             } else {
-                toast.error("An error occurred while posting the comment.");
+                toast.error(t("blog.commentFailed"));
             }
         } finally {
             setSubmitting(false);
@@ -73,18 +79,21 @@ export function useComments(articleId: string) {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Delete this comment?")) return;
+        if (!confirm(t("blog.commentDeleteConfirm"))) return;
         try {
             await deleteDoc(doc(db, "comments", id));
-            toast.success("Deleted");
+            toast.success(t("blog.commentDeleted"));
         } catch {
-            toast.error("Error deleting");
+            toast.error(t("blog.commentDeleteFailed"));
         }
     };
 
+    const loading = loaded.articleId !== articleId;
+
     return {
         user,
-        comments,
+        comments: loading ? [] : loaded.comments,
+        loading,
         newComment,
         setNewComment,
         submitting,

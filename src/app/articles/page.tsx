@@ -1,21 +1,23 @@
+import type { Metadata } from "next";
+import { PenLine } from "lucide-react";
 import { getCollection } from "@/lib/server-utils";
-import Link from "next/link";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { Toaster } from "react-hot-toast";
+import { getCopy } from "@/lib/copy/server";
+import { ButtonLink, Page, PageHeader } from "@/components/ui";
 import type { ArticleRaw, ArticleSerialized } from "@/types";
 import { getTimestampMs } from "@/types";
+import ArticlesList from "./ArticlesList";
 
-import { Metadata } from "next";
-
-// SEO Metadata
-export const metadata: Metadata = {
-    title: "المقالات التقنية | جمال عبد العاطي",
-    description: "مقالات حصرية في إنشاء مواقع الويب وتطوير المتاجر الإلكترونية.",
-    alternates: {
-        canonical: './',
-    },
-};
+// Shared links use the site-wide share card with this title and description (see the root layout)
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getCopy();
+    return {
+        title: t("blog.seoTitle"),
+        description: t("blog.seoDescription"),
+        alternates: {
+            canonical: './',
+        },
+    };
+}
 
 export const revalidate = 0; // Helper for dynamic
 
@@ -39,33 +41,23 @@ export default async function ArticlesPage() {
         console.error("Failed to fetch articles server side", e);
     }
 
+    const t = await getCopy();
+
     return (
-        <div className="min-h-screen">
-            <Navbar />
-
-            <section className="pt-32 pb-20 px-4">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                            المقالات <span className="text-blue-500">التقنية</span>
-                        </h1>
-                        <p className="text-slate-400 max-w-2xl mx-auto text-lg mb-8">
-                            أحدث ما توصلت إليه في مجالات البرمجة والذكاء الاصطناعي
-                        </p>
-                        <Link href="/write" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all hover:scale-105">
-                            <span className="text-xl">✍️</span> شارك بمقالك
-                        </Link>
-                    </div>
-
-                    <ArticlesList initialArticles={articles} />
-                </div>
-            </section>
-
-            <Footer />
-            <Toaster />
-        </div>
+        <Page>
+            <PageHeader
+                title={t("blog.title")}
+                description={t("blog.description")}
+                actions={
+                    <ButtonLink href="/write" variant="secondary">
+                        <PenLine />
+                        {t("blog.writeButton")}
+                    </ButtonLink>
+                }
+            />
+            {/* An empty server result can also mean the read failed, so the list then loads on the
+                client (skeleton first) instead of flashing "no articles" */}
+            <ArticlesList initialArticles={articles.length > 0 ? articles : undefined} />
+        </Page>
     );
 }
-
-// Separate Client Component for Data Fetching
-import ArticlesList from "./ArticlesList";

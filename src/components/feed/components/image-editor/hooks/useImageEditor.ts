@@ -1,19 +1,22 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { EditorMode } from "../shared/types";
 
 export function useImageEditor(imageUrl: string, isOpen: boolean) {
     const [mode, setMode] = useState<EditorMode>("none");
     const [currentImageSrc, setCurrentImageSrc] = useState(imageUrl);
     const [history, setHistory] = useState<string[]>([imageUrl]);
+    const [openedWith, setOpenedWith] = useState<string | null>(null);
 
-    // Reset when opened with a new image
-    useEffect(() => {
-        if (isOpen) {
+    // Reset when opened (or re-opened) with an image — adjusted during render, not in an effect
+    const session = isOpen ? imageUrl : null;
+    if (session !== openedWith) {
+        setOpenedWith(session);
+        if (session !== null) {
             setCurrentImageSrc(imageUrl);
             setHistory([imageUrl]);
             setMode("none");
         }
-    }, [isOpen, imageUrl]);
+    }
 
     const handleUndo = useCallback(() => {
         if (history.length > 1) {

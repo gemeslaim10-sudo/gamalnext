@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { collection, query, getDocs, doc, updateDoc, deleteDoc, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { refreshSite } from "@/lib/refreshSite";
 import { toast } from "react-hot-toast";
 
 export type Post = {
@@ -39,6 +40,7 @@ export function useAdminPosts() {
     const handleUpdateStatus = async (id: string, status: "approved" | "rejected") => {
         try {
             await updateDoc(doc(db, "posts", id), { status });
+            void refreshSite();
             toast.success(`Post ${status} successfully!`);
             setPosts(prev => prev.map(p => p.id === id ? { ...p, status } : p));
         } catch (error) {
@@ -51,6 +53,7 @@ export function useAdminPosts() {
         if (!window.confirm("Are you sure you want to permanently delete this post?")) return;
         try {
             await deleteDoc(doc(db, "posts", id));
+            void refreshSite();
             toast.success("Post deleted forever.");
             setPosts(prev => prev.filter(p => p.id !== id));
         } catch (error) {

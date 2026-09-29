@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { collection, query, orderBy, onSnapshot, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Download, User } from "lucide-react";
+import { Download } from "lucide-react";
 import { CSVLink } from "react-csv";
+import { Avatar, Badge, buttonVariants, Card, EmptyState, PageHeader } from "@/components/ui";
 
 type UserData = {
     id: string;
@@ -12,6 +13,14 @@ type UserData = {
     email: string;
     role: string;
     createdAt: string;
+}
+
+function RoleBadge({ role }: { role?: string }) {
+    return (
+        <Badge variant={role === 'admin' ? 'neutral' : 'outline'} className="capitalize">
+            {role || 'User'}
+        </Badge>
+    );
 }
 
 export default function UsersPage() {
@@ -39,57 +48,73 @@ export default function UsersPage() {
     ];
 
     return (
-        <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-white">Registered Users</h1>
+        <>
+            <PageHeader
+                title="Registered Users"
+                description="People who signed in to the site, newest first."
+                actions={
+                    users.length > 0 && (
+                        <CSVLink
+                            data={users}
+                            headers={csvHeaders}
+                            filename={"users_export.csv"}
+                            className={buttonVariants({ variant: "secondary", className: "w-full sm:w-auto" })}
+                        >
+                            <Download /> Export CSV
+                        </CSVLink>
+                    )
+                }
+            />
 
-                {users.length > 0 && (
-                    <CSVLink
-                        data={users}
-                        headers={csvHeaders}
-                        filename={"users_export.csv"}
-                        className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg flex items-center gap-2 transition-colors"
-                    >
-                        <Download className="w-5 h-5" /> Export CSV
-                    </CSVLink>
-                )}
-            </div>
-
-            <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-950 border-b border-slate-800 text-slate-400">
-                        <tr>
-                            <th className="p-4 font-medium">User</th>
-                            <th className="p-4 font-medium">Email</th>
-                            <th className="p-4 font-medium">Role</th>
-                            <th className="p-4 font-medium">Joined</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
+            {users.length === 0 ? (
+                <EmptyState title="No registered users yet." />
+            ) : (
+                <Card padding="none" className="overflow-hidden">
+                    {/* Phones: stacked rows */}
+                    <ul className="divide-y divide-border md:hidden">
                         {users.map((user) => (
-                            <tr key={user.id} className="hover:bg-slate-800/50 transition-colors">
-                                <td className="p-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
-                                            <User className="w-4 h-4 text-slate-400" />
-                                        </div>
-                                        <span className="text-slate-200 font-medium">{user.name}</span>
-                                    </div>
-                                </td>
-                                <td className="p-4 text-slate-300 font-mono text-sm">{user.email}</td>
-                                <td className="p-4 text-slate-300">
-                                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${user.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'
-                                        }`}>
-                                        {user.role || 'User'}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-slate-400 text-sm">{user.createdAt}</td>
-                            </tr>
+                            <li key={user.id} className="flex items-center gap-3 px-4 py-3">
+                                <Avatar alt={user.name || "User"} size={32} />
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-medium text-foreground">{user.name}</p>
+                                    <p className="truncate text-xs text-muted">{user.email}</p>
+                                    <p className="mt-0.5 text-xs text-subtle">Joined {user.createdAt}</p>
+                                </div>
+                                <RoleBadge role={user.role} />
+                            </li>
                         ))}
-                    </tbody>
-                </table>
-                {users.length === 0 && <div className="p-8 text-center text-slate-500">No registered users yet.</div>}
-            </div>
-        </div>
+                    </ul>
+
+                    {/* Tablets and up: table */}
+                    <table className="hidden w-full text-left text-sm md:table">
+                        <thead className="border-b border-border text-xs text-subtle">
+                            <tr>
+                                <th scope="col" className="px-4 py-3 font-medium">User</th>
+                                <th scope="col" className="px-4 py-3 font-medium">Email</th>
+                                <th scope="col" className="px-4 py-3 font-medium">Role</th>
+                                <th scope="col" className="px-4 py-3 font-medium">Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                            {users.map((user) => (
+                                <tr key={user.id} className="transition-colors hover:bg-surface-hover">
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar alt={user.name || "User"} size={32} />
+                                            <span className="font-medium text-foreground">{user.name}</span>
+                                        </div>
+                                    </td>
+                                    <td className="break-all px-4 py-3 text-muted">{user.email}</td>
+                                    <td className="px-4 py-3">
+                                        <RoleBadge role={user.role} />
+                                    </td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-subtle">{user.createdAt}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Card>
+            )}
+        </>
     );
 }

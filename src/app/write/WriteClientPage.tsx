@@ -1,17 +1,21 @@
 "use client";
 
-import Navbar from "@/components/layout/Navbar";
-import { Toaster } from "react-hot-toast";
 import { MediaUpload } from "@/components/admin/MediaUpload";
-import { Save, Loader2 } from "lucide-react";
 import { LoginPrompt } from "@/components/auth/LoginPrompt";
+import { useCopy } from "@/components/providers/CopyProvider";
+import { Button, LoadingBlock, Page, PageHeader, Spinner } from "@/components/ui";
+import { useAuth } from "@/context/AuthContext";
+import { ALLOWED_ADMINS } from "@/lib/constants";
 
 import { useWriteArticle } from "./useWriteArticle";
 import { TitleInput } from "./components/TitleInput";
-import { ImageHelper } from "./components/ImageHelper";
 import { ArticleContent } from "./components/ArticleContent";
+import { ImageHelper } from "./components/ImageHelper";
+import { ArticleMeta } from "./components/ArticleMeta";
 
 export default function WriteArticlePage() {
+    const { loading: authLoading } = useAuth();
+    const t = useCopy();
     const {
         user,
         formData,
@@ -27,38 +31,51 @@ export default function WriteArticlePage() {
         handleSubmit
     } = useWriteArticle();
 
+    // Until the sign-in check finishes we don't know which view to show, so neither flashes
+    if (authLoading) {
+        return (
+            <Page>
+                <LoadingBlock label={t("account.loading")} />
+            </Page>
+        );
+    }
 
     if (!user) return (
-        <LoginPrompt 
-            title="Publish Article" 
-            description="Sign in to write and publish your article." 
+        <LoginPrompt
+            title={t("account.writeLockedTitle")}
+            description={t("account.writeLockedDescription")}
         />
     );
 
+    // Same rule the submit handler uses: admins publish directly, everyone else goes to review
+    const isAdmin = !!user.email && ALLOWED_ADMINS.includes(user.email);
+
     return (
-        <div className="min-h-screen pb-20">
-            <Navbar />
+        <Page>
+            <div className="mx-auto max-w-content">
+                <PageHeader title={t("account.writeTitle")} description={t("account.writeDescription")} />
 
-            <div className="pt-32 px-4 max-w-4xl mx-auto">
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-                    <h1 className="text-3xl font-bold text-white mb-2">Write a New Article 📝</h1>
-                    <p className="text-slate-400 mb-8">Share your knowledge with the community</p>
+                {/* noValidate: empty fields are reported with the dashboard texts (see useWriteArticle) */}
+                <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+                    <TitleInput
+                        formData={formData}
+                        setFormData={setFormData}
+                        enhancingTitle={enhancingTitle}
+                        generating={generating}
+                        handleEnhanceTitle={handleEnhanceTitle}
+                        handleAiGenerate={handleAiGenerate}
+                    />
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <TitleInput
-                            formData={formData}
-                            setFormData={setFormData}
-                            enhancingTitle={enhancingTitle}
-                            generating={generating}
-                            handleEnhanceTitle={handleEnhanceTitle}
-                            handleAiGenerate={handleAiGenerate}
-                        />
+                    <ArticleContent
+                        formData={formData}
+                        setFormData={setFormData}
+                    />
 
+                    <div className="flex flex-col gap-4">
                         <MediaUpload
                             items={formData.media}
                             onChange={(media) => setFormData({ ...formData, media })}
                         />
-
                         <ImageHelper
                             formData={formData}
                             setFormData={setFormData}
@@ -66,23 +83,24 @@ export default function WriteArticlePage() {
                             imageQuery={imageQuery}
                             handleAiImageRegenerate={handleAiImageRegenerate}
                         />
+                    </div>
 
-                        <ArticleContent
-                            formData={formData}
-                            setFormData={setFormData}
-                        />
+                    <ArticleMeta
+                        formData={formData}
+                        setFormData={setFormData}
+                    />
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"
-                        >
-                            {loading ? <Loader2 className="animate-spin" /> : <><Save /> Publish Article</>}
-                        </button>
-                    </form>
-                </div>
+                    <div className="flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-xs text-subtle">
+                            {isAdmin ? t("account.writeAdminHint") : t("account.writeUserHint")}
+                        </p>
+                        <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+                            {loading && <Spinner className="size-4 text-primary-foreground" />}
+                            {t("account.writePublish")}
+                        </Button>
+                    </div>
+                </form>
             </div>
-            <Toaster />
-        </div>
+        </Page>
     );
 }

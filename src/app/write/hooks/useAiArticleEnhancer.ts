@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import type { WriteFormData } from "../types";
 import { useAuth } from "@/context/AuthContext";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 export function useAiArticleEnhancer(
     formData: WriteFormData,
@@ -9,6 +10,7 @@ export function useAiArticleEnhancer(
     setImageQuery: React.Dispatch<React.SetStateAction<string>>
 ) {
     const { user } = useAuth();
+    const t = useCopy();
     const [generating, setGenerating] = useState(false);
     const [regeneratingImage, setRegeneratingImage] = useState(false);
     const [enhancingTitle, setEnhancingTitle] = useState(false);
@@ -16,7 +18,7 @@ export function useAiArticleEnhancer(
     const handleAiImageRegenerate = async () => {
         if (!formData.title) return;
         setRegeneratingImage(true);
-        toast.loading("جاري البحث عن صورة جديدة...", { id: "img-gen" });
+        toast.loading(t("account.writeAiImageLoading"), { id: "img-gen" });
 
         try {
             const token = user ? await user.getIdToken() : "";
@@ -38,10 +40,10 @@ export function useAiArticleEnhancer(
                 media: [{ url: data.imageUrl, type: 'image' }]
             }));
 
-            toast.success("تم تحديث الصورة بنجاح! 🎨", { id: "img-gen" });
+            toast.success(t("account.writeAiImageDone"), { id: "img-gen" });
 
         } catch {
-            toast.error("فشل تحديث الصورة", { id: "img-gen" });
+            toast.error(t("account.writeAiImageFailed"), { id: "img-gen" });
         } finally {
             setRegeneratingImage(false);
         }
@@ -50,7 +52,7 @@ export function useAiArticleEnhancer(
     const handleEnhanceTitle = async () => {
         if (!formData.title) return;
         setEnhancingTitle(true);
-        toast.loading("جاري تحسين العنوان ...", { id: "enhance-title" });
+        toast.loading(t("account.writeEnhanceLoading"), { id: "enhance-title" });
 
         try {
             const token = user ? await user.getIdToken() : "";
@@ -66,12 +68,12 @@ export function useAiArticleEnhancer(
             const data = await res.json();
             if (data.improvedTitle) {
                 setFormData(prev => ({ ...prev, title: data.improvedTitle }));
-                toast.success("تم تحسين العنوان! 🚀", { id: "enhance-title" });
+                toast.success(t("account.writeEnhanceDone"), { id: "enhance-title" });
             } else {
                 throw new Error("Failed");
             }
         } catch {
-            toast.error("فشل تحسين العنوان", { id: "enhance-title" });
+            toast.error(t("account.writeEnhanceFailed"), { id: "enhance-title" });
         } finally {
             setEnhancingTitle(false);
         }
@@ -79,12 +81,12 @@ export function useAiArticleEnhancer(
 
     const handleAiGenerate = async () => {
         if (!formData.title) {
-            toast.error("الرجاء كتابة عنوان المقال أولاً");
+            toast.error(t("account.writeTitleRequired"));
             return;
         }
 
         setGenerating(true);
-        toast.loading("جاري توليد المقال والصورة بالذكاء الاصطناعي...", { id: "ai-gen" });
+        toast.loading(t("account.writeGenerateLoading"), { id: "ai-gen" });
 
         try {
             const token = user ? await user.getIdToken() : "";
@@ -110,11 +112,14 @@ export function useAiArticleEnhancer(
             }));
             setImageQuery(data.imageSearchQuery); // Store query for manual options
 
-            toast.success("تم إستحداث المحتوى! 🪄 الرجاء اختيار صورة مناسبة.", { id: "ai-gen" });
+            toast.success(t("account.writeGenerateDone"), { id: "ai-gen" });
 
         } catch (error: unknown) {
             console.error(error);
-            toast.error("حدث خطأ أثناء التوليد: " + (error instanceof Error ? error.message : String(error)), { id: "ai-gen" });
+            toast.error(
+                t("account.writeGenerateFailed", { error: error instanceof Error ? error.message : String(error) }),
+                { id: "ai-gen" }
+            );
         } finally {
             setGenerating(false);
         }

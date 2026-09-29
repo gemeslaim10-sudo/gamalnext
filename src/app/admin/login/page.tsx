@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { Lock } from "lucide-react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useBrandingContext } from "@/components/providers/BrandingProvider";
+import { Alert, Avatar, Button, Card, Field, Input } from "@/components/ui";
 
 export default function AdminLogin() {
     const [email, setEmail] = useState("");
@@ -14,6 +15,7 @@ export default function AdminLogin() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { user } = useAuth();
     const router = useRouter();
+    const branding = useBrandingContext();
 
     if (user) {
         router.push("/admin");
@@ -46,56 +48,51 @@ export default function AdminLogin() {
         }
     };
 
+    const siteName = branding?.siteName || "GTech";
+
     return (
-        <div className="flex items-center justify-center min-h-screen bg-slate-950 px-4">
-            <div className="w-full max-w-md p-8 rounded-xl bg-slate-900 border border-slate-800 shadow-2xl">
-                <div className="flex justify-center mb-8">
-                    <div className="p-4 rounded-full bg-blue-500/10">
-                        <Lock className="w-8 h-8 text-blue-500" />
-                    </div>
+        <div className="flex flex-1 flex-col items-center justify-center px-4 py-12">
+            <div className="w-full max-w-sm">
+                <div className="mb-6 flex flex-col items-center gap-3 text-center">
+                    <Avatar src={branding?.siteLogo} alt={siteName} size={40} priority />
+                    <p className="text-sm font-semibold text-foreground">{siteName}</p>
                 </div>
 
-                <h1 className="text-2xl font-bold text-white text-center mb-8">Admin Access</h1>
+                <Card padding="lg">
+                    <h1 className="text-xl font-semibold tracking-tight text-foreground">Admin Access</h1>
 
-                <form onSubmit={handleLogin} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">Email Address</label>
-                        <input
-                            type="email"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                            placeholder="admin@gamaltech.info"
-                        />
-                    </div>
+                    <form onSubmit={handleLogin} className="mt-6 space-y-4">
+                        <Field label="Email Address" htmlFor="admin-email">
+                            <Input
+                                id="admin-email"
+                                type="email"
+                                required
+                                autoComplete="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="admin@gamaltech.info"
+                            />
+                        </Field>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">Password</label>
-                        <input
-                            type="password"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                            placeholder="••••••••"
-                        />
-                    </div>
+                        <Field label="Password" htmlFor="admin-password">
+                            <Input
+                                id="admin-password"
+                                type="password"
+                                required
+                                autoComplete="current-password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="••••••••"
+                            />
+                        </Field>
 
-                    {error && (
-                        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
-                            {error}
-                        </div>
-                    )}
+                        {error && <Alert variant="danger">{error}</Alert>}
 
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center"
-                    >
-                        {isSubmitting ? "Signing in..." : "Sign In"}
-                    </button>
-                </form>
+                        <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
+                            {isSubmitting ? "Signing in..." : "Sign In"}
+                        </Button>
+                    </form>
+                </Card>
             </div>
         </div>
     );

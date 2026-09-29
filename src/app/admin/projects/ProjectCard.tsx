@@ -1,6 +1,8 @@
 "use client";
 
 import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
+import { cn } from "@/lib/utils";
+import { usePresence } from "@/hooks/usePresence";
 import { type ProjectsForm, type ProjectItem } from "./types";
 import { ProjectRowHeader } from "./components/ProjectRowHeader";
 import { ProjectExpandedForm } from "./components/ProjectExpandedForm";
@@ -15,17 +17,18 @@ interface ProjectCardProps {
     register: UseFormRegister<ProjectsForm>;
     watch: UseFormWatch<ProjectsForm>;
     setValue: UseFormSetValue<ProjectsForm>;
+    className?: string;
 }
 
+/** One project: a clickable summary row that expands into its edit form. Sizes itself to its own width (container queries). */
 export default function ProjectCard({
     field, index, item, isExpanded, onToggleExpand, onRemove,
-    register, watch, setValue,
+    register, watch, setValue, className,
 }: ProjectCardProps) {
+    const form = usePresence(isExpanded);
+
     return (
-        <div
-            data-project-row={field.id}
-            className={`bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden transition-all hover:border-slate-700 ${isExpanded ? 'ring-1 ring-blue-500/20' : ''}`}
-        >
+        <div data-project-row={field.id} className={cn("@container", className)}>
             <ProjectRowHeader
                 fieldId={field.id}
                 index={index}
@@ -35,14 +38,22 @@ export default function ProjectCard({
                 onRemove={onRemove}
             />
 
-            {isExpanded && (
-                <ProjectExpandedForm
-                    index={index}
-                    item={item}
-                    register={register}
-                    watch={watch}
-                    setValue={setValue}
-                />
+            {/* Opens and closes to its natural height (grid rows 0fr ↔ 1fr) */}
+            {form.mounted && (
+                <div
+                    data-state={form.state}
+                    className="grid transition-[grid-template-rows,opacity] duration-(--motion-base) ease-out data-[state=closed]:grid-rows-[0fr] data-[state=closed]:opacity-0 data-[state=open]:grid-rows-[1fr]"
+                >
+                    <div className="overflow-hidden">
+                        <ProjectExpandedForm
+                            index={index}
+                            item={item}
+                            register={register}
+                            watch={watch}
+                            setValue={setValue}
+                        />
+                    </div>
+                </div>
             )}
         </div>
     );

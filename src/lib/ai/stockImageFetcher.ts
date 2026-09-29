@@ -16,13 +16,8 @@ export async function fetchStockImage(keyword: string, unsplashKey?: string, pex
                 }
             }
         }
-
-        if (!imageUrl) {
-            imageUrl = `https://source.unsplash.com/1280x720/?${unsplashKeyword}`;
-        }
     } catch (error) {
         console.error("Unsplash error:", error);
-        imageUrl = `https://source.unsplash.com/1280x720/?${unsplashKeyword}`;
     }
 
     if (!imageUrl && pexelsKey) {

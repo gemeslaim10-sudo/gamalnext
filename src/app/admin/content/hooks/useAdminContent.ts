@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { refreshSite } from "@/lib/refreshSite";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 
@@ -51,6 +52,7 @@ export function useAdminContent() {
     const onSubmit = async (data: ContentForm) => {
         try {
             await setDoc(doc(db, "site_content", "hero"), data);
+            await refreshSite();
             toast.success("Content updated successfully!");
         } catch (err) {
             console.error(err);

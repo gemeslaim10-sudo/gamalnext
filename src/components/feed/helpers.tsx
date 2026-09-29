@@ -1,23 +1,15 @@
-import { Briefcase, FileText, Wrench, MessageCircle } from "lucide-react";
+import type { CopyKey } from "@/config/copy";
 
 // ── Feed Helpers ─────────────────────────────────────────────────────────────
 
-export const getIconForType = (type: string) => {
+/** Editable label for each feed item type (/admin/copy → Home page). */
+export const getLabelKeyForType = (type: string): CopyKey => {
     switch (type) {
-        case "project": return <Briefcase className="w-4 h-4 text-emerald-400" />;
-        case "article": return <FileText className="w-4 h-4 text-blue-400" />;
-        case "tool": return <Wrench className="w-4 h-4 text-purple-400" />;
-        case "post": return <MessageCircle className="w-4 h-4 text-amber-400" />;
-        default: return null;
+        case "article": return "home.typeArticle";
+        case "post": return "home.typePost";
+        default: return "home.typeProject";
     }
 };
 
-export const getLabelForType = (type: string) => {
-    switch (type) {
-        case "project": return "New Project";
-        case "article": return "New Article";
-        case "tool": return "Useful Tool";
-        case "post": return "Community Post";
-        default: return "Update";
-    }
-};
+export const formatFeedDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });

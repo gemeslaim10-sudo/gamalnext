@@ -26,5 +26,7 @@ export interface FeedItem {
     link: string;
     createdAt: string;
     author?: string;
+    authorPhoto?: string | null;
+    byOwner?: boolean;
     userId?: string;
 }

@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { textDirStyle } from "@/lib/utils";
 import type { FeedItem } from "../types";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 interface FeedPostContentProps {
     item: FeedItem;
@@ -9,26 +11,37 @@ interface FeedPostContentProps {
 }
 
 export function FeedPostContent({ item, isExpanded, hasLongContent, onToggleExpand }: FeedPostContentProps) {
+    const t = useCopy();
+    const text = isExpanded ? item.fullContent || item.description : item.description;
+    // Community posts have a generated title ("X shared a post") that only repeats the header
+    const showTitle = item.type !== "post";
+
     return (
-        <div className="px-3 sm:px-6 pb-3 sm:pb-4">
-            <h2
-                style={textDirStyle(item.title)}
-                className="text-lg sm:text-2xl font-bold text-white mb-1.5 sm:mb-2 leading-tight"
-            >
-                {item.title}
-            </h2>
-            <div
-                style={textDirStyle(isExpanded ? (item.fullContent || item.description) : item.description)}
-                className={`text-slate-300 text-sm sm:text-base leading-relaxed ${!isExpanded ? "line-clamp-3" : "whitespace-pre-wrap"}`}
-            >
-                {isExpanded ? (item.fullContent || item.description) : item.description}
-            </div>
+        <div className="px-4 pb-4 pt-3 sm:px-5">
+            {showTitle && (
+                <h2 style={textDirStyle(item.title)} className="text-lg font-semibold leading-snug text-foreground">
+                    <Link href={item.link} className="hover:underline hover:decoration-border-strong hover:underline-offset-4">
+                        {item.title}
+                    </Link>
+                </h2>
+            )}
+            {text && (
+                <p
+                    // Re-mounts on expand/collapse so the new text fades in instead of snapping
+                    key={isExpanded ? "full" : "short"}
+                    style={textDirStyle(text)}
+                    className={`${showTitle ? "mt-1.5" : ""} animate-fade-in text-sm leading-relaxed text-muted ${isExpanded ? "whitespace-pre-wrap" : "line-clamp-3"}`}
+                >
+                    {text}
+                </p>
+            )}
             {hasLongContent && (
                 <button
+                    type="button"
                     onClick={() => onToggleExpand(item.id)}
-                    className="mt-2 text-blue-400 font-semibold hover:text-blue-300 transition-colors text-sm"
+                    className="mt-1.5 text-sm font-medium text-foreground hover:underline hover:underline-offset-4"
                 >
-                    {isExpanded ? "Show Less" : "Read More / عرض المزيد"}
+                    {isExpanded ? t("home.showLess") : t("home.showMore")}
                 </button>
             )}
         </div>

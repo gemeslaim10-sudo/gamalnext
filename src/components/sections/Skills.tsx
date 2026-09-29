@@ -1,88 +1,65 @@
-'use client';
-import Reveal from './Reveal';
-import { useContent } from '@/hooks/useContent';
-
+import { EmptyState, Section } from '@/components/ui';
+import { getCopy } from '@/lib/copy/server';
 import { MainSkillsGrid } from './skills/MainSkillsGrid';
 import { TechStackProgress } from './skills/TechStackProgress';
-import { SoftwareLevels } from './skills/SoftwareLevels';
-import { ProductivityChart } from './skills/ProductivityChart';
+import { LevelList } from './skills/LevelList';
+import { parseLevelList, type SkillsData } from './skills/data';
 
-export interface SkillItem {
-    title: string;
-    description: string;
-    tags: string;
-    icon: string;
-}
+/** Removes the Section's own vertical padding; spacing comes from the wrapper instead. */
+const FLUSH = 'py-0 sm:py-0';
 
-export interface TechStackItem {
-    name: string;
-    val: string;
-}
+/**
+ * Body of the skills page. `data` is read on the server (getSkillsData), so the real content is there
+ * on the first paint. Titles and the daily tools list are editable texts (/admin/copy → Skills page).
+ */
+export default async function Skills({ data }: { data: SkillsData }) {
+    const t = await getCopy();
 
-export interface SoftwareItem {
-    name: string;
-    level: string;
-    color: string;
-}
+    const mainSkills = data.mainSkills || [];
+    const techStack = data.techStack || [];
+    const software = data.software || [];
+    const tools = parseLevelList(t('skills.toolsList'));
+    const hasSideLists = software.length > 0 || tools.length > 0;
 
-export interface SkillsData {
-    mainSkills?: SkillItem[];
-    techStack?: TechStackItem[];
-    software?: SoftwareItem[];
-}
-
-const defaultSkillsData = {
-    mainSkills: [
-        { title: "Websites Development", description: "Building modern, responsive websites that meet all needs and provide an exceptional user experience.", tags: "Web Development, Frontend, Backend", icon: "Code" },
-        { title: "E-commerce Stores", description: "Developing integrated e-commerce stores with payment gateways and product management at the highest quality standards.", tags: "E-commerce, Online Store, Payment Integration", icon: "Database" },
-        { title: "WordPress & Shopify", description: "Professionally building and managing WordPress sites and Shopify stores to facilitate your business and grow your sales.", tags: "WordPress, Shopify, CMS", icon: "BarChart3" },
-        { title: "WhatsApp API Integration", description: "Connecting and integrating WhatsApp API services to automate messaging and improve communication with your customers effectively.", tags: "WhatsApp API, Chatbots, Integration", icon: "LineChart" }
-    ],
-    techStack: [
-        { name: 'React.js', val: '95%' },
-        { name: 'Supabase', val: '90%' },
-        { name: 'Firebase', val: '85%' },
-        { name: 'Next.js', val: '85%' },
-        { name: 'MySQL', val: '80%' },
-        { name: 'Laravel', val: '70%' },
-    ],
-    software: [
-        { name: 'Shopify', level: 'Advanced', color: 'text-green-500' },
-        { name: 'WordPress', level: 'Advanced', color: 'text-blue-500' },
-        { name: 'VS Code', level: 'Advanced', color: 'text-blue-400' },
-        { name: 'WhatsApp API', level: 'Advanced', color: 'text-green-400' },
-        { name: 'Postman', level: 'Intermediate', color: 'text-orange-400' },
-    ]
-};
-
-export default function Skills({ initialData }: { initialData?: SkillsData }) {
-    const { data } = useContent("site_content", "skills", defaultSkillsData);
-    const skills = initialData || data || defaultSkillsData;
+    if (mainSkills.length === 0 && techStack.length === 0 && !hasSideLists) {
+        return <EmptyState title={t('skills.empty')} />;
+    }
 
     return (
-        <section id="skills" className="py-16 md:py-20 bg-slate-900 relative">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <Reveal className="text-center mb-12 md:mb-16">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                        Technical <span className="text-blue-500">Expertise</span>
+        <div id="skills" className="space-y-10 sm:space-y-14">
+            {mainSkills.length > 0 && (
+                <section aria-labelledby="main-skills-title">
+                    <h2 id="main-skills-title" className="sr-only">
+                        Services
                     </h2>
-                    <p className="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
-                        Specialized in web development, e-commerce stores, and WhatsApp API solutions
-                    </p>
-                </Reveal>
+                    <MainSkillsGrid skills={mainSkills} />
+                </section>
+            )}
 
-                <MainSkillsGrid skills={skills.mainSkills || []} />
+            {(techStack.length > 0 || hasSideLists) && (
+                <div className="grid gap-10 lg:grid-cols-2 lg:gap-8">
+                    {techStack.length > 0 && (
+                        <Section title={t('skills.techStackTitle')} className={FLUSH}>
+                            <TechStackProgress techStack={techStack} />
+                        </Section>
+                    )}
 
-                {/* Progress Bars & Tools */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-                    <TechStackProgress techStack={skills.techStack || []} />
-
-                    <div className="space-y-6 md:space-y-8">
-                        <SoftwareLevels software={skills.software || []} />
-                        <ProductivityChart />
-                    </div>
+                    {hasSideLists && (
+                        <div className="space-y-10">
+                            {software.length > 0 && (
+                                <Section title={t('skills.softwareTitle')} className={FLUSH}>
+                                    <LevelList items={software} />
+                                </Section>
+                            )}
+                            {tools.length > 0 && (
+                                <Section title={t('skills.toolsTitle')} className={FLUSH}>
+                                    <LevelList items={tools} />
+                                </Section>
+                            )}
+                        </div>
+                    )}
                 </div>
-            </div>
-        </section>
+            )}
+        </div>
     );
 }

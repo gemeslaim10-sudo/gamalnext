@@ -1,4 +1,7 @@
-import { Loader2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { Button, Field, Input, Spinner } from "@/components/ui";
+import { useCopy } from "@/components/providers/CopyProvider";
+import { detectTextDir } from "@/lib/utils";
 import type { WriteFormData } from "../types";
 
 interface TitleInputProps {
@@ -18,35 +21,40 @@ export function TitleInput({
     handleEnhanceTitle,
     handleAiGenerate
 }: TitleInputProps) {
+    const t = useCopy();
     return (
-        <div>
-            <label className="block text-slate-300 font-bold mb-2">عنوان المقال</label>
-            <div className="flex flex-col md:flex-row gap-4">
-                <input
+        <div className="flex flex-col gap-3">
+            <Field label={t("account.writeTitleLabel")} htmlFor="article-title">
+                <Input
+                    id="article-title"
                     required
                     value={formData.title}
                     onChange={e => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full md:flex-grow bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="اختر عنواناً جذاباً..."
+                    placeholder={t("account.writeTitlePlaceholder")}
+                    dir={detectTextDir(formData.title)}
+                    className="h-12 text-lg font-medium"
                 />
-                <button
-                    type="button"
+            </Field>
+
+            {/* AI helpers: both work from the title */}
+            <div className="flex flex-wrap gap-2">
+                <Button
+                    variant="secondary"
                     onClick={handleEnhanceTitle}
                     disabled={enhancingTitle || !formData.title}
-                    className="bg-slate-800 hover:bg-slate-700 text-blue-400 p-3 rounded-xl transition-all border border-slate-700 disabled:opacity-50"
-                    title="تحسين العنوان بالذكاء الاصطناعي"
+                    title={t("account.writeEnhanceTitleTooltip")}
                 >
-                    {enhancingTitle ? <Loader2 className="animate-spin w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
-                </button>
-                <button
-                    type="button"
+                    {enhancingTitle ? <Spinner className="size-4" /> : <Sparkles />}
+                    {t("account.writeEnhanceTitle")}
+                </Button>
+                <Button
+                    variant="secondary"
                     onClick={handleAiGenerate}
                     disabled={generating || !formData.title}
-                    className="w-full md:w-auto flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/20 whitespace-nowrap"
                 >
-                    {generating ? <Loader2 className="animate-spin w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
-                    توليد بالذكاء الاصطناعي
-                </button>
+                    {generating ? <Spinner className="size-4" /> : <Sparkles />}
+                    {t("account.writeGenerate")}
+                </Button>
             </div>
         </div>
     );

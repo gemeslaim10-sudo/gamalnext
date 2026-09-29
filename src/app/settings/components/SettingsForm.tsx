@@ -1,4 +1,6 @@
-import { User, Briefcase, MapPin, Heart, Loader2, Save } from "lucide-react";
+import { Button, Field, Input, Select, Spinner, Textarea } from "@/components/ui";
+import { useCopy } from "@/components/providers/CopyProvider";
+import { detectTextDir } from "@/lib/utils";
 import type { SettingsFormData } from "../useSettings";
 
 interface SettingsFormProps {
@@ -14,90 +16,86 @@ export function SettingsForm({
     saving,
     handleSubmit
 }: SettingsFormProps) {
+    const t = useCopy();
+    const update = (field: keyof SettingsFormData, value: string) => setFormData({ ...formData, [field]: value });
+
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-                <label className="text-slate-400 text-sm font-medium flex items-center gap-2">
-                    <User className="w-4 h-4" /> الاسم الكامل
-                </label>
-                <input
+        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-5">
+            <Field label={t("account.settingsNameLabel")} htmlFor="settings-name">
+                <Input
+                    id="settings-name"
                     type="text"
                     value={formData.name}
-                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    onChange={e => update("name", e.target.value)}
+                    dir={detectTextDir(formData.name)}
                 />
-            </div>
+            </Field>
 
-            <div className="space-y-2">
-                <label className="text-slate-400 text-sm font-medium flex items-center gap-2">
-                    <Briefcase className="w-4 h-4" /> المسمى الوظيفي
-                </label>
-                <input
+            <Field label={t("account.settingsJobLabel")} htmlFor="settings-job-title">
+                <Input
+                    id="settings-job-title"
                     type="text"
                     value={formData.jobTitle}
-                    onChange={e => setFormData({ ...formData, jobTitle: e.target.value })}
-                    placeholder="مثال: مطور ويب, مصمم جرافيك"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    onChange={e => update("jobTitle", e.target.value)}
+                    placeholder={t("account.settingsJobPlaceholder")}
+                    dir={detectTextDir(formData.jobTitle)}
                 />
-            </div>
+            </Field>
 
-            <div className="space-y-2">
-                <label className="text-slate-400 text-sm font-medium flex items-center gap-2">
-                    <MapPin className="w-4 h-4" /> الموقع / الإقامة
-                </label>
-                <input
+            <Field label={t("account.settingsLocationLabel")} htmlFor="settings-location">
+                <Input
+                    id="settings-location"
                     type="text"
                     value={formData.location}
-                    onChange={e => setFormData({ ...formData, location: e.target.value })}
-                    placeholder="القاهرة، مصر"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    onChange={e => update("location", e.target.value)}
+                    placeholder={t("account.settingsLocationPlaceholder")}
+                    dir={detectTextDir(formData.location)}
                 />
-            </div>
+            </Field>
 
-            <div className="space-y-2">
-                <label className="text-slate-400 text-sm font-medium flex items-center gap-2">
-                    <Heart className="w-4 h-4" /> الحالة الاجتماعية
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                    <select
+            <div className="grid gap-5 sm:grid-cols-2">
+                <Field label={t("account.settingsStatusLabel")} htmlFor="settings-social-status">
+                    <Select
+                        id="settings-social-status"
                         value={formData.socialStatus}
-                        onChange={e => setFormData({ ...formData, socialStatus: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                        onChange={e => update("socialStatus", e.target.value)}
                     >
-                        <option value="Single">أعزب/عزباء</option>
-                        <option value="Engaged">مخطوب/ة</option>
-                        <option value="Married">متزوج/ة</option>
-                        <option value="Complicated">وضع معقد😅</option>
-                    </select>
-                    <select
+                        <option value="Single">{t("account.settingsStatusSingle")}</option>
+                        <option value="Engaged">{t("account.settingsStatusEngaged")}</option>
+                        <option value="Married">{t("account.settingsStatusMarried")}</option>
+                        <option value="Complicated">{t("account.settingsStatusComplicated")}</option>
+                    </Select>
+                </Field>
+                <Field label={t("account.settingsGenderLabel")} htmlFor="settings-gender">
+                    <Select
+                        id="settings-gender"
                         value={formData.gender}
-                        onChange={e => setFormData({ ...formData, gender: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                        onChange={e => update("gender", e.target.value)}
                     >
-                        <option value="Male">ذكر</option>
-                        <option value="Female">أنثى</option>
-                    </select>
-                </div>
+                        <option value="Male">{t("account.settingsGenderMale")}</option>
+                        <option value="Female">{t("account.settingsGenderFemale")}</option>
+                    </Select>
+                </Field>
             </div>
 
-            <div className="space-y-2">
-                <label className="text-slate-400 text-sm font-medium">نبذة شخصية (Bio)</label>
-                <textarea
+            <Field label={t("account.settingsBioLabel")} htmlFor="settings-bio">
+                <Textarea
+                    id="settings-bio"
                     value={formData.bio}
-                    onChange={e => setFormData({ ...formData, bio: e.target.value })}
+                    onChange={e => update("bio", e.target.value)}
                     rows={4}
-                    placeholder="اكتب نبذة مختصرة عن نفسك..."
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+                    placeholder={t("account.settingsBioPlaceholder")}
+                    dir={detectTextDir(formData.bio)}
+                    className="resize-none"
                 />
-            </div>
+            </Field>
 
-            <button
-                type="submit"
-                disabled={saving}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
-            >
-                {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5" /> حفظ التغييرات</>}
-            </button>
+            <div className="flex justify-end">
+                <Button type="submit" disabled={saving} className="w-full sm:w-auto">
+                    {saving && <Spinner className="size-4 text-primary-foreground" />}
+                    {t("account.settingsSave")}
+                </Button>
+            </div>
         </form>
     );
 }

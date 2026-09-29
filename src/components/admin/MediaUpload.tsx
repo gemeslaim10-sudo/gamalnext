@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Video, Upload, X } from "lucide-react";
 import { openCloudinaryWidget } from "@/lib/cloudinary";
 import toast from "react-hot-toast";
+import { Badge, Button } from "@/components/ui";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 interface MediaItem {
     url: string;
@@ -17,6 +19,7 @@ interface MediaUploadProps {
 
 export function MediaUpload({ items, onChange }: MediaUploadProps) {
     const [loading, setLoading] = useState(false);
+    const t = useCopy();
 
     const handleUpload = () => {
         setLoading(true);
@@ -33,7 +36,8 @@ export function MediaUpload({ items, onChange }: MediaUploadProps) {
                 setLoading(false);
             },
             (error) => {
-                toast.error(error.message || "فشل فتح نافذة رفع الملفات");
+                console.error("Media upload window failed:", error);
+                toast.error(t("blog.mediaOpenFailed"));
                 setLoading(false);
             }
         );
@@ -46,55 +50,58 @@ export function MediaUpload({ items, onChange }: MediaUploadProps) {
     };
 
     return (
-        <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <label className="text-sm font-medium text-slate-400">Media Gallery (Images & Videos)</label>
+        <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-sm font-medium text-foreground">{t("blog.mediaTitle")}</span>
+                <Button variant="secondary" size="sm" onClick={handleUpload} disabled={loading}>
+                    <Upload />
+                    {loading ? t("blog.mediaUploading") : t("blog.mediaAdd")}
+                </Button>
+            </div>
+
+            {items.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                    {items.map((item, index) => (
+                        <div key={index} className="relative aspect-square overflow-hidden rounded-control border border-border bg-surface-hover">
+                            {item.type === 'video' ? (
+                                <div className="flex size-full items-center justify-center">
+                                    <video src={item.url} className="absolute inset-0 size-full object-contain opacity-50" muted />
+                                    <Video aria-hidden className="relative size-6 text-muted" />
+                                </div>
+                            ) : (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={item.url}
+                                    alt=""
+                                    className="size-full object-contain"
+                                    referrerPolicy="no-referrer"
+                                />
+                            )}
+
+                            <Badge className="absolute bottom-2 left-2">{item.type === "video" ? t("blog.mediaVideo") : t("blog.mediaImage")}</Badge>
+
+                            <Button
+                                variant="secondary"
+                                size="icon-sm"
+                                onClick={() => handleRemove(index)}
+                                aria-label={t("blog.mediaRemove")}
+                                title={t("blog.mediaRemove")}
+                                className="absolute right-2 top-2 hover:text-danger"
+                            >
+                                <X />
+                            </Button>
+                        </div>
+                    ))}
+                </div>
+            ) : (
                 <button
                     type="button"
                     onClick={handleUpload}
                     disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-bold"
+                    className="w-full rounded-card border border-dashed border-border-strong bg-surface px-4 py-8 text-center text-sm text-muted transition-colors hover:bg-surface-hover disabled:opacity-50"
                 >
-                    <Upload className="w-4 h-4" />
-                    {loading ? "Uploading..." : "Add Media"}
+                    {t("blog.mediaEmpty")}
                 </button>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {items.map((item, index) => (
-                    <div key={index} className="relative group rounded-lg overflow-hidden border border-slate-700 bg-slate-900 aspect-square">
-                        <button
-                            onClick={() => handleRemove(index)}
-                            className="absolute top-2 right-2 bg-red-500/80 p-1 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-
-                        {item.type === 'video' ? (
-                            <div className="w-full h-full flex items-center justify-center bg-slate-800">
-                                <Video className="w-8 h-8 text-slate-500" />
-                                <video src={item.url} className="absolute inset-0 w-full h-full object-contain opacity-50" muted />
-                            </div>
-                        ) : (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                src={item.url}
-                                alt="Media"
-                                className="w-full h-full object-contain"
-                                referrerPolicy="no-referrer"
-                            />
-                        )}
-
-                        <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded text-xs text-white capitalize">
-                            {item.type}
-                        </div>
-                    </div>
-                ))}
-            </div>
-            {items.length === 0 && (
-                <div className="border border-dashed border-slate-700 rounded-xl p-8 text-center text-slate-500">
-                    No media added yet. Supports Images & Videos.
-                </div>
             )}
         </div>
     );

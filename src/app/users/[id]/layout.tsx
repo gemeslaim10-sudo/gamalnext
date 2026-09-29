@@ -1,0 +1,35 @@
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { getCopy } from "@/lib/copy/server";
+import { getDocument } from "@/lib/server-utils";
+import { clean, getSiteOpenGraph, getSiteSeo } from "@/lib/seo/server";
+import type { UserProfile } from "./types";
+
+// The member page itself loads in the browser; this only gives it a real title and share card.
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const { id } = await params;
+    const [profile, t, seo, openGraph] = await Promise.all([
+        getDocument<UserProfile>("users", id),
+        getCopy(),
+        getSiteSeo(),
+        getSiteOpenGraph(),
+    ]);
+
+    const name = clean(profile?.name);
+    if (!name) return { title: t("blog.userNotFound"), robots: { index: false, follow: true } };
+
+    const bio = clean(profile?.bio);
+    const description =
+        bio && bio.length > 160 ? `${bio.slice(0, 157).trimEnd()}…` : bio ?? t("blog.userSeoDescription", { name, siteName: seo.siteName });
+    const photo = clean(profile?.photoURL);
+
+    return {
+        title: name,
+        description,
+        openGraph: { ...openGraph, type: "profile", ...(photo ? { images: [{ url: photo, alt: name }] } : {}) },
+    };
+}
+
+export default function UserLayout({ children }: { children: ReactNode }) {
+    return children;
+}

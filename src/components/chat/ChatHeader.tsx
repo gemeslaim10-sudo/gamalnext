@@ -1,66 +1,71 @@
-'use client';
+"use client";
 
-import { Bot, X, Copy, ArrowLeft, Trash2 } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { Check, Copy, Trash2, X } from "lucide-react";
+import { Button, Skeleton } from "@/components/ui";
 
 interface ChatHeaderProps {
+    title: string;
+    subtitle: string;
+    /** Shows placeholders until the texts from the dashboard arrive */
+    loading?: boolean;
     onClose?: () => void;
-    onBack?: () => void;
-    onCopyChat?: () => void;
+    /** Returns true when something was copied */
+    onCopyChat?: () => Promise<boolean>;
     onClearChat?: () => void;
-    className?: string;
 }
 
-export default function ChatHeader({ onClose, onBack, onCopyChat, onClearChat, className = "p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-b border-slate-700/50 flex items-center justify-between" }: ChatHeaderProps) {
+export default function ChatHeader({ title, subtitle, loading, onClose, onCopyChat, onClearChat }: ChatHeaderProps) {
+    const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        if (!copied) return undefined;
+        const timer = window.setTimeout(() => setCopied(false), 2000);
+        return () => window.clearTimeout(timer);
+    }, [copied]);
+
     return (
-        <div className={className}>
-            <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-600 rounded-lg">
-                    <Bot className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                    <h3 className="font-bold text-white text-sm">Smart Assistant</h3>
-                    <p className="text-xs text-blue-300 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                        Online Now
-                    </p>
-                </div>
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
+            <div className="min-w-0 flex-1">
+                {loading ? (
+                    <div className="space-y-1.5 py-0.5">
+                        <Skeleton className="h-3.5 w-32" />
+                        <Skeleton className="h-3 w-44 max-w-full" />
+                    </div>
+                ) : (
+                    <>
+                        <p dir="auto" className="truncate text-sm font-semibold text-foreground">
+                            {title}
+                        </p>
+                        {subtitle && (
+                            <p dir="auto" className="truncate text-xs text-subtle">
+                                {subtitle}
+                            </p>
+                        )}
+                    </>
+                )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
                 {onCopyChat && (
-                    <button
-                        onClick={onCopyChat}
-                        title="Copy Chat"
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={async () => setCopied(await onCopyChat())}
+                        aria-label={copied ? "Copied" : "Copy chat"}
+                        title="Copy chat"
                     >
-                        <Copy className="w-4 h-4" />
-                    </button>
+                        {copied ? <Check /> : <Copy />}
+                    </Button>
                 )}
                 {onClearChat && (
-                    <button
-                        onClick={onClearChat}
-                        title="Clear Chat"
-                        className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-slate-400 hover:text-red-400"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                )}
-                {onBack && (
-                    <button
-                        onClick={onBack}
-                        title="Go Back"
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </button>
+                    <Button variant="ghost" size="icon-sm" onClick={onClearChat} aria-label="Clear chat" title="Clear chat">
+                        <Trash2 />
+                    </Button>
                 )}
                 {onClose && (
-                    <button
-                        onClick={onClose}
-                        title="Close Chat"
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
+                    <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close chat" title="Close chat">
+                        <X />
+                    </Button>
                 )}
             </div>
         </div>

@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { deleteUser } from "firebase/auth";
 import { openCloudinaryWidget } from "@/lib/cloudinary";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 export interface SettingsFormData {
     name: string;
@@ -20,7 +21,11 @@ export interface SettingsFormData {
 export function useSettings() {
     const { user } = useAuth();
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
+    const t = useCopy();
+    // Whose saved profile is in the form. Until it matches the signed-in user the page keeps its
+    // loading state, so the form never shows empty fields that fill in a moment later.
+    const [loadedUid, setLoadedUid] = useState<string | null>(null);
+    const [deleting, setDeleting] = useState(false);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<SettingsFormData>({
         name: "",
@@ -33,11 +38,12 @@ export function useSettings() {
     });
 
     useEffect(() => {
-        async function fetchUserData() {
-            if (user) {
-                const docRef = doc(db, "users", user.uid);
-                const snap = await getDoc(docRef);
-                if (snap.exists()) {
+        if (!user) return;
+        let cancelled = false;
+        const fetchUserData = async () => {
+            try {
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (!cancelled && snap.exists()) {
                     const data = snap.data();
                     setFormData({
                         name: data.name || user.displayName || "",
@@ -49,11 +55,20 @@ export function useSettings() {
                         photoURL: data.photoURL || user.photoURL || ""
                     });
                 }
+            } catch (error) {
+                console.error("Error loading profile:", error);
+                if (!cancelled) toast.error(t("account.settingsLoadFailed"));
+            } finally {
+                if (!cancelled) setLoadedUid(user.uid);
             }
-            setLoading(false);
-        }
+        };
         fetchUserData();
-    }, [user]);
+        return () => {
+            cancelled = true;
+        };
+    }, [user, t]);
+
+    const loading = deleting || (!!user && loadedUid !== user.uid);
 
     const handlePhotoUpload = () => {
         openCloudinaryWidget(
@@ -64,7 +79,8 @@ export function useSettings() {
                 }
             },
             (error) => {
-                toast.error(error.message || "فشل فتح نافذة رفع الصور");
+                console.error("Photo upload error:", error);
+                toast.error(t("account.settingsPhotoFailed"));
             }
         );
     };
@@ -78,10 +94,10 @@ export function useSettings() {
                 ...formData,
                 updatedAt: new Date()
             });
-            toast.success("تم تحديث الملف الشخصي بنجاح! 🎉");
+            toast.success(t("account.settingsSaved"));
         } catch (error) {
             console.error(error);
-            toast.error("حدث خطأ أثناء الحفظ.");
+            toast.error(t("account.settingsSaveFailed"));
         } finally {
             setSaving(false);
         }
@@ -90,16 +106,16 @@ export function useSettings() {
     const handleDeleteAccount = async () => {
         if (!user) return;
 
-        if (!confirm("هل أنت متأكد أنك تريد حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه.")) {
+        if (!confirm(t("account.settingsDeleteConfirm"))) {
             return;
         }
 
-        if (!confirm("تحذير أخير: سيتم حذف جميع بياناتك ومقالاتك. هل أنت متأكد تماماً؟")) {
+        if (!confirm(t("account.settingsDeleteConfirmFinal"))) {
             return;
         }
 
         try {
-            setLoading(true);
+            setDeleting(true);
             // 1. Delete Firestore Document
             await deleteDoc(doc(db, "users", user.uid));
 
@@ -115,11 +131,11 @@ export function useSettings() {
             console.error("Error deleting account:", error);
             const firebaseError = error as { code?: string };
             if (firebaseError.code === 'auth/requires-recent-login') {
-                toast.error("لحذف الحساب، يرجى تسجيل الخروج وتسجيل الدخول مرة أخرى للتحقق من هويتك.");
+                toast.error(t("account.settingsDeleteRelogin"));
             } else {
-                toast.error("حدث خطأ أثناء حذف الحساب. يرجى المحاولة مرة أخرى.");
+                toast.error(t("account.settingsDeleteFailed"));
             }
-            setLoading(false);
+            setDeleting(false);
         }
     };
 

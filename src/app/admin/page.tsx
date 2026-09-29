@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { collection, getCountFromServer } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Code, FileText, MessageSquare, Users } from "lucide-react";
+import { FileText } from "lucide-react";
+import { ButtonLink, Card, PageHeader } from "@/components/ui";
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState({
@@ -58,49 +59,39 @@ export default function AdminDashboard() {
     }, []);
 
     const cards = [
-        { label: "Total Skills", value: stats.skills, icon: Code, color: "bg-blue-500" },
-        { label: "Projects", value: stats.projects, icon: FileText, color: "bg-purple-500" },
-        { label: "Reviews", value: stats.reviews, icon: MessageSquare, color: "bg-orange-500" },
-        { label: "Registered Users", value: stats.users, icon: Users, color: "bg-pink-500" },
+        { label: "Total Skills", value: stats.skills },
+        { label: "Projects", value: stats.projects },
+        { label: "Reviews", value: stats.reviews },
+        { label: "Registered Users", value: stats.users },
     ];
 
     return (
-        <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-6">Dashboard Overview</h1>
+        <>
+            <PageHeader title="Dashboard Overview" description="A quick look at your site content and community." />
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {cards.map((card, idx) => {
-                    const Icon = card.icon;
-                    return (
-                        <div key={idx} className="p-4 md:p-5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-3">
-                            <div className={`p-3 rounded-lg ${card.color} bg-opacity-10 text-white`}>
-                                <Icon className={`w-6 h-6 md:w-7 md:h-7 ${card.color.replace('bg-', 'text-')}`} />
-                            </div>
-                            <div>
-                                <p className="text-slate-400 text-xs">{card.label}</p>
-                                <p className="text-2xl md:text-3xl font-bold text-white">{card.value}</p>
-                            </div>
-                        </div>
-                    );
-                })}
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                {cards.map((card) => (
+                    <Card key={card.label}>
+                        <p className="text-sm text-muted">{card.label}</p>
+                        <p className="mt-1 text-2xl font-semibold tabular-nums text-foreground">{card.value}</p>
+                    </Card>
+                ))}
             </div>
 
-            <div className="mt-8 p-6 rounded-xl bg-slate-900 border border-slate-800">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h2 className="text-lg font-bold text-white mb-2">Quick Actions</h2>
-                        <div className="text-slate-400 text-sm">
+            <Card className="mt-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                        <h2 className="text-base font-semibold text-foreground">Quick Actions</h2>
+                        <p className="mt-1 text-sm leading-relaxed text-muted">
                             Select a category from the sidebar to start managing your dynamic content.
                             Everything you edit will be instantly updated on the live website.
-                        </div>
+                        </p>
                     </div>
-                    <div>
-                        <a href="/gamal-cv" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-600/30 transition-colors font-medium text-sm whitespace-nowrap">
-                            <FileText className="w-4 h-4" /> View My Static CV
-                        </a>
-                    </div>
+                    <ButtonLink href="/gamal-cv" external variant="secondary" className="shrink-0 self-start sm:self-auto">
+                        <FileText /> View My Static CV
+                    </ButtonLink>
                 </div>
-            </div>
-        </div>
+            </Card>
+        </>
     );
 }

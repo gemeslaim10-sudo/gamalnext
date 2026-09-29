@@ -1,5 +1,7 @@
-import { Save, Loader2 } from "lucide-react";
+import { Save } from "lucide-react";
 import { MediaUpload } from "@/components/admin/MediaUpload";
+import { useCopy } from "@/components/providers/CopyProvider";
+import { Button, Field, Input, Spinner, Textarea } from "@/components/ui";
 
 interface EditArticleFormProps {
     formData: {
@@ -21,67 +23,72 @@ interface EditArticleFormProps {
 }
 
 export function EditArticleForm({ formData, setFormData, saving, onSubmit }: EditArticleFormProps) {
+    const t = useCopy();
+
     return (
         <form onSubmit={onSubmit} className="space-y-6">
-            <div>
-                <label className="block text-slate-300 font-bold mb-2">عنوان المقال</label>
-                <input
+            <Field label={t("blog.fieldTitle")} htmlFor="article-title">
+                <Input
+                    id="article-title"
                     required
+                    dir="auto"
                     value={formData.title}
                     onChange={e => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="عنوان المقال..."
+                    placeholder={t("blog.fieldTitlePlaceholder")}
                 />
-            </div>
+            </Field>
 
             <MediaUpload
                 items={formData.media}
                 onChange={(media) => setFormData({ ...formData, media })}
             />
 
-            <div>
-                <label className="block text-slate-300 font-bold mb-2">محتوى المقال</label>
-                <textarea
+            <Field label={t("blog.fieldContent")} htmlFor="article-content">
+                <Textarea
+                    id="article-content"
                     required
+                    dir="auto"
                     value={formData.content}
                     onChange={e => setFormData({ ...formData, content: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none h-96 font-mono leading-relaxed"
-                    placeholder="اكتب محتوى المقال هنا..."
+                    className="h-96 font-mono"
+                    placeholder={t("blog.fieldContentPlaceholder")}
                 />
-            </div>
+            </Field>
 
-            <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                    <label className="block text-slate-300 font-bold mb-2">وصف محركات البحث (Meta Description)</label>
-                    <textarea
+            <div className="grid gap-6 sm:grid-cols-2">
+                <Field
+                    label={t("blog.fieldSummary")}
+                    htmlFor="article-summary"
+                    hint={`${formData.summary.length}/160`}
+                >
+                    <Textarea
+                        id="article-summary"
+                        dir="auto"
                         value={formData.summary}
                         onChange={e => setFormData({ ...formData, summary: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none h-32"
-                        placeholder="وصف مختصر للمقال يظهر في نتائج البحث..."
+                        className="h-32"
+                        placeholder={t("blog.fieldSummaryPlaceholder")}
                         maxLength={160}
                     />
-                    <div className="text-right text-xs text-slate-500 mt-1">
-                        {formData.summary.length}/160
-                    </div>
-                </div>
-                <div>
-                    <label className="block text-slate-300 font-bold mb-2">الكلمات المفتاحية (Tags)</label>
-                    <textarea
+                </Field>
+                <Field label={t("blog.fieldTags")} htmlFor="article-tags">
+                    <Textarea
+                        id="article-tags"
+                        dir="auto"
                         value={formData.tags}
                         onChange={e => setFormData({ ...formData, tags: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none h-32"
-                        placeholder="كلمات دلالية مفصولة بفاصلة..."
+                        className="h-32"
+                        placeholder={t("blog.fieldTagsPlaceholder")}
                     />
-                </div>
+                </Field>
             </div>
 
-            <button
-                type="submit"
-                disabled={saving}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
-            >
-                {saving ? <Loader2 className="animate-spin" /> : <><Save /> حفظ التعديلات</>}
-            </button>
+            <div className="flex justify-end border-t border-border pt-6">
+                <Button type="submit" disabled={saving} className="w-full sm:w-auto">
+                    {saving ? <Spinner className="size-4 text-primary-foreground" /> : <Save />}
+                    {t("blog.save")}
+                </Button>
+            </div>
         </form>
     );
 }

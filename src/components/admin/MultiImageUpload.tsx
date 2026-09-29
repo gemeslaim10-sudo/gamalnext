@@ -1,6 +1,8 @@
 "use client";
 
+import { useId } from "react";
 import { Plus, X, ClipboardPaste } from "lucide-react";
+import { Button } from "@/components/ui";
 import { useMultiImageUpload } from "./hooks/useMultiImageUpload";
 
 interface MultiImageUploadProps {
@@ -9,7 +11,11 @@ interface MultiImageUploadProps {
     label?: string;
 }
 
+const TILE =
+    "flex h-24 flex-col items-center justify-center gap-1.5 rounded-card border border-dashed border-border-strong bg-surface px-2 text-center text-xs text-muted transition-colors hover:bg-surface-hover hover:text-foreground disabled:opacity-50";
+
 export function MultiImageUpload({ value = [], onChange, label = "معرض الصور (Gallery)" }: MultiImageUploadProps) {
+    const labelId = useId();
     const {
         loading,
         containerRef,
@@ -20,67 +26,55 @@ export function MultiImageUpload({ value = [], onChange, label = "معرض ال�
     } = useMultiImageUpload(value, onChange);
 
     return (
-        <div 
+        <div
             ref={containerRef}
-            className="space-y-3 outline-none focus-within:ring-1 focus-within:ring-slate-800 rounded-xl p-1"
+            className="space-y-2 rounded-control"
             onPaste={handlePaste as unknown as React.ClipboardEventHandler}
             tabIndex={0}
+            role="group"
+            aria-labelledby={labelId}
         >
-            <div className="flex items-center justify-between">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</label>
-                <span className="text-[10px] text-slate-500">{value.length} صور</span>
+            <div className="flex items-center justify-between gap-2">
+                <span id={labelId} className="text-sm font-medium text-foreground">{label}</span>
+                <span className="shrink-0 text-xs text-subtle">{value.length} صور</span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                <button
-                    type="button"
-                    onClick={handleUpload}
-                    disabled={loading}
-                    className="h-24 rounded-xl border-2 border-dashed border-slate-700 hover:border-blue-500 hover:bg-blue-500/10 flex flex-col items-center justify-center gap-2 transition-all group disabled:opacity-50"
-                >
-                    <div className="w-8 h-8 rounded-full bg-slate-800 group-hover:bg-blue-500 text-slate-400 group-hover:text-white flex items-center justify-center transition-colors">
-                        <Plus className="w-4 h-4" />
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-500 group-hover:text-blue-400">
-                        {loading ? "جاري الرفع..." : "إضافة صور"}
-                    </span>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] gap-2">
+                <button type="button" onClick={handleUpload} disabled={loading} className={TILE}>
+                    <Plus aria-hidden className="size-4" />
+                    {loading ? "جاري الرفع..." : "إضافة صور"}
                 </button>
-                
+
                 <button
                     type="button"
                     onClick={handleSmartPaste}
                     disabled={loading}
-                    className="h-24 rounded-xl border-2 border-dashed border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/10 flex flex-col items-center justify-center gap-2 transition-all group disabled:opacity-50"
+                    className={TILE}
                     title="Paste from clipboard"
                 >
-                    <div className="w-8 h-8 rounded-full bg-slate-800 group-hover:bg-emerald-500 text-slate-400 group-hover:text-white flex items-center justify-center transition-colors">
-                        <ClipboardPaste className="w-4 h-4" />
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-500 group-hover:text-emerald-400">
-                        {loading ? "..." : "لصق (Paste)"}
-                    </span>
+                    <ClipboardPaste aria-hidden className="size-4" />
+                    {loading ? "..." : "لصق (Paste)"}
                 </button>
 
                 {value.map((url, index) => (
-                    <div key={index} className="relative group h-24 rounded-xl overflow-hidden border border-slate-800 bg-slate-900">
+                    <div key={index} className="relative h-24 overflow-hidden rounded-control border border-border bg-surface-hover">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={url} alt={`Gallery ${index + 1}`} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" />
-                        
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                            <button
-                                type="button"
-                                onClick={() => removeImage(index)}
-                                className="w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-500 text-white flex items-center justify-center transition-colors transform hover:scale-110"
-                                title="حذف الصورة"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
+                        <img src={url} alt={`Gallery ${index + 1}`} className="size-full object-contain" />
+                        <Button
+                            variant="secondary"
+                            size="icon-sm"
+                            onClick={() => removeImage(index)}
+                            aria-label={`حذف الصورة ${index + 1}`}
+                            title="حذف الصورة"
+                            className="absolute right-1.5 top-1.5 hover:text-danger"
+                        >
+                            <X />
+                        </Button>
                     </div>
                 ))}
             </div>
-            
-            <p className="text-[10px] text-slate-500 italic px-1">
+
+            <p className="text-xs leading-relaxed text-subtle">
                 اضغط هنا ثم اضغط Ctrl+V، أو استخدم زر اللصق لرفع الصور مباشرة من الحافظة (الـ Clipboard).
             </p>
         </div>

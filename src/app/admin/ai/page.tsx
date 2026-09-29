@@ -1,57 +1,58 @@
 "use client";
 
-import { Save, Bot, Loader2 } from "lucide-react";
-import { Toaster } from "react-hot-toast";
-
+import { BookOpen, FlaskConical, Save } from "lucide-react";
+import { Alert, Button, ButtonLink, LoadingBlock, PageHeader } from "@/components/ui";
 import { useAiSettings } from "./useAiSettings";
-import { AiEnginesSection } from "./components/AiEnginesSection";
+import { IdentitySection } from "./components/IdentitySection";
+import { InstructionsSection } from "./components/InstructionsSection";
+import { WelcomeSection } from "./components/WelcomeSection";
+import { ModelSection } from "./components/ModelSection";
+import { AiKeysForm } from "./components/AiKeysForm";
 
 export default function AdminAiPage() {
-    const {
-        loading,
-        saving,
-        formData,
-        setFormData,
-        handleSave
-    } = useAiSettings();
+    const { loading, loadError, saving, dirty, formData, update, handleSave } = useAiSettings();
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-slate-950">
-                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-            </div>
-        );
-    }
+    const saveButton = (
+        <Button onClick={handleSave} disabled={saving || loading || loadError || !dirty} className="flex-1 sm:flex-none">
+            <Save /> {saving ? "جاري الحفظ…" : "حفظ التغييرات"}
+        </Button>
+    );
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white p-4 md:p-8">
-            <Toaster />
-            <div className="max-w-6xl mx-auto space-y-8">
-                
-                {/* Header Container */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900/50 p-6 md:p-8 rounded-[2rem] border border-slate-800 backdrop-blur-xl gap-6">
-                    <div className="flex items-center gap-4">
-                        <div className="p-4 bg-blue-500/10 rounded-2xl shadow-inner border border-blue-500/20">
-                            <Bot className="w-10 h-10 text-blue-500" />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-black tracking-tight">إعدادات الوكيل الذكي (AI Agent)</h1>
-                            <p className="text-slate-400 text-sm mt-1 font-medium">التحكم الكامل في شخصية، معلومات، وأسلوب المحادثة</p>
-                        </div>
-                    </div>
-                    <button 
-                        onClick={handleSave} 
-                        disabled={saving}
-                        className="w-full md:w-auto px-10 py-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-2xl text-white font-black flex items-center justify-center gap-2 transition-all shadow-xl shadow-blue-500/20 active:scale-95"
-                    >
-                        <Save className="w-5 h-5" /> {saving ? "جاري الحفظ..." : "حفظ البنية الذكية"}
-                    </button>
-                </div>
+        <div className="max-w-content">
+            <PageHeader
+                title="إعدادات المساعد الذكي"
+                description="هوية المساعد، تعليماته، رسالة الترحيب والموديل. المعلومات نفسها في قاعدة المعرفة."
+                actions={
+                    <>
+                        <ButtonLink href="/admin/ai/knowledge" variant="secondary" className="flex-1 sm:flex-none">
+                            <BookOpen /> قاعدة المعرفة
+                        </ButtonLink>
+                        <ButtonLink href="/admin/ai/test" variant="secondary" className="flex-1 sm:flex-none">
+                            <FlaskConical /> جرّب المساعد
+                        </ButtonLink>
+                    </>
+                }
+            />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <AiEnginesSection formData={formData} setFormData={setFormData} />
+            {loading ? (
+                <LoadingBlock />
+            ) : loadError ? (
+                <Alert variant="danger">تعذّر تحميل الإعدادات. تأكد من الاتصال وأعد تحميل الصفحة.</Alert>
+            ) : (
+                <div className="space-y-6">
+                    <IdentitySection formData={formData} update={update} />
+                    <InstructionsSection formData={formData} update={update} />
+                    <WelcomeSection formData={formData} update={update} />
+                    <ModelSection formData={formData} update={update} />
+                    <AiKeysForm formData={formData} update={update} />
+
+                    <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-end gap-3 border-t border-border bg-background px-4 py-3 sm:mx-0 sm:rounded-card sm:border">
+                        <p className="me-auto text-xs text-subtle">{dirty ? "فيه تغييرات لم تُحفظ" : "كل التغييرات محفوظة"}</p>
+                        {saveButton}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

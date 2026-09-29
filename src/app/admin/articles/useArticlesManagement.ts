@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { collection, query, orderBy, onSnapshot, doc, deleteDoc, addDoc, updateDoc, serverTimestamp, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { refreshSite } from "@/lib/refreshSite";
 import { toast } from "react-hot-toast";
 import { Article, initialForm } from "./types";
 
@@ -35,6 +36,7 @@ export function useArticlesManagement() {
                 status: 'published',
                 updatedAt: serverTimestamp()
             });
+            void refreshSite();
 
             // Notify Author
             if (article.authorId) {
@@ -76,6 +78,7 @@ export function useArticlesManagement() {
         if (confirm("Delete this article?")) {
             try {
                 await deleteDoc(doc(db, "articles", id));
+                void refreshSite();
                 toast.success("Article deleted");
             } catch {
                 toast.error("Error deleting article");
@@ -110,6 +113,7 @@ export function useArticlesManagement() {
                 });
                 toast.success("Article created");
             }
+            void refreshSite();
             resetForm();
         } catch (e) {
             console.error(e);

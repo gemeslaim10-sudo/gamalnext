@@ -21,11 +21,12 @@ export function BrushTool({ imageSrc, isActive, onCommit, color, size, opacity, 
     if (!isActive) return null;
 
     return (
-        <div ref={containerRef} className="relative inline-flex max-w-full max-h-[65vh] rounded-lg overflow-hidden shadow-xl">
-            <img 
-                src={imageSrc} 
-                alt="Draw target" 
-                className="max-w-full max-h-[65vh] block pointer-events-none"
+        <div ref={containerRef} className="relative inline-flex max-h-[65vh] max-w-full overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+                src={imageSrc}
+                alt="Draw target"
+                className="pointer-events-none block max-h-[65vh] max-w-full"
                 crossOrigin="anonymous"
             />
             {imageLoaded && (
@@ -35,8 +36,7 @@ export function BrushTool({ imageSrc, isActive, onCommit, color, size, opacity, 
                     onPointerMove={handlePointerMove}
                     onPointerUp={handlePointerUp}
                     onPointerLeave={handlePointerUp}
-                    className="absolute inset-0 w-full h-full cursor-crosshair"
-                    style={{ touchAction: "none" }}
+                    className="absolute inset-0 h-full w-full cursor-crosshair touch-none"
                 />
             )}
         </div>

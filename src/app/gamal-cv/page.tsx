@@ -1,10 +1,20 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { CvTemplate, CVData } from '@/app/tools/utils/ai-cv-builder/components/CvTemplate';
-import { Printer, ArrowLeft, Image as ImageIcon, Settings2, X, Plus, Trash2, Upload } from 'lucide-react';
-import Link from 'next/link';
+import { ArrowLeft, Plus, Printer, Settings2, Trash2, Upload, X } from 'lucide-react';
+import { CvTemplate, CVData } from '@/components/cv/CvTemplate';
+import { Button, ButtonLink, Field, Input, Textarea } from '@/components/ui';
 import { openCloudinaryWidget } from '@/lib/cloudinary';
+import { cn } from '@/lib/utils';
+
+const PERSONAL_FIELDS = [
+    { name: 'fullName', label: 'Full name' },
+    { name: 'jobTitle', label: 'Job title' },
+    { name: 'email', label: 'Email' },
+    { name: 'phone', label: 'Phone' },
+    { name: 'location', label: 'Location' },
+    { name: 'website', label: 'Website' },
+] as const;
 
 const initialCvData: CVData = {
     personalInfo: {
@@ -137,170 +147,180 @@ export default function GamalCvPage(): React.JSX.Element {
         setCvData({ ...cvData, experience: newExp });
     };
 
+    const uploadPhoto = (): void => {
+        openCloudinaryWidget((url) => {
+            const imageUrl = Array.isArray(url) ? url[0] : url;
+            setCvData(prev => ({
+                ...prev,
+                personalInfo: { ...prev.personalInfo, image: imageUrl }
+            }));
+        });
+    };
+
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row">
-            
-            {/* Editor Sidebar (Hidden in print) */}
-            <div className={`print:hidden fixed inset-y-0 left-0 z-50 w-full md:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:static'}`}>
-                <div className="p-4 border-b flex justify-between items-center bg-slate-900 text-white">
-                    <h2 className="font-bold flex items-center gap-2"><Settings2 className="w-5 h-5" /> Edit CV</h2>
-                    <button className="md:hidden" onClick={() => setIsSidebarOpen(false)}>
-                        <X className="w-5 h-5" />
-                    </button>
+        <div className="flex flex-1 flex-col print:block">
+            {/* Toolbar (screen only) */}
+            <header className="sticky top-0 z-40 border-b border-border bg-background print:hidden">
+                <div className="flex h-14 items-center gap-2 px-4 sm:px-6">
+                    <ButtonLink href="/admin" variant="ghost" className="-ml-3 px-3" aria-label="Back to admin">
+                        <ArrowLeft />
+                        <span className="hidden sm:inline">Admin</span>
+                    </ButtonLink>
+                    <div className="ml-auto flex items-center gap-2">
+                        <Button variant="secondary" className="md:hidden" onClick={() => setIsSidebarOpen(true)}>
+                            <Settings2 />
+                            Edit
+                        </Button>
+                        <Button onClick={handlePrint}>
+                            <Printer />
+                            Print PDF
+                        </Button>
+                    </div>
                 </div>
-                
-                <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                    {/* Image / Personal Info */}
-                    <div className="space-y-4">
-                        <h3 className="font-semibold text-gray-800 border-b pb-2">Personal Information</h3>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500 mb-1 block">Photo URL</label>
-                            <div className="flex items-center gap-2">
-                                <ImageIcon className="w-4 h-4 text-gray-400" />
-                                <input type="text" name="image" value={cvData.personalInfo.image || ''} onChange={handlePersonalInfoChange} className="flex-1 w-full text-sm border-b border-gray-300 p-1 focus:border-blue-500 outline-none text-gray-900 placeholder:text-gray-400" placeholder="https://example.com/photo.jpg" />
-                                <button 
-                                    onClick={() => {
-                                        openCloudinaryWidget((url) => {
-                                            const imageUrl = Array.isArray(url) ? url[0] : url;
-                                            setCvData(prev => ({
-                                                ...prev,
-                                                personalInfo: { ...prev.personalInfo, image: imageUrl }
-                                            }));
-                                        });
-                                    }}
-                                    className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors"
-                                    title="Upload Photo"
-                                >
-                                    <Upload className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500">Full Name</label>
-                            <input type="text" name="fullName" value={cvData.personalInfo.fullName} onChange={handlePersonalInfoChange} className="w-full text-sm border-b border-gray-300 p-1 focus:border-blue-500 outline-none text-gray-900 placeholder:text-gray-400" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500">Job Title</label>
-                            <input type="text" name="jobTitle" value={cvData.personalInfo.jobTitle} onChange={handlePersonalInfoChange} className="w-full text-sm border-b border-gray-300 p-1 focus:border-blue-500 outline-none text-gray-900 placeholder:text-gray-400" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500">Email</label>
-                            <input type="text" name="email" value={cvData.personalInfo.email} onChange={handlePersonalInfoChange} className="w-full text-sm border-b border-gray-300 p-1 focus:border-blue-500 outline-none text-gray-900 placeholder:text-gray-400" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500">Phone</label>
-                            <input type="text" name="phone" value={cvData.personalInfo.phone} onChange={handlePersonalInfoChange} className="w-full text-sm border-b border-gray-300 p-1 focus:border-blue-500 outline-none text-gray-900 placeholder:text-gray-400" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500">Location</label>
-                            <input type="text" name="location" value={cvData.personalInfo.location} onChange={handlePersonalInfoChange} className="w-full text-sm border-b border-gray-300 p-1 focus:border-blue-500 outline-none text-gray-900 placeholder:text-gray-400" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500">Website</label>
-                            <input type="text" name="website" value={cvData.personalInfo.website || ''} onChange={handlePersonalInfoChange} className="w-full text-sm border-b border-gray-300 p-1 focus:border-blue-500 outline-none text-gray-900 placeholder:text-gray-400" />
-                        </div>
+            </header>
+
+            <div className="flex flex-1 flex-col md:flex-row print:block">
+                {/* Editor: full-screen panel on phones, side panel from md up. Never printed. */}
+                <aside
+                    aria-label="Edit CV"
+                    className={cn(
+                        "fixed inset-0 z-50 flex-col bg-background print:hidden",
+                        "md:sticky md:inset-auto md:top-14 md:z-auto md:flex md:h-[calc(100dvh-3.5rem)] md:w-96 md:shrink-0 md:self-start md:border-r md:border-border md:bg-surface",
+                        isSidebarOpen ? "flex" : "hidden"
+                    )}
+                >
+                    <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
+                        <h2 className="text-base font-semibold text-foreground">Edit CV</h2>
+                        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsSidebarOpen(false)} aria-label="Close editor">
+                            <X />
+                        </Button>
                     </div>
 
-                    {/* Experience Array */}
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center border-b pb-2">
-                            <h3 className="font-semibold text-gray-800">Experience</h3>
-                            <button onClick={addExperience} className="text-blue-600 hover:text-blue-800"><Plus className="w-4 h-4" /></button>
-                        </div>
-                        
-                        {cvData.experience.map((exp, idx) => (
-                            <div key={idx} className="p-3 bg-gray-50 rounded-lg border relative">
-                                <button onClick={() => removeExperience(idx)} className="absolute top-2 right-2 text-red-500 hover:text-red-700">
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                                <div className="space-y-2 mt-2">
-                                    <input type="text" value={exp.title} onChange={(e) => updateExperience(idx, 'title', e.target.value)} className="w-full text-sm border-b bg-transparent border-gray-300 p-1 font-semibold outline-none text-gray-900 placeholder:text-gray-400" placeholder="Title" />
-                                    <div className="flex gap-2">
-                                        <input type="text" value={exp.company} onChange={(e) => updateExperience(idx, 'company', e.target.value)} className="w-1/2 text-xs border-b bg-transparent border-gray-300 p-1 outline-none text-gray-900 placeholder:text-gray-400" placeholder="Company" />
-                                        <input type="text" value={exp.date} onChange={(e) => updateExperience(idx, 'date', e.target.value)} className="w-1/2 text-xs border-b bg-transparent border-gray-300 p-1 outline-none text-gray-900 placeholder:text-gray-400" placeholder="Date" />
-                                    </div>
-                                    <textarea value={exp.description.join('\n')} onChange={(e) => updateExperience(idx, 'description', e.target.value)} rows={3} className="w-full text-xs border bg-white border-gray-300 p-2 rounded outline-none text-gray-900 placeholder:text-gray-400" placeholder="Bullet points (one per line)" />
+                    <div className="flex-1 space-y-8 overflow-y-auto overscroll-contain p-4">
+                        {/* Photo / personal info */}
+                        <section className="space-y-4">
+                            <h3 className="text-sm font-semibold text-foreground">Personal information</h3>
+                            <Field label="Photo URL" htmlFor="cv-image">
+                                <div className="flex gap-2">
+                                    <Input
+                                        id="cv-image"
+                                        type="text"
+                                        name="image"
+                                        value={cvData.personalInfo.image || ''}
+                                        onChange={handlePersonalInfoChange}
+                                        placeholder="https://example.com/photo.jpg"
+                                    />
+                                    <Button variant="secondary" size="icon" onClick={uploadPhoto} aria-label="Upload photo" title="Upload photo">
+                                        <Upload />
+                                    </Button>
                                 </div>
+                            </Field>
+                            {PERSONAL_FIELDS.map((field) => (
+                                <Field key={field.name} label={field.label} htmlFor={`cv-${field.name}`}>
+                                    <Input
+                                        id={`cv-${field.name}`}
+                                        type="text"
+                                        name={field.name}
+                                        value={cvData.personalInfo[field.name] || ''}
+                                        onChange={handlePersonalInfoChange}
+                                    />
+                                </Field>
+                            ))}
+                        </section>
+
+                        {/* Experience */}
+                        <section className="space-y-4">
+                            <div className="flex items-center justify-between gap-2">
+                                <h3 className="text-sm font-semibold text-foreground">Experience</h3>
+                                <Button variant="ghost" onClick={addExperience}>
+                                    <Plus />
+                                    Add
+                                </Button>
                             </div>
-                        ))}
-                    </div>
 
-                    {/* Skills & Languages */}
-                    <div className="space-y-4">
-                        <h3 className="font-semibold text-gray-800 border-b pb-2">Skills & Languages</h3>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500">Skills (Comma separated)</label>
-                            <textarea value={cvData.skills.join(', ')} onChange={(e) => handleArrayChange('skills', e.target.value)} rows={3} className="w-full text-sm border border-gray-300 rounded p-2 focus:border-blue-500 outline-none text-gray-900 placeholder:text-gray-400" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500">Languages (Comma separated)</label>
-                            <textarea value={cvData.languages.join(', ')} onChange={(e) => handleArrayChange('languages', e.target.value)} rows={2} className="w-full text-sm border border-gray-300 rounded p-2 focus:border-blue-500 outline-none text-gray-900 placeholder:text-gray-400" />
-                        </div>
-                    </div>
+                            {cvData.experience.map((exp, idx) => (
+                                <div key={idx} className="space-y-2 rounded-card border border-border p-3">
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            type="text"
+                                            value={exp.title}
+                                            onChange={(e) => updateExperience(idx, 'title', e.target.value)}
+                                            placeholder="Title"
+                                            aria-label="Title"
+                                            className="font-medium"
+                                        />
+                                        <Button variant="ghost" size="icon" onClick={() => removeExperience(idx)} aria-label="Remove experience" className="hover:text-danger">
+                                            <Trash2 />
+                                        </Button>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Input
+                                            type="text"
+                                            value={exp.company}
+                                            onChange={(e) => updateExperience(idx, 'company', e.target.value)}
+                                            placeholder="Company"
+                                            aria-label="Company"
+                                        />
+                                        <Input
+                                            type="text"
+                                            value={exp.date}
+                                            onChange={(e) => updateExperience(idx, 'date', e.target.value)}
+                                            placeholder="Date"
+                                            aria-label="Date"
+                                        />
+                                    </div>
+                                    <Textarea
+                                        value={exp.description.join('\n')}
+                                        onChange={(e) => updateExperience(idx, 'description', e.target.value)}
+                                        rows={3}
+                                        placeholder="Bullet points (one per line)"
+                                        aria-label="Bullet points (one per line)"
+                                    />
+                                </div>
+                            ))}
+                        </section>
 
-                    {/* Specialized Solutions & Integrations */}
-                    <div className="space-y-4">
-                        <h3 className="font-semibold text-gray-800 border-b pb-2">Specialized Solutions</h3>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500">Solutions & Integrations (One per line)</label>
-                            <textarea 
-                                value={cvData.integrations ? cvData.integrations.join('\n') : ''} 
-                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>): void => setCvData({ ...cvData, integrations: e.target.value.split('\n').filter(Boolean) })} 
-                                rows={5} 
-                                className="w-full text-sm border border-gray-300 rounded p-2 focus:border-blue-500 outline-none text-gray-900 placeholder:text-gray-400" 
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        {/* Skills & languages */}
+                        <section className="space-y-4">
+                            <h3 className="text-sm font-semibold text-foreground">Skills & languages</h3>
+                            <Field label="Skills" htmlFor="cv-skills" hint="Comma separated">
+                                <Textarea
+                                    id="cv-skills"
+                                    value={cvData.skills.join(', ')}
+                                    onChange={(e) => handleArrayChange('skills', e.target.value)}
+                                    rows={3}
+                                />
+                            </Field>
+                            <Field label="Languages" htmlFor="cv-languages" hint="Comma separated">
+                                <Textarea
+                                    id="cv-languages"
+                                    value={cvData.languages.join(', ')}
+                                    onChange={(e) => handleArrayChange('languages', e.target.value)}
+                                    rows={2}
+                                />
+                            </Field>
+                        </section>
 
-            {/* Main Preview Area */}
-            <div className="flex-1 h-screen overflow-y-auto py-8 px-4 relative print:p-0 print:h-auto print:overflow-visible">
-                
-                {/* Header Actions */}
-                <div className="max-w-[210mm] mx-auto flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6 print:hidden">
-                    <div className="flex items-center gap-3">
-                        <button onClick={() => setIsSidebarOpen(true)} className="md:hidden p-2 bg-gray-100 rounded-lg">
-                            <Settings2 className="w-5 h-5" />
-                        </button>
-                        <Link href="/admin" className="text-gray-600 hover:text-gray-900 flex items-center gap-2 font-medium">
-                            <ArrowLeft className="w-5 h-5" /> Admin
-                        </Link>
+                        {/* Specialized solutions & integrations */}
+                        <section className="space-y-4">
+                            <h3 className="text-sm font-semibold text-foreground">Specialized solutions</h3>
+                            <Field label="Solutions & integrations" htmlFor="cv-integrations" hint="One per line">
+                                <Textarea
+                                    id="cv-integrations"
+                                    value={cvData.integrations ? cvData.integrations.join('\n') : ''}
+                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>): void => setCvData({ ...cvData, integrations: e.target.value.split('\n').filter(Boolean) })}
+                                    rows={5}
+                                />
+                            </Field>
+                        </section>
                     </div>
-                    <button
-                        onClick={handlePrint}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-                    >
-                        <Printer className="w-4 h-4" /> Print PDF
-                    </button>
-                </div>
+                </aside>
 
-                {/* CV Canvas */}
-                <div className="flex justify-center rounded-2xl print:bg-transparent print:p-0 print:m-0 overflow-x-auto shadow-2xl print:shadow-none bg-white max-w-[210mm] mx-auto">
+                {/* Preview: the CV "paper" on the dark page. Only this part prints. */}
+                <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-10 print:p-0">
                     <CvTemplate ref={printRef} data={cvData} />
-                </div>
+                </main>
             </div>
-
-            <style dangerouslySetInnerHTML={{__html: `
-                @media print {
-                    nav, header, footer, [data-sidebar="true"], .print\\:hidden {
-                        display: none !important;
-                    }
-                    body {
-                        background: white !important;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .min-h-screen {
-                        min-height: auto !important;
-                        padding: 0 !important;
-                        background: white !important;
-                    }
-                    .overflow-y-auto {
-                        overflow: visible !important;
-                    }
-                }
-            `}} />
         </div>
     );
 }

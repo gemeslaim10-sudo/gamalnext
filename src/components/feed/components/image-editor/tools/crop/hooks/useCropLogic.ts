@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { type Crop } from "react-image-crop";
 import { toast } from "react-hot-toast";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 export function useCropLogic(imageSrc: string, isActive: boolean, onCommit: (newSrc: string, keepMode?: boolean) => void) {
     const [crop, setCrop] = useState<Crop>();
     const imageRef = useRef<HTMLImageElement | null>(null);
+    const t = useCopy();
 
     useEffect(() => {
         if (!isActive) setCrop(undefined);
@@ -40,7 +42,7 @@ export function useCropLogic(imageSrc: string, isActive: boolean, onCommit: (new
             onCommit(newSrc, false); // Crop usually exits mode after apply
         } catch (e) {
             console.error("Crop failed", e);
-            toast.error("Failed to crop image");
+            toast.error(t("account.editorCropFailed"));
         }
     };
 

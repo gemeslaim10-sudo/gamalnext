@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ALLOWED_ADMINS } from "@/lib/constants";
 import type { FeedItem } from "@/components/feed/types";
+import { useCopy } from "@/components/providers/CopyProvider";
 import { updatePostData, deletePostData, fetchPostData } from "./api";
 export function useEditPost(postId: string) {
     const { user } = useAuth();
     const router = useRouter();
+    const t = useCopy();
     
     const [loading, setLoading] = useState(true);
     const [post, setPost] = useState<FeedItem | null>(null);
@@ -17,6 +19,8 @@ export function useEditPost(postId: string) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    // The read itself failed (not found / no permission redirect instead)
+    const [loadFailed, setLoadFailed] = useState(false);
     useEffect(() => {
         const fetchPost = async () => {
             if (!user) return;
@@ -27,7 +31,7 @@ export function useEditPost(postId: string) {
                     const isAdmin = ALLOWED_ADMINS.includes(user.email || "");
                     const isOwner = user.uid === data.userId;
                     if (!isAdmin && !isOwner) {
-                        toast.error("You don't have permission to edit this post");
+                        toast.error(t("account.editNoPermission"));
                         router.push("/");
                         return;
                     }
@@ -43,22 +47,23 @@ export function useEditPost(postId: string) {
                     }
                     setImages(initialImages);
                 } else {
-                    toast.error("Post not found");
+                    toast.error(t("account.editNotFound"));
                     router.push("/");
                 }
             } catch (err) {
                 console.error("Error fetching post:", err);
-                toast.error("Failed to load post");
+                toast.error(t("account.editLoadFailed"));
+                setLoadFailed(true);
             } finally {
                 setLoading(false);
             }
         };
         fetchPost();
-    }, [postId, user, router]);
+    }, [postId, user, router, t]);
     const uploadFiles = async (files: File[]) => {
         if (!files.length) return;
         if (images.length + files.length > 4) {
-            toast.error("You can upload a maximum of 4 images.");
+            toast.error(t("account.editMaxImages"));
             return;
         }
         setIsUploading(true);
@@ -70,11 +75,11 @@ export function useEditPost(postId: string) {
             }
             setImages(prev => [...prev, ...newUrls]);
             if (newUrls.length > 0) {
-                toast.success(`${newUrls.length} image${newUrls.length > 1 ? 's' : ''} attached!`, { icon: '📎', duration: 2000 });
+                toast.success(t("account.editImagesAttached", { count: newUrls.length }), { duration: 2000 });
             }
         } catch (error) {
             console.error("Image upload error:", error);
-            toast.error("Failed to upload image. Please try again.");
+            toast.error(t("account.editUploadFailed"));
         } finally {
             setIsUploading(false);
         }
@@ -88,10 +93,10 @@ export function useEditPost(postId: string) {
                 newImages[indexToUpdate] = url;
                 return newImages;
             });
-            toast.success("Image updated successfully!");
+            toast.success(t("account.editImageUpdated"));
         } catch (error) {
             console.error("Image update error:", error);
-            toast.error("Failed to update edited image.");
+            toast.error(t("account.editImageUpdateFailed"));
         } finally {
             setIsUploading(false);
         }
@@ -105,32 +110,33 @@ export function useEditPost(postId: string) {
         setIsSubmitting(true);
         try {
             await updatePostData(postId, content, images);
-            toast.success("Post updated successfully!");
+            toast.success(t("account.editSaved"));
             router.push("/");
         } catch (error) {
             console.error("Error updating post:", error);
-            toast.error("Failed to update post.");
+            toast.error(t("account.editSaveFailed"));
         } finally {
             setIsSubmitting(false);
         }
     };
     const handleDelete = async () => {
-        if (!window.confirm("Are you sure you want to delete this post?")) return;
+        if (!window.confirm(t("account.editDeleteConfirm"))) return;
         
         setIsDeleting(true);
         try {
             await deletePostData(postId);
-            toast.success("Post deleted successfully!");
+            toast.success(t("account.editDeleted"));
             router.push("/");
         } catch (error) {
             console.error("Error deleting post:", error);
-            toast.error("Failed to delete post.");
+            toast.error(t("account.editDeleteFailed"));
         } finally {
             setIsDeleting(false);
         }
     };
     return {
         loading,
+        loadFailed,
         post,
         content,
         setContent,

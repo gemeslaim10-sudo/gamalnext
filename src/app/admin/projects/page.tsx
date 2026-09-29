@@ -1,7 +1,7 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import { Toaster } from "react-hot-toast";
+import { Plus, Save } from "lucide-react";
+import { Button, Card, EmptyState, PageHeader, Skeleton } from "@/components/ui";
 
 // ── Sub-Components ────────────────────────────────────────────────────────────
 import ProjectsToolbar from "./ProjectsToolbar";
@@ -17,86 +17,120 @@ export default function ProjectsPage() {
         stats, toggleExpand, expandAll, collapseAll
     } = useProjectsAdmin();
 
-    if (loading) return (
-        <div className="space-y-4">
-            {[1, 2, 3].map(i => <div key={i} className="h-16 bg-slate-900 rounded-xl animate-pulse" />)}
-        </div>
+    const renderCard = (index: number, className?: string) => (
+        <ProjectCard
+            key={fields[index].id}
+            field={fields[index]}
+            index={index}
+            item={watchedItems?.[index]}
+            isExpanded={expandedCards.has(fields[index].id)}
+            onToggleExpand={toggleExpand}
+            onRemove={remove}
+            register={register}
+            watch={watch}
+            setValue={setValue}
+            className={className}
+        />
     );
 
     return (
-        <div className="space-y-4">
-            <Toaster />
-
-            <ProjectsToolbar
-                stats={stats}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                categoryFilter={categoryFilter}
-                setCategoryFilter={setCategoryFilter}
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                expandAll={expandAll}
-                collapseAll={collapseAll}
-                addProject={addProject}
-                onSave={handleSubmit(onSubmit)}
-                isSaving={isSubmitting}
+        <>
+            <PageHeader
+                title="Projects"
+                description="Portfolio items shown on the projects page. Changes go live after you save."
+                actions={
+                    !loading && (
+                        <>
+                            <Button variant="secondary" onClick={addProject} className="flex-1 sm:flex-none">
+                                <Plus /> Add Project
+                            </Button>
+                            <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting} className="flex-1 sm:flex-none">
+                                <Save /> {isSubmitting ? "Saving..." : "Save All"}
+                            </Button>
+                        </>
+                    )
+                }
             />
 
-            {/* ── Search Results Count ────────────────────────────────────── */}
-            {(searchQuery || categoryFilter !== "all") && (
-                <p className="text-[11px] text-slate-500 px-1">
-                    Showing {filteredIndices.length} of {fields.length} projects
-                    {searchQuery && <> matching &quot;<span className="text-slate-300">{searchQuery}</span>&quot;</>}
-                </p>
-            )}
-
-            {/* ── Projects List ───────────────────────────────────────────── */}
-            <div className={viewMode === 'grid'
-                ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3"
-                : "space-y-2"
-            }>
-                {filteredIndices.map((index) => (
-                    <ProjectCard
-                        key={fields[index].id}
-                        field={fields[index]}
-                        index={index}
-                        item={watchedItems?.[index]}
-                        isExpanded={expandedCards.has(fields[index].id)}
-                        onToggleExpand={toggleExpand}
-                        onRemove={remove}
-                        register={register}
-                        watch={watch}
-                        setValue={setValue}
+            {loading ? (
+                <Card padding="none" className="divide-y divide-border">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="flex items-center gap-3 px-4 py-3">
+                            <Skeleton className="size-10 shrink-0" />
+                            <div className="flex-1 space-y-2">
+                                <Skeleton className="h-3.5 w-1/3" />
+                                <Skeleton className="h-3 w-1/4" />
+                            </div>
+                        </div>
+                    ))}
+                </Card>
+            ) : (
+                <>
+                    <ProjectsToolbar
+                        stats={stats}
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        categoryFilter={categoryFilter}
+                        setCategoryFilter={setCategoryFilter}
+                        viewMode={viewMode}
+                        setViewMode={setViewMode}
+                        expandAll={expandAll}
+                        collapseAll={collapseAll}
                     />
-                ))}
-            </div>
-            <div ref={listEndRef} />
 
-            {/* ── Empty State ─────────────────────────────────────────────── */}
-            {fields.length === 0 && (
-                <div className="text-center py-16 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-950/30">
-                    <div className="bg-slate-900 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Plus className="text-slate-700 w-7 h-7" />
+                    <div className="mt-4 space-y-3">
+                        {/* ── Search Results Count ────────────────────────── */}
+                        {(searchQuery || categoryFilter !== "all") && (
+                            <p className="text-xs text-subtle">
+                                Showing {filteredIndices.length} of {fields.length} projects
+                                {searchQuery && <> matching &quot;<span className="text-muted">{searchQuery}</span>&quot;</>}
+                            </p>
+                        )}
+
+                        {/* ── Projects List ───────────────────────────────── */}
+                        {filteredIndices.length > 0 && (
+                            viewMode === 'grid' ? (
+                                <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                                    {filteredIndices.map((index) =>
+                                        renderCard(index, "overflow-hidden rounded-card border border-border bg-surface")
+                                    )}
+                                </div>
+                            ) : (
+                                <Card padding="none" className="divide-y divide-border overflow-hidden">
+                                    {filteredIndices.map((index) => renderCard(index))}
+                                </Card>
+                            )
+                        )}
+                        <div ref={listEndRef} />
+
+                        {/* ── Empty State ─────────────────────────────────── */}
+                        {fields.length === 0 && (
+                            <EmptyState
+                                title="No projects yet"
+                                action={
+                                    <Button variant="secondary" onClick={addProject}>
+                                        <Plus /> Add your first project
+                                    </Button>
+                                }
+                            />
+                        )}
+
+                        {filteredIndices.length === 0 && fields.length > 0 && (
+                            <div className="py-10 text-center text-sm text-subtle">
+                                No projects match your search.
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => { setSearchQuery(""); setCategoryFilter("all"); }}
+                                    className="ml-2"
+                                >
+                                    Clear filters
+                                </Button>
+                            </div>
+                        )}
                     </div>
-                    <p className="text-slate-500 font-bold mb-4 text-sm">No projects yet</p>
-                    <button
-                        type="button"
-                        onClick={addProject}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all text-sm"
-                    >
-                        Add your first project
-                    </button>
-                </div>
+                </>
             )}
-
-            {filteredIndices.length === 0 && fields.length > 0 && (
-                <div className="text-center py-10 text-slate-500 text-sm">
-                    No projects match your search.
-                    <button onClick={() => { setSearchQuery(""); setCategoryFilter("all"); }} className="text-blue-400 hover:text-blue-300 ml-2">
-                        Clear filters
-                    </button>
-                </div>
-            )}
-        </div>
+        </>
     );
 }

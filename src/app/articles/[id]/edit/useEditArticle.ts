@@ -4,8 +4,10 @@ import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useCopy } from "@/components/providers/CopyProvider";
 
 export function useEditArticle(id: string) {
+    const t = useCopy();
     const { user } = useAuth();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
@@ -25,7 +27,7 @@ export function useEditArticle(id: string) {
                 const docSnap = await getDoc(docRef);
 
                 if (!docSnap.exists()) {
-                    toast.error("المقال غير موجود");
+                    toast.error(t("blog.editNotFound"));
                     router.push("/articles");
                     return;
                 }
@@ -33,7 +35,7 @@ export function useEditArticle(id: string) {
                 const article = docSnap.data();
 
                 if (article.authorId !== user?.uid) {
-                    toast.error("ليس لديك صلاحية لتعديل هذا المقال");
+                    toast.error(t("blog.editNotAllowed"));
                     router.push("/articles");
                     return;
                 }
@@ -47,7 +49,7 @@ export function useEditArticle(id: string) {
                 });
             } catch (error) {
                 console.error("Error fetching article:", error);
-                toast.error("حدث خطأ أثناء تحميل المقال");
+                toast.error(t("blog.editLoadFailed"));
             } finally {
                 setLoading(false);
             }
@@ -56,7 +58,7 @@ export function useEditArticle(id: string) {
         if (user) {
             fetchArticle();
         }
-    }, [id, user, router]);
+    }, [id, user, router, t]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,17 +71,17 @@ export function useEditArticle(id: string) {
                 title: formData.title,
                 content: formData.content,
                 summary: formData.summary,
-                tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+                tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
                 media: formData.media,
                 slug: formData.title.toLowerCase().replace(/\s+/g, '-'),
                 updatedAt: serverTimestamp()
             });
 
-            toast.success("تم تحديث المقال بنجاح!");
+            toast.success(t("blog.saved"));
             router.push(`/articles/${id}`);
         } catch (error) {
             console.error(error);
-            toast.error("حدث خطأ أثناء حفظ التعديلات");
+            toast.error(t("blog.saveFailed"));
         } finally {
             setSaving(false);
         }

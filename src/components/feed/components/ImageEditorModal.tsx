@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { createPortal } from "react-dom";
 import { toast } from "react-hot-toast";
+import { OVERLAY_TRANSITION } from "@/components/ui";
+import { usePresence } from "@/hooks/usePresence";
+import { useCopy } from "@/components/providers/CopyProvider";
+import { cn } from "@/lib/utils";
 import { useImageEditor } from "./image-editor/hooks/useImageEditor";
 import { ImageEditorHeader } from "./image-editor/components/ImageEditorHeader";
 import { ImageEditorToolbar } from "./image-editor/components/ImageEditorToolbar";
@@ -15,9 +20,24 @@ interface ImageEditorModalProps {
     imageUrl: string;
     isOpen: boolean;
     onClose: () => void;
-    onSave: (editedFile: File) => void;
+    onSave: (editedFile: File) => void | Promise<void>;
 }
 
+/**
+ * Reads a color token from the design tokens (e.g. "--color-foreground").
+ * The color picker and the canvas need a real color value, not a CSS variable,
+ * and the picker only accepts the long hex form, so the value is normalized through a canvas.
+ */
+function readColorToken(name: string) {
+    if (typeof document === "undefined") return "";
+    const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const ctx = document.createElement("canvas").getContext("2d");
+    if (!value || !ctx) return value;
+    ctx.fillStyle = value;
+    return String(ctx.fillStyle);
+}
+
+/** Full-screen editor (crop, blur, brush, text) used when creating or editing a post. */
 export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEditorModalProps) {
     const {
         mode,
@@ -27,8 +47,10 @@ export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEdi
         handleUndo,
         commitChange
     } = useImageEditor(imageUrl, isOpen);
+    const t = useCopy();
 
-    const [brushColor, setBrushColor] = useState("#3b82f6");
+    // Brush/text color is picked by the user; it starts as the UI foreground color
+    const [brushColor, setBrushColor] = useState(() => readColorToken("--color-foreground"));
     const [brushSize, setBrushSize] = useState(5);
     const [brushOpacity, setBrushOpacity] = useState(100);
     const [brushHardness, setBrushHardness] = useState(100);
@@ -36,6 +58,9 @@ export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEdi
     const [textSize, setTextSize] = useState(24);
     const [textAlign, setTextAlign] = useState<"left" | "center" | "right">("left");
     const [textDir, setTextDir] = useState<"ltr" | "rtl">("rtl");
+
+    const [saving, setSaving] = useState(false);
+    const presence = usePresence(isOpen);
 
     // Keyboard Shortcuts
     useEffect(() => {
@@ -61,66 +86,92 @@ export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEdi
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, handleUndo, setMode, mode, onClose]);
 
+    // Keep the page behind the editor from scrolling
+    useEffect(() => {
+        if (!isOpen) return undefined;
+        const previous = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = previous;
+        };
+    }, [isOpen]);
+
     const handleSave = async () => {
+        setSaving(true);
         try {
             const res = await fetch(currentImageSrc);
             const blob = await res.blob();
             const file = new File([blob], "edited-image.webp", { type: "image/webp" });
-            onSave(file);
+            await onSave(file);
         } catch (e) {
             console.error("Save failed", e);
-            toast.error("Failed to save image");
+            toast.error(t("account.editorSaveFailed"));
+        } finally {
+            setSaving(false);
         }
     };
 
-    if (!isOpen) return null;
+    if (!presence.mounted) return null;
 
-    return (
-        <div className="fixed inset-0 z-[110] flex flex-col bg-[#020617] animate-in fade-in duration-200 overflow-hidden">
-            <ImageEditorHeader 
+    return createPortal(
+        <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("account.editorTitle")}
+            data-state={presence.state}
+            className={cn(
+                "fixed inset-0 z-50 flex flex-col overscroll-contain bg-background",
+                OVERLAY_TRANSITION,
+                "data-[state=closed]:translate-y-3 data-[state=closed]:opacity-0"
+            )}
+        >
+            <ImageEditorHeader
                 canUndo={history.length > 1}
                 onUndo={handleUndo}
-                onClose={onClose}
+                onCancel={onClose}
+                onSave={handleSave}
+                saving={saving}
             />
 
-            {/* Dashboard Editor Area */}
-            <div className="flex-1 overflow-auto p-4 sm:p-6 bg-[#020617] bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0.1))] flex flex-col items-center justify-center min-h-[300px]">
-                <div className="relative flex items-center justify-center">
+            {/* Canvas area. m-auto keeps the image centered without cutting it off when it is taller than the area */}
+            <div className="flex min-h-0 flex-1 overflow-auto bg-surface-hover p-4 sm:p-6">
+                <div className="relative m-auto flex items-center justify-center">
                     {mode === "none" && (
-                        <img 
-                            src={currentImageSrc} 
-                            alt="Current" 
-                            className="max-w-full max-h-[65vh] object-contain rounded-lg shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={currentImageSrc}
+                            alt="Current"
+                            className="block max-h-[65vh] max-w-full object-contain"
                             crossOrigin="anonymous"
                         />
                     )}
 
-                    <CropTool 
-                        imageSrc={currentImageSrc} 
-                        isActive={mode === "crop"} 
-                        onCommit={commitChange} 
-                    />
-                    
-                    <BlurTool 
-                        imageSrc={currentImageSrc} 
-                        isActive={mode === "blur"} 
-                        onCommit={commitChange} 
+                    <CropTool
+                        imageSrc={currentImageSrc}
+                        isActive={mode === "crop"}
+                        onCommit={commitChange}
                     />
 
-                    <BrushTool 
-                        imageSrc={currentImageSrc} 
-                        isActive={mode === "brush"} 
-                        onCommit={commitChange} 
+                    <BlurTool
+                        imageSrc={currentImageSrc}
+                        isActive={mode === "blur"}
+                        onCommit={commitChange}
+                    />
+
+                    <BrushTool
+                        imageSrc={currentImageSrc}
+                        isActive={mode === "brush"}
+                        onCommit={commitChange}
                         color={brushColor}
                         size={brushSize}
                         opacity={brushOpacity}
                         hardness={brushHardness}
                     />
 
-                    <TextTool 
-                        imageSrc={currentImageSrc} 
-                        isActive={mode === "text"} 
-                        onCommit={commitChange} 
+                    <TextTool
+                        imageSrc={currentImageSrc}
+                        isActive={mode === "text"}
+                        onCommit={commitChange}
                         color={brushColor}
                         size={textSize}
                         align={textAlign}
@@ -132,8 +183,6 @@ export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEdi
             <ImageEditorToolbar
                 mode={mode}
                 setMode={setMode}
-                onCancel={() => setMode("none")}
-                onSave={handleSave}
                 brushColor={brushColor}
                 setBrushColor={setBrushColor}
                 brushSize={brushSize}
@@ -149,6 +198,7 @@ export function ImageEditorModal({ imageUrl, isOpen, onClose, onSave }: ImageEdi
                 textDir={textDir}
                 setTextDir={setTextDir}
             />
-        </div>
+        </div>,
+        document.body
     );
 }

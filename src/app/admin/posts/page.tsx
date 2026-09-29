@@ -1,81 +1,73 @@
 "use client";
 
-import { CheckCircle, XCircle, Clock, Trash2 } from "lucide-react";
-import { useAdminPosts } from "./hooks/useAdminPosts";
+import { Check, Trash2, X } from "lucide-react";
+import { Badge, Button, Card, EmptyState, LoadingBlock, PageHeader } from "@/components/ui";
+import { useAdminPosts, type Post } from "./hooks/useAdminPosts";
+
+const STATUS_BADGE: Record<Post["status"], "success" | "warning" | "danger"> = {
+    approved: "success",
+    pending: "warning",
+    rejected: "danger",
+};
 
 export default function AdminPostsPage() {
     const { posts, loading, handleUpdateStatus, handleDelete } = useAdminPosts();
 
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div>
-                <h1 className="text-2xl font-bold text-white">Community Posts Moderation</h1>
-                <p className="text-slate-400 text-sm mt-1">Review, approve, or reject posts submitted by users for the Explore feed.</p>
-            </div>
+        <>
+            <PageHeader
+                title="Community Posts Moderation"
+                description="Review, approve, or reject posts submitted by users for the Explore feed."
+            />
 
             {loading ? (
-                <div className="flex justify-center py-20">
-                    <div className="w-8 h-8 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin"></div>
-                </div>
+                <LoadingBlock />
             ) : posts.length === 0 ? (
-                <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-12 text-center">
-                    <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Clock className="w-8 h-8 text-slate-400" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">No Posts Found</h3>
-                    <p className="text-slate-400">Users haven&apos;t submitted any posts yet.</p>
-                </div>
+                <EmptyState title="No Posts Found" description="Users haven't submitted any posts yet." />
             ) : (
-                <div className="grid gap-4">
-                    {posts.map(post => (
-                        <div key={post.id} className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 flex flex-col md:flex-row gap-6 justify-between items-start">
-                            <div className="space-y-2 flex-1">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-bold text-white">{post.userName}</span>
-                                        <span className="text-xs text-slate-500">({post.userEmail})</span>
+                <Card padding="none" className="overflow-hidden">
+                    <ul className="divide-y divide-border">
+                        {posts.map(post => (
+                            <li key={post.id} className="flex flex-col gap-3 px-4 py-3 md:flex-row md:items-start md:justify-between md:gap-6">
+                                <div className="min-w-0 flex-1 space-y-2">
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                        <span className="text-sm font-medium text-foreground">{post.userName}</span>
+                                        <span className="min-w-0 break-all text-xs text-subtle">({post.userEmail})</span>
+                                        <Badge variant={STATUS_BADGE[post.status] ?? "warning"} className="capitalize">
+                                            {post.status}
+                                        </Badge>
                                     </div>
-                                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                        post.status === 'approved' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                                        post.status === 'rejected' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                                        'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                                    }`}>
-                                        {post.status}
-                                    </span>
+                                    <p dir="auto" className="whitespace-pre-wrap break-words text-sm leading-relaxed text-muted">
+                                        {post.content}
+                                    </p>
                                 </div>
-                                <p className="text-slate-300 bg-slate-950/50 p-4 rounded-lg border border-slate-800/50">
-                                    {post.content}
-                                </p>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 md:flex-col w-full md:w-auto shrink-0">
-                                {post.status !== 'approved' && (
-                                    <button 
-                                        onClick={() => handleUpdateStatus(post.id, "approved")}
-                                        className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg transition-colors"
+
+                                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                                    {post.status !== 'approved' && (
+                                        <Button variant="secondary" size="sm" onClick={() => handleUpdateStatus(post.id, "approved")}>
+                                            <Check /> Approve
+                                        </Button>
+                                    )}
+                                    {post.status !== 'rejected' && (
+                                        <Button variant="secondary" size="sm" onClick={() => handleUpdateStatus(post.id, "rejected")}>
+                                            <X /> Reject
+                                        </Button>
+                                    )}
+                                    <Button
+                                        variant="danger"
+                                        size="icon-sm"
+                                        onClick={() => handleDelete(post.id)}
+                                        aria-label="Delete post"
+                                        title="Delete"
                                     >
-                                        <CheckCircle className="w-4 h-4" /> Approve
-                                    </button>
-                                )}
-                                {post.status !== 'rejected' && (
-                                    <button 
-                                        onClick={() => handleUpdateStatus(post.id, "rejected")}
-                                        className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg transition-colors"
-                                    >
-                                        <XCircle className="w-4 h-4" /> Reject
-                                    </button>
-                                )}
-                                <button 
-                                    onClick={() => handleDelete(post.id)}
-                                    className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg transition-colors"
-                                >
-                                    <Trash2 className="w-4 h-4" /> Delete
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                                        <Trash2 />
+                                    </Button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </Card>
             )}
-        </div>
+        </>
     );
 }
