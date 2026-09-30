@@ -95,6 +95,8 @@ export function newCardId(): string {
 export interface AssistantProfile {
     /** Company name the assistant represents */
     brandName: string;
+    /** The owner's first name as it must be written in Arabic replies, e.g. «جمال» */
+    ownerNameArabic: string;
     /** Shown in the chat header */
     assistantName: string;
     /** Small line under the name in the chat header */
@@ -131,6 +133,7 @@ export const REPLY_LANGUAGE_OPTIONS: { id: ReplyLanguage; label: string }[] = [
 
 export const PROFILE_FIELDS = [
     "brandName",
+    "ownerNameArabic",
     "assistantName",
     "assistantSubtitle",
     "inputPlaceholder",
@@ -169,6 +172,7 @@ export const GEMINI_FALLBACK_MODELS = ["gemini-flash-latest", "gemini-2.5-flash"
  */
 export const DEFAULT_PROFILE: AssistantProfile = {
     brandName: "GTech",
+    ownerNameArabic: "جمال",
     assistantName: "GTech Assistant",
     assistantSubtitle: "Ask about services, projects or getting started",
     inputPlaceholder: "Type your message…",
@@ -212,6 +216,7 @@ export function resolveProfile(data: Record<string, unknown> | undefined | null)
 
     return {
         brandName: pick("brandName").trim() || DEFAULT_PROFILE.brandName,
+        ownerNameArabic: pick("ownerNameArabic").trim() || DEFAULT_PROFILE.ownerNameArabic,
         assistantName: pick("assistantName").trim(),
         assistantSubtitle: pick("assistantSubtitle").trim(),
         inputPlaceholder: pick("inputPlaceholder").trim(),

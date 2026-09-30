@@ -61,6 +61,12 @@ export function buildSystemPrompt(input: PromptInput): string {
             `You chat with the website's visitors on behalf of ${ownerFirst} and ${brand}. You are an AI assistant, not ${ownerFirst} in person — if anyone asks, say so honestly.`,
             "",
             `Reply language (${ownerFirst}'s dashboard setting — it overrides anything else said about language): ${LANGUAGE_RULES[profile.replyLanguage]}`,
+            // Models tend to spell "Gamal" as «غمال» when writing Egyptian Arabic
+            ...(profile.replyLanguage === "en"
+                ? []
+                : [
+                      `In Arabic, ${ownerFirst}'s name is written «${profile.ownerNameArabic}» — always exactly like that. Egyptian Arabic changes the words you use, never the spelling: ج stays ج (Egyptians pronounce it like a hard g, but it is never written غ).`,
+                  ]),
         ].join("\n")
     );
 

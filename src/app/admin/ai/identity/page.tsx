@@ -6,7 +6,7 @@ import { toPublicConfig } from "@/lib/ai/assistant/shared";
 import { useAiEditor } from "../useAiEditor";
 import { AiEditorPage, FieldGroup } from "../components/AiEditorPage";
 
-const FIELDS = ["assistantName", "brandName", "assistantSubtitle", "inputPlaceholder"] as const;
+const FIELDS = ["assistantName", "brandName", "ownerNameArabic", "assistantSubtitle", "inputPlaceholder"] as const;
 
 export default function AiIdentityPage() {
     const editor = useAiEditor(FIELDS);
@@ -21,6 +21,7 @@ export default function AiIdentityPage() {
                 editor.save({
                     assistantName: draft.assistantName.trim(),
                     brandName: draft.brandName.trim(),
+                    ownerNameArabic: draft.ownerNameArabic.trim(),
                     assistantSubtitle: draft.assistantSubtitle.trim(),
                     inputPlaceholder: draft.inputPlaceholder.trim(),
                 })
@@ -45,6 +46,19 @@ export default function AiIdentityPage() {
                                     <Input id="ai-brand-name" dir="auto" value={draft.brandName} onChange={(e) => update("brandName", e.target.value)} />
                                 </Field>
                             </div>
+                            <Field
+                                label="اسمك بالعربي"
+                                htmlFor="ai-owner-name-ar"
+                                hint="المساعد بيكتب اسمك كده بالظبط في الردود العربي (عشان ميكتبهوش «غمال»)."
+                            >
+                                <Input
+                                    id="ai-owner-name-ar"
+                                    dir="rtl"
+                                    value={draft.ownerNameArabic}
+                                    onChange={(e) => update("ownerNameArabic", e.target.value)}
+                                    className="sm:max-w-xs"
+                                />
+                            </Field>
                             <Field label="السطر الفرعي" htmlFor="ai-assistant-subtitle" hint="تحت الاسم. سيبه فاضي عشان يختفي.">
                                 <Input
                                     id="ai-assistant-subtitle"

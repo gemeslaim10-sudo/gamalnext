@@ -22,7 +22,7 @@ interface FeedPostCardProps {
     onToggleExpand: (id: string) => void;
     onToggleComments: (id: string) => void;
     onShare: (item: FeedItem) => void;
-    onOpenLightbox: (images: string[], index: number, title: string) => void;
+    onOpenLightbox: (item: FeedItem, index: number) => void;
 }
 
 export default function FeedPostCard({

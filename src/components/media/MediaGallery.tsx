@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { Play } from "lucide-react";
 import { FadeImage } from "@/components/ui";
-import Lightbox, { type GalleryItem } from "./Lightbox";
+import Lightbox, { type GalleryItem, type LightboxGroup, type LightboxPosition } from "./Lightbox";
 
 interface MediaGalleryProps {
     items: GalleryItem[];
@@ -14,6 +14,12 @@ interface MediaGalleryProps {
     sizes?: string;
     /** Preload the first image (use for the main image of a page) */
     preload?: boolean;
+    /**
+     * Sets the viewer can go on to after this one (e.g. every project, with this page's project at
+     * `current`), so visitors can keep browsing without closing it. Without it, the viewer loops
+     * through `items`.
+     */
+    sequence?: { groups: LightboxGroup[]; current: number };
 }
 
 /**
@@ -21,12 +27,14 @@ interface MediaGalleryProps {
  * Clicking an image or thumbnail opens the full-screen viewer.
  * Used by the project page and the article page.
  */
-export default function MediaGallery({ items, title, sizes = "100vw", preload }: MediaGalleryProps) {
+export default function MediaGallery({ items, title, sizes = "100vw", preload, sequence }: MediaGalleryProps) {
+    const groups = useMemo(() => sequence?.groups ?? [{ title, items }], [sequence, title, items]);
+    const current = sequence ? sequence.current : 0;
     // The viewer stays rendered and is toggled with `viewerOpen`, so it can animate out
     const [viewerOpen, setViewerOpen] = useState(false);
-    const [viewerIndex, setViewerIndex] = useState(0);
+    const [position, setPosition] = useState<LightboxPosition>({ group: current, index: 0 });
     const openViewer = (index: number) => {
-        setViewerIndex(index);
+        setPosition({ group: current, index });
         setViewerOpen(true);
     };
 
@@ -87,10 +95,9 @@ export default function MediaGallery({ items, title, sizes = "100vw", preload }:
 
             <Lightbox
                 open={viewerOpen}
-                items={items}
-                index={viewerIndex}
-                title={title}
-                onIndexChange={setViewerIndex}
+                groups={groups}
+                position={position}
+                onPositionChange={setPosition}
                 onClose={() => setViewerOpen(false)}
             />
         </div>
