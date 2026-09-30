@@ -8,14 +8,17 @@ import ChatHeader from "./ChatHeader";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { useAiChat } from "./useAiChat";
+import { useChatStore } from "@/store/chatStore";
+import type { PublicChatConfig } from "@/lib/ai/assistant/shared";
 import { OVERLAY_TRANSITION, Skeleton, Spinner } from "@/components/ui";
 
 /** Shown only if the dashboard texts can't be loaded. */
 const FALLBACK = { title: "Assistant", placeholder: "Type your message…" };
 
 /** The only entry point to the assistant: a round button that opens a chat panel. */
-export default function AiChatWidget() {
+export default function AiChatWidget({ initialConfig }: { initialConfig?: PublicChatConfig | null }) {
     const [isOpen, setIsOpen] = useState(false);
+    const seedConfig = useChatStore((s) => s.seedConfig);
     const { messages, input, setInput, loading, handleSubmit, clearChat, config, configStatus, welcome } = useAiChat(isOpen);
     const endRef = useRef<HTMLDivElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
@@ -30,6 +33,11 @@ export default function AiChatWidget() {
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
     }, [messages, loading, isOpen]);
+
+    // The dashboard texts come with the page, so opening the chat doesn't wait for a request
+    useEffect(() => {
+        if (initialConfig) seedConfig(initialConfig);
+    }, [initialConfig, seedConfig]);
 
     // Any component can open the chat with: document.dispatchEvent(new CustomEvent("open-chat-widget"))
     useEffect(() => {

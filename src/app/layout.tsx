@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
 import { Cairo } from "next/font/google";
+import { preconnect } from "react-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import GlobalErrorListener from '@/components/providers/GlobalErrorListener';
 import SiteShell from '@/components/layout/SiteShell';
-import { BrandingProvider, BrandingSettings } from '@/components/providers/BrandingProvider';
+import { BrandingProvider } from '@/components/providers/BrandingProvider';
 import { CopyProvider } from '@/components/providers/CopyProvider';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { SITE_URL } from '@/lib/constants';
-import { getCopy, getSiteCopy } from '@/lib/copy/server';
-import { FALLBACK_OWNER_NAME, FALLBACK_SITE_NAME, clean, getSiteOpenGraph, getSiteSeo, getSiteSettings } from '@/lib/seo/server';
+import { getSiteCopy } from '@/lib/copy/server';
+import { getLeadCaptureSettings } from '@/lib/content/server';
+import { getPublicChatConfig } from '@/lib/ai/assistant/settings';
+import { getSiteOpenGraph, getSiteSeo, getSiteSettings } from '@/lib/seo/server';
+import { siteGraph } from '@/lib/seo/structured-data';
 import "./globals.css";
 
-
-// Pages are rebuilt with fresh dashboard content at most every 60 seconds. Saving in the
-// dashboard also refreshes them immediately (see src/app/api/revalidate).
-export const revalidate = 60;
+// No time-based refresh: pages and their data stay cached until the dashboard saves something or
+// the owner presses "Clear cache" (src/app/api/revalidate), so every visit is served instantly.
 
 // Cairo is a variable font, so one file covers every weight the design uses (400–700)
 const cairo = Cairo({
@@ -22,9 +25,10 @@ const cairo = Cairo({
   variable: "--font-cairo",
 });
 
-// Site-wide SEO, editable in the dashboard (Settings + /admin/copy → SEO). Pages override it with their own.
+// Site-wide SEO from the dashboard (/admin/seo + Settings). Pages add their own title, description and card.
 export async function generateMetadata(): Promise<Metadata> {
   const [seo, openGraph] = await Promise.all([getSiteSeo(), getSiteOpenGraph()]);
+  const { verification } = seo.seo;
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -32,14 +36,15 @@ export async function generateMetadata(): Promise<Metadata> {
       default: seo.defaultTitle,
       template: seo.titleTemplate,
     },
-    description: seo.description,
-    keywords: seo.keywords.length > 0 ? seo.keywords : undefined,
+    description: seo.homeDescription,
+    keywords: seo.homeKeywords.length > 0 ? seo.homeKeywords : undefined,
     applicationName: seo.siteName,
-    authors: [{ name: seo.ownerName, url: SITE_URL }],
+    authors: [{ name: seo.ownerName, url: `${SITE_URL}/profile` }],
     creator: seo.ownerName,
-    publisher: seo.siteName,
+    publisher: seo.businessName,
     alternates: {
       canonical: './',
+      types: { "application/rss+xml": [{ url: "/rss.xml", title: `${seo.siteName} articles` }] },
     },
     // Without a title/description here, shared links show each page's own (the site title on the home page)
     openGraph,
@@ -69,56 +74,12 @@ export async function generateMetadata(): Promise<Metadata> {
         { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
       ],
     },
+    // Search Console / Bing Webmaster / Yandex ownership codes (/admin/seo → Indexing)
     verification: {
-      google: 'scBJmQaizROXeIHuHxdAHnAL2C6KZFyrUYDIUEuhNps',
+      google: verification.google.trim() || undefined,
+      yandex: verification.yandex.trim() || undefined,
+      other: verification.bing.trim() ? { "msvalidate.01": verification.bing.trim() } : undefined,
     },
-  };
-}
-
-/** Structured data for Google: the company (GTech), its founder and the website. */
-function buildJsonLd(branding: BrandingSettings | null, seoDescription: string | undefined) {
-  const siteName = clean(branding?.siteName) ?? FALLBACK_SITE_NAME;
-  const organizationId = `${SITE_URL}/#organization`;
-  const personId = `${SITE_URL}/#person`;
-  const sameAs = [clean(branding?.githubUrl), clean(branding?.linkedinUrl)].filter(Boolean);
-  const knowsAbout = (clean(branding?.ownerBadges) ?? "")
-    .split(",")
-    .map((badge) => badge.trim())
-    .filter(Boolean);
-
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": organizationId,
-        name: siteName,
-        url: SITE_URL,
-        logo: `${SITE_URL}/icon.png`,
-        description: clean(branding?.siteDescription) ?? seoDescription,
-        founder: { "@id": personId },
-      },
-      {
-        "@type": "Person",
-        "@id": personId,
-        name: clean(branding?.ownerName) ?? FALLBACK_OWNER_NAME,
-        url: `${SITE_URL}/profile`,
-        jobTitle: clean(branding?.ownerTitle),
-        image: clean(branding?.siteLogo),
-        worksFor: { "@id": organizationId },
-        knowsAbout: knowsAbout.length > 0 ? knowsAbout : undefined,
-        sameAs: sameAs.length > 0 ? sameAs : undefined,
-      },
-      {
-        "@type": "WebSite",
-        "@id": `${SITE_URL}/#website`,
-        url: SITE_URL,
-        name: siteName,
-        description: seoDescription,
-        inLanguage: "en",
-        publisher: { "@id": organizationId },
-      },
-    ],
   };
 }
 
@@ -127,24 +88,30 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Fetch branding settings and site texts on the server, so the first paint already has real content
-  const [branding, copy, t] = await Promise.all([getSiteSettings(), getSiteCopy(), getCopy()]);
-  const siteName = clean(branding?.siteName) ?? FALLBACK_SITE_NAME;
-  const jsonLd = buildJsonLd(branding, clean(t("seo.description", { siteName })));
+  // Images come from Cloudinary: open the connection while the HTML is still arriving
+  preconnect("https://res.cloudinary.com");
+
+  // Everything the frame needs is read on the server (and cached), so the first paint is complete
+  // and the browser makes no database requests for it
+  const [branding, copy, leadCapture, chatConfig, graph] = await Promise.all([
+    getSiteSettings(),
+    getSiteCopy(),
+    getLeadCaptureSettings(),
+    getPublicChatConfig(),
+    siteGraph(),
+  ]);
 
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <body className={`${cairo.variable} flex min-h-dvh flex-col font-sans`} suppressHydrationWarning>
         <AuthProvider>
-          <script
-            type="application/ld+json"
-            // "<" is escaped so text from the dashboard can never close the script tag
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
-          />
+          <JsonLd data={graph} />
           <GlobalErrorListener />
           <BrandingProvider initialBranding={branding}>
             <CopyProvider values={copy}>
-              <SiteShell>{children}</SiteShell>
+              <SiteShell leadCapture={leadCapture} chatConfig={chatConfig.fallback ? null : chatConfig}>
+                {children}
+              </SiteShell>
             </CopyProvider>
           </BrandingProvider>
           <Toaster position="bottom-center" toastOptions={{

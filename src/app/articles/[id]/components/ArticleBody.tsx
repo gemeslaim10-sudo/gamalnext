@@ -14,6 +14,8 @@ export function ArticleBody({ content, contentDir }: ArticleBodyProps) {
     return (
         <div
             dir={contentDir}
+            // Arabic articles say so, for search engines and screen readers (the rest of the site is English)
+            lang={contentDir === "rtl" ? "ar" : undefined}
             className={cn(
                 "article-content text-[15px] leading-8 text-foreground/90",
                 contentDir === 'rtl' && 'article-rtl'

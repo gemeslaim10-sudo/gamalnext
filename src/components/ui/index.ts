@@ -5,6 +5,7 @@ export type { ButtonVariant, ButtonSize } from "./Button";
 export { Card } from "./Card";
 export { Container, Page, PageHeader, Section } from "./Layout";
 export { Input, Textarea, Select, Label, Field } from "./Form";
+export { Switch } from "./Switch";
 export { Badge, Chip, Alert, Spinner, LoadingBlock, Skeleton, EmptyState } from "./Feedback";
 export { Avatar } from "./Avatar";
 export { Modal, Dropdown, MenuItem, MenuDivider, OVERLAY_TRANSITION } from "./Overlay";

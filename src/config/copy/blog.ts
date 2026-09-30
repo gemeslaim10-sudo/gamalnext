@@ -6,13 +6,6 @@ export const blogCopy = {
     description: "Also the edit-article page, member profile pages (/users/…) and the full-screen image viewer.",
     fields: [
         // Blog page (/articles)
-        { key: "seoTitle", label: "Blog page: Google title", default: "Tech articles" },
-        {
-            key: "seoDescription",
-            label: "Blog page: Google description",
-            type: "textarea",
-            default: "Articles on building websites, online stores and business software.",
-        },
         { key: "title", label: "Blog page: title", default: "Blog" },
         {
             key: "description",
@@ -35,12 +28,6 @@ export const blogCopy = {
         { key: "deleteFailed", label: "Toast: deleting an article failed", default: "Failed to delete article" },
 
         // Article page (/articles/…)
-        {
-            key: "articleSeoTitle",
-            label: "Article page: Google title",
-            default: "{title}",
-            hint: "{title} = the article's title",
-        },
         { key: "notFoundTitle", label: "Google title when an article doesn't exist", default: "Article not found" },
         { key: "backToBlog", label: "Article page: back link", default: "Back to blog" },
         { key: "dateUnknown", label: "Article page: shown instead of the date when it's unknown", default: "Recently" },

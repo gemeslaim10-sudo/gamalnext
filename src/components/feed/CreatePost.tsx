@@ -7,7 +7,11 @@ import { detectTextDir } from "@/lib/utils";
 import { Button, Card, Spinner, Textarea } from "@/components/ui";
 import { useCreatePost } from "./hooks/useCreatePost";
 import { useCopy } from "@/components/providers/CopyProvider";
-import { ImageEditorModal } from "./components/ImageEditorModal";
+import dynamic from "next/dynamic";
+
+// The image editor (crop, blur, brush, text) loads in the background after the page is shown,
+// instead of with the home page itself
+const ImageEditorModal = dynamic(() => import("./components/ImageEditorModal").then((mod) => mod.ImageEditorModal), { ssr: false });
 
 /** Composer for signed-in users. Visitors don't see it; they can log in from the navbar. */
 export default function CreatePost() {

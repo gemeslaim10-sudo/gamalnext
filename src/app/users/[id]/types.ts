@@ -1,19 +1,6 @@
-export type UserProfile = {
-    uid: string;
-    name: string;
-    photoURL?: string;
-    bio?: string;
-    location?: string;
-    jobTitle?: string;
-    socialStatus?: string;
-    createdAt?: { seconds: number; nanoseconds: number } | null;
-};
+import type { ArticleCardData } from "@/components/articles/ArticleCard";
 
-export type UserArticle = {
-    id: string;
-    title: string;
-    summary: string;
-    media: { url: string; type: 'image' | 'video' }[];
-    createdAt: { seconds: number; nanoseconds: number } | null;
-    likesCount?: number;
-};
+/** Only the public part of a member's account reaches this page (never the email) — see src/lib/members/server.ts. */
+export type { PublicMember as UserProfile } from "@/lib/members/server";
+
+export type UserArticle = ArticleCardData;

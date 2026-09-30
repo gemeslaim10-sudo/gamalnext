@@ -7,7 +7,10 @@ import { useAuth } from "@/context/AuthContext";
 import { LoginPrompt } from "@/components/auth/LoginPrompt";
 import { useCopy } from "@/components/providers/CopyProvider";
 import { BackLink, Card, EmptyState, LoadingBlock, Page, PageHeader, Textarea } from "@/components/ui";
-import { ImageEditorModal } from "@/components/feed/components/ImageEditorModal";
+import dynamic from "next/dynamic";
+
+// Loads in the background after the page is shown
+const ImageEditorModal = dynamic(() => import("@/components/feed/components/ImageEditorModal").then((mod) => mod.ImageEditorModal), { ssr: false });
 import { useEditPost } from "./hooks/useEditPost";
 import { EditPostMedia } from "./components/EditPostMedia";
 import { EditPostControls } from "./components/EditPostControls";

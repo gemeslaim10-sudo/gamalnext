@@ -11,6 +11,14 @@ interface MultiImageUploadProps {
     label?: string;
 }
 
+/** "3 صور", with the right Arabic form for the number */
+function imageCount(count: number) {
+    if (count === 0) return "مفيش صور";
+    if (count === 1) return "صورة واحدة";
+    if (count === 2) return "صورتين";
+    return count <= 10 ? `${count} صور` : `${count} صورة`;
+}
+
 const TILE =
     "flex h-24 flex-col items-center justify-center gap-1.5 rounded-card border border-dashed border-border-strong bg-surface px-2 text-center text-xs text-muted transition-colors hover:bg-surface-hover hover:text-foreground disabled:opacity-50";
 
@@ -36,7 +44,7 @@ export function MultiImageUpload({ value = [], onChange, label = "معرض ال�
         >
             <div className="flex items-center justify-between gap-2">
                 <span id={labelId} className="text-sm font-medium text-foreground">{label}</span>
-                <span className="shrink-0 text-xs text-subtle">{value.length} صور</span>
+                <span className="shrink-0 text-xs text-subtle">{imageCount(value.length)}</span>
             </div>
 
             <div className="grid grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] gap-2">
@@ -50,7 +58,7 @@ export function MultiImageUpload({ value = [], onChange, label = "معرض ال�
                     onClick={handleSmartPaste}
                     disabled={loading}
                     className={TILE}
-                    title="Paste from clipboard"
+                    title="الصق من الحافظة"
                 >
                     <ClipboardPaste aria-hidden className="size-4" />
                     {loading ? "..." : "لصق (Paste)"}
@@ -59,14 +67,14 @@ export function MultiImageUpload({ value = [], onChange, label = "معرض ال�
                 {value.map((url, index) => (
                     <div key={index} className="relative h-24 overflow-hidden rounded-control border border-border bg-surface-hover">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={url} alt={`Gallery ${index + 1}`} className="size-full object-contain" />
+                        <img src={url} alt={`صورة ${index + 1} من المعرض`} className="size-full object-contain" />
                         <Button
                             variant="secondary"
                             size="icon-sm"
                             onClick={() => removeImage(index)}
                             aria-label={`حذف الصورة ${index + 1}`}
                             title="حذف الصورة"
-                            className="absolute right-1.5 top-1.5 hover:text-danger"
+                            className="absolute end-1.5 top-1.5 hover:text-danger"
                         >
                             <X />
                         </Button>

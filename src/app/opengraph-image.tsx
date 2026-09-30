@@ -1,15 +1,13 @@
 import { ImageResponse } from "next/og";
 import { SITE_URL } from "@/lib/constants";
-import { getCopy } from "@/lib/copy/server";
-import { FALLBACK_OWNER_NAME, FALLBACK_SITE_NAME, SHARE_IMAGE, clean, getSiteSettings } from "@/lib/seo/server";
+import { SHARE_IMAGE, getSiteSeo } from "@/lib/seo/server";
 
 // The picture on shared links (WhatsApp, Facebook, LinkedIn, X), drawn from the dashboard data:
-// site name and owner (Settings) and the tagline (/admin/copy → SEO). Pages link to it via getSiteOpenGraph().
+// site name and owner (Settings) and the tagline (/admin/seo → Basics). Pages link to it via getSiteOpenGraph().
+// Cached like the pages: redrawn after a dashboard save or "Clear cache".
 
 export const size = { width: SHARE_IMAGE.width, height: SHARE_IMAGE.height };
 export const contentType = "image/png";
-// Redrawn at most hourly; saving in the dashboard refreshes it right away (src/app/api/revalidate)
-export const revalidate = 3600;
 
 // CSS variables don't exist in the image renderer, so these repeat the tokens in globals.css
 const COLORS = {
@@ -39,12 +37,8 @@ async function loadPhoto(url: string | undefined) {
 }
 
 export default async function OpenGraphImage() {
-    const [settings, t] = await Promise.all([getSiteSettings(), getCopy()]);
-    const siteName = clean(settings?.siteName) ?? FALLBACK_SITE_NAME;
-    const ownerName = clean(settings?.ownerName) ?? FALLBACK_OWNER_NAME;
-    const ownerTitle = clean(settings?.ownerTitle);
-    const tagline = t("seo.shareImageTagline", { siteName }).trim();
-    const photo = await loadPhoto(clean(settings?.siteLogo));
+    const { siteName, ownerName, ownerTitle, shareTagline: tagline, logo } = await getSiteSeo();
+    const photo = await loadPhoto(logo);
     const domain = new URL(SITE_URL).host;
 
     return new ImageResponse(

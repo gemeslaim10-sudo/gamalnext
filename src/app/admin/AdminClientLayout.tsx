@@ -18,6 +18,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const branding = useBrandingContext();
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // The dashboard is Arabic, right to left. Set it on <html> too, so dialogs, menus and toasts
+    // (rendered outside this frame, at the end of <body>) follow it; the public site gets its
+    // English, left-to-right page back when the owner leaves the dashboard.
+    useEffect(() => {
+        const html = document.documentElement;
+        const previous = { dir: html.dir, lang: html.lang };
+        html.dir = "rtl";
+        html.lang = "ar";
+        return () => {
+            html.dir = previous.dir;
+            html.lang = previous.lang;
+        };
+    }, []);
     const [lastPathname, setLastPathname] = useState(pathname);
     const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
 
@@ -40,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }, [user, loading, router, pathname]);
 
     if (loading) {
-        return <LoadingBlock label="Loading Admin..." className="flex-1" />;
+        return <LoadingBlock label="جاري تحميل لوحة التحكم…" className="flex-1" />;
     }
 
     // If on login page, render without sidebar
@@ -54,7 +68,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const siteName = branding?.siteName || "GTech";
 
     return (
-        <div className="flex flex-1">
+        // The dashboard is Arabic, read right to left (the public site stays English, left to right)
+        <div dir="rtl" lang="ar" className="flex flex-1">
             <Script src="https://widget.cloudinary.com/v2.0/global/all.js" strategy="lazyOnload" />
 
             <AdminSidebar open={isSidebarOpen} onClose={closeSidebar} />
@@ -65,7 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <Button
                         variant="ghost"
                         size="icon"
-                        aria-label="Open menu"
+                        aria-label="فتح القائمة"
                         aria-expanded={isSidebarOpen}
                         onClick={() => setIsSidebarOpen(true)}
                     >
@@ -73,7 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </Button>
                     <Link href="/admin" className="flex min-w-0 items-center gap-2 text-sm">
                         <span className="truncate font-semibold text-foreground">{siteName}</span>
-                        <span className="shrink-0 text-subtle">Admin</span>
+                        <span className="shrink-0 text-subtle">لوحة التحكم</span>
                     </Link>
                 </header>
 

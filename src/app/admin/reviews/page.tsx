@@ -1,120 +1,145 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, limit } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { refreshSite } from "@/lib/refreshSite";
-import { Check, Trash2, Star, EyeOff } from "lucide-react";
+import { Suspense, useState } from "react";
 import { toast } from "react-hot-toast";
-import type { FirebaseTimestamp } from "@/types";
-import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
-import { cn } from "@/lib/utils";
+import { AdminPage, refreshAdminCounts, useAdminList } from "@/components/admin/kit";
+import { Button, Card, EmptyState } from "@/components/ui";
+import { ListBody, ListFooter, ListSkeleton, ListTabs, RefreshButton, useTabParam } from "@/components/admin/kit/list";
+import { markTabsStale, useCollectionCounts, useReloadIfStale } from "@/components/admin/kit/listData";
+import { ReviewDetails } from "./components/ReviewDetails";
+import { ReviewRowItem, type ReviewAction } from "./components/ReviewRow";
+import {
+    REVIEW_COUNTS,
+    REVIEW_LISTS,
+    REVIEW_STATUS,
+    REVIEW_TABS,
+    deleteReview,
+    reviewAuthor,
+    setReviewStatus,
+    type ReviewDoc,
+    type ReviewRow,
+    type ReviewStatus,
+} from "./reviewData";
 
-type Review = {
-    id: string;
-    userName: string;
-    rating: number;
-    comment: string;
-    status: 'pending' | 'approved' | 'hidden';
-    createdAt: FirebaseTimestamp;
+const EMPTY: Record<ReviewStatus, { title: string; description: string }> = {
+    pending: { title: "مفيش آراء مستنية مراجعة", description: "أول ما عميل يكتب رأيه هيظهر هنا، ومش هيظهر على الموقع غير لما توافق عليه." },
+    approved: { title: "مفيش آراء ظاهرة", description: "الآراء اللي توافق عليها بتظهر في صفحة البروفايل." },
+    hidden: { title: "مفيش آراء مخفية", description: "الآراء اللي تخفيها بتفضل هنا ومش بتظهر للزوار." },
+};
+
+export default function AdminReviewsPage() {
+    return (
+        <AdminPage
+            title="آراء العملاء"
+            description="التقييمات بتظهر في صفحة البروفايل بعد ما توافق عليها، وتقدر تخفيها في أي وقت."
+            width="wide"
+        >
+            {/* The open tab lives in the address, which needs a boundary while it's read */}
+            <Suspense fallback={<ListSkeleton />}>
+                <ReviewsScreen />
+            </Suspense>
+        </AdminPage>
+    );
 }
 
-const STATUS_BADGE = {
-    approved: "success",
-    pending: "warning",
-    hidden: "neutral",
-} as const;
+function ReviewsScreen() {
+    const [status, setStatus] = useTabParam(REVIEW_TABS, "pending");
+    // Each tab has its own list, loaded the first time it's opened and kept for the visit
+    const list = useAdminList<ReviewDoc>("reviews", REVIEW_LISTS[status]);
+    useReloadIfStale("reviews", status, list.status, list.reload);
+    const { counts, refresh: refreshCounts } = useCollectionCounts("reviews", REVIEW_COUNTS);
+    const [busyId, setBusyId] = useState<string | null>(null);
+    const [selected, setSelected] = useState<ReviewRow | null>(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
 
-export default function ReviewsPage() {
-    const [reviews, setReviews] = useState<Review[]>([]);
+    const run = async (review: ReviewRow, action: ReviewAction) => {
+        const author = reviewAuthor(review);
+        if (action === "delete" && !window.confirm(`تمسح رأي ${author}؟ مش هينفع ترجّعه تاني.`)) return;
+        if (action === "hide" && review.status === "approved" && !window.confirm(`تخفي رأي ${author}؟ هيختفي من الموقع.`)) return;
 
-    useEffect(() => {
-        const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"), limit(50));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Review));
-            setReviews(data);
-        });
-        return () => unsubscribe();
-    }, []);
-
-    const updateStatus = async (id: string, status: 'approved' | 'hidden') => {
+        setBusyId(review.id);
         try {
-            await updateDoc(doc(db, "reviews", id), { status });
-            void refreshSite();
-            toast.success(`Review ${status}`);
-        } catch {
-            toast.error("Error updating status");
+            if (action === "delete") {
+                await deleteReview(review.id);
+                toast.success("اتمسح الرأي");
+            } else {
+                const next = action === "approve" ? "approved" : "hidden";
+                await setReviewStatus(review.id, next);
+                // It moved to that tab, which reloads when opened
+                markTabsStale("reviews", [next]);
+                toast.success(next === "approved" ? "الرأي بقى ظاهر على الموقع" : "اتخفى الرأي");
+            }
+            // Either way it's no longer in this tab
+            list.removeItem(review.id);
+            setDetailsOpen(false);
+        } catch (error) {
+            console.error(`Review ${action} failed:`, error);
+            toast.error("ما حصلش التغيير. جرّب تاني.");
+        } finally {
+            setBusyId(null);
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (confirm("Are you sure you want to delete this review?")) {
-            try {
-                await deleteDoc(doc(db, "reviews", id));
-                void refreshSite();
-                toast.success("Review deleted");
-            } catch {
-                toast.error("Error deleting review");
+    const empty = (
+        <EmptyState
+            title={EMPTY[status].title}
+            description={EMPTY[status].description}
+            action={
+                status === "pending" ? (
+                    <Button variant="secondary" onClick={() => setStatus("approved")}>
+                        عرض الآراء الظاهرة
+                    </Button>
+                ) : undefined
             }
-        }
-    };
+        />
+    );
 
     return (
         <>
-            <PageHeader title="Manage Reviews" description="Approve client reviews before they appear on the site, or hide them later." />
+            <ListTabs
+                label="حالة الآراء"
+                value={status}
+                onChange={setStatus}
+                tabs={REVIEW_TABS.map((value) => ({ value, label: REVIEW_STATUS[value].tab, count: counts?.[value] }))}
+                end={
+                    <RefreshButton
+                        refreshing={list.loading}
+                        onRefresh={() => {
+                            void list.reload();
+                            void refreshCounts();
+                            void refreshAdminCounts();
+                        }}
+                    />
+                }
+            />
 
-            {reviews.length === 0 ? (
-                <EmptyState title="No reviews found." />
-            ) : (
-                <Card padding="none" className="overflow-hidden">
+            <ListBody list={list} shown={list.items.length} empty={empty}>
+                <Card padding="none">
                     <ul className="divide-y divide-border">
-                        {reviews.map((review) => (
-                            <li key={review.id} className="flex flex-col gap-3 px-4 py-3 md:flex-row md:items-start md:justify-between md:gap-6">
-                                <div className="min-w-0 flex-1">
-                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                                        <h3 className="text-sm font-medium text-foreground">{review.userName}</h3>
-                                        <div className="flex gap-0.5" role="img" aria-label={`${review.rating} out of 5`}>
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star
-                                                    key={i}
-                                                    aria-hidden
-                                                    className={cn("size-3.5", i < review.rating ? "fill-current text-foreground" : "text-border-strong")}
-                                                />
-                                            ))}
-                                        </div>
-                                        <Badge variant={STATUS_BADGE[review.status] ?? "neutral"} className="capitalize">
-                                            {review.status}
-                                        </Badge>
-                                    </div>
-                                    <p dir="auto" className="mt-2 line-clamp-4 break-words text-sm leading-relaxed text-muted">&quot;{review.comment}&quot;</p>
-                                </div>
-
-                                <div className="flex shrink-0 items-center justify-end gap-2">
-                                    {review.status !== 'approved' && (
-                                        <Button variant="secondary" size="sm" onClick={() => updateStatus(review.id, 'approved')}>
-                                            <Check /> Approve
-                                        </Button>
-                                    )}
-                                    {review.status === 'approved' && (
-                                        <Button variant="secondary" size="sm" onClick={() => updateStatus(review.id, 'hidden')}>
-                                            <EyeOff /> Hide
-                                        </Button>
-                                    )}
-                                    <Button
-                                        variant="danger"
-                                        size="icon-sm"
-                                        onClick={() => handleDelete(review.id)}
-                                        aria-label={`Delete review by ${review.userName}`}
-                                        title="Delete"
-                                    >
-                                        <Trash2 />
-                                    </Button>
-                                </div>
-                            </li>
+                        {list.items.map((review) => (
+                            <ReviewRowItem
+                                key={review.id}
+                                review={review}
+                                busy={busyId === review.id}
+                                onOpen={(item) => {
+                                    setSelected(item);
+                                    setDetailsOpen(true);
+                                }}
+                                onAction={run}
+                            />
                         ))}
                     </ul>
                 </Card>
-            )}
+            </ListBody>
+            <ListFooter list={list} shown={list.items.length} total={counts?.[status]} />
+
+            <ReviewDetails
+                review={selected}
+                open={detailsOpen}
+                busy={selected !== null && busyId === selected.id}
+                onClose={() => setDetailsOpen(false)}
+                onAction={run}
+            />
         </>
     );
 }

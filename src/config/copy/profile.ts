@@ -8,14 +8,6 @@ export const profileCopy = {
     description:
         "The hero name, subtitle, intro and photo are edited in /admin/content, the service cards in /admin/skills, and the reviews themselves in /admin/reviews.",
     fields: [
-        { key: "seoTitle", label: "Google title of the profile page", default: "Profile" },
-        {
-            key: "seoDescription",
-            label: "Google description of the profile page",
-            type: "textarea",
-            default:
-                "GTech: business analysis, ERP and CRM systems for companies and institutions, websites and hosting — plus WordPress sites and professional Shopify themes.",
-        },
 
         // Hero
         { key: "contactButton", label: "Hero: main button (opens the contact page)", default: "Contact me" },

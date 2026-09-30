@@ -5,13 +5,6 @@ export const projectsCopy = {
     title: "Projects (list, project page, featured)",
     fields: [
         // Projects page (/projects)
-        { key: "seoTitle", label: "Projects page: Google title", default: "Portfolio" },
-        {
-            key: "seoDescription",
-            label: "Projects page: Google description",
-            type: "textarea",
-            default: "A review of the most prominent projects and applications I have developed using Next.js, React and CMS platforms.",
-        },
         { key: "title", label: "Projects page: title", default: "Projects" },
         {
             key: "description",
@@ -35,12 +28,6 @@ export const projectsCopy = {
         { key: "viewAll", label: "View all button next to featured and related projects", default: "View all" },
 
         // Project page (/projects/…)
-        {
-            key: "projectSeoTitle",
-            label: "Project page: Google title",
-            default: "{title}",
-            hint: "{title} = the project's title",
-        },
         { key: "notFoundTitle", label: "Google title when a project doesn't exist", default: "Project not found" },
         { key: "backToProjects", label: "Project page: back link", default: "Back to projects" },
         { key: "visitSite", label: "Project page: Visit site button", default: "Visit site" },

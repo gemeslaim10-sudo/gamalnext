@@ -1,240 +1,306 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { collection, deleteDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { CSVLink } from "react-csv";
-import { Copy, Download, MessageSquarePlus, Phone, Search, Send, Trash2, UserPlus } from "lucide-react";
-import toast from "react-hot-toast";
-import { db } from "@/lib/firebase";
-import { leadContactLinks, type LeadSource, type LeadStatus } from "@/lib/leads/schema";
-import { SocialIcon } from "@/components/icons/SocialIcon";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Download, RefreshCw, Search, UserPlus } from "lucide-react";
+import { toast } from "react-hot-toast";
 import {
-    Alert,
-    Badge,
-    Button,
-    ButtonLink,
-    buttonVariants,
-    Card,
-    Chip,
-    EmptyState,
-    Input,
-    LoadingBlock,
-    Modal,
-    PageHeader,
-    Select,
-} from "@/components/ui";
-import { SOURCES, SOURCE_LABEL, STATUSES, STATUS_BADGE, STATUS_LABEL, csvSafe, toLeadRow, type LeadRow } from "./leadRows";
+    AdminPage,
+    ReadError,
+    invalidateAdminLists,
+    refreshAdminCounts,
+    useAdminList,
+    type AdminListOptions,
+} from "@/components/admin/kit";
+import { invalidateCounts, useCollectionCounts, type CountFilter } from "@/components/admin/kit/listData";
+import { Alert, Button, Card, Chip, EmptyState, Input, Select, Skeleton, Spinner } from "@/components/ui";
+import { loadFirestore } from "@/lib/firebase-app";
+import { normalizePhone, type LeadSource, type LeadStatus } from "@/lib/leads/schema";
+import { LeadDetails } from "./components/LeadDetails";
+import { LeadListItem } from "./components/LeadListItem";
+import { SOURCES, SOURCE_LABEL, STATUSES, STATUS_LABEL, leadsToCsv, toLeadRow, type LeadRow } from "./leadRows";
 
 type StatusFilter = LeadStatus | "all";
 type SourceFilter = LeadSource | "all";
 
-const STATUS_FILTERS: StatusFilter[] = ["all", ...STATUSES];
+// Newest activity first. Every lead saved by the site has `updatedAt` (it changes each time the
+// person gets in touch again); a few very old ones don't, so they're fetched separately (see below).
+const LIST_OPTIONS: AdminListOptions = { orderBy: "updatedAt", direction: "desc", pageSize: 25 };
 
-const CSV_HEADERS = [
-    { label: "Name", key: "name" },
-    { label: "Phone", key: "phone" },
-    { label: "Status", key: "status" },
-    { label: "Source", key: "source" },
-    { label: "Service", key: "service" },
-    { label: "Message", key: "message" },
-    { label: "Business", key: "activity" },
-    { label: "Best time to call", key: "preferredTime" },
-    { label: "Account email", key: "userEmail" },
-    { label: "Page", key: "page" },
-    { label: "First contact", key: "firstContact" },
-    { label: "Last activity", key: "lastActivity" },
-];
-
-function formatDate(ms: number) {
-    return new Date(ms).toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-    });
+/**
+ * The status and source filters run in the database, so they cover every lead, not just the loaded
+ * pages (indexes in firestore.indexes.json). Each combination is its own list, kept for the visit.
+ */
+function listOptions(status: StatusFilter, source: SourceFilter): AdminListOptions {
+    const where: Record<string, string> = {};
+    if (status !== "all") where.status = status;
+    if (source !== "all") where.source = source;
+    return Object.keys(where).length > 0 ? { ...LIST_OPTIONS, where } : LIST_OPTIONS;
 }
 
-const isoDate = (ms: number) => (ms ? new Date(ms).toISOString() : "");
+// Totals on the status chips: count queries, no leads are read
+const STATUS_COUNTS = Object.fromEntries([
+    ["all", null],
+    ...STATUSES.map((status) => [status, { status }]),
+]) as Record<StatusFilter, CountFilter>;
+
+const byActivity = (a: LeadRow, b: LeadRow) => b.lastActivityMs - a.lastActivityMs;
+
+interface Filters {
+    status: StatusFilter;
+    source: SourceFilter;
+    search: string;
+}
+
+function matches(lead: LeadRow, { status, source, search }: Filters) {
+    if (status !== "all" && lead.status !== status) return false;
+    if (source !== "all" && lead.source !== source) return false;
+    const query = search.trim().toLowerCase();
+    if (!query) return true;
+    if (lead.name.toLowerCase().includes(query) || lead.service.toLowerCase().includes(query)) return true;
+    const digits = query.replace(/\D/g, "");
+    return digits.length > 0 && (lead.phone.replace(/\D/g, "").includes(digits) || lead.dialPhone.replace(/\D/g, "").includes(digits));
+}
+
+/** Leads are stored one per phone number, with the number's digits as the document id. */
+function phoneDocId(search: string) {
+    const digits = normalizePhone(search).replace(/\D/g, "");
+    return digits.length >= 7 ? digits : null;
+}
 
 export default function LeadsPage() {
-    const [leads, setLeads] = useState<LeadRow[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [loadError, setLoadError] = useState(false);
-    const [status, setStatus] = useState<StatusFilter>("all");
-    const [source, setSource] = useState<SourceFilter>("all");
-    const [search, setSearch] = useState("");
-    const [pendingDelete, setPendingDelete] = useState<LeadRow | null>(null);
-    const [deleteOpen, setDeleteOpen] = useState(false);
-    const [deleting, setDeleting] = useState(false);
+    const [filters, setFilters] = useState<Filters>({ status: "all", source: "all", search: "" });
+    const options = useMemo(() => listOptions(filters.status, filters.source), [filters.status, filters.source]);
+    const list = useAdminList<Record<string, unknown>>("leads", options);
+    const { counts: statusCounts } = useCollectionCounts("leads", STATUS_COUNTS);
+    const serverFiltered = options !== LIST_OPTIONS;
+    // Leads found outside the sorted pages: very old ones, or looked up by phone number
+    const [extra, setExtra] = useState<LeadRow[]>([]);
+    const [unsorted, setUnsorted] = useState<number | null>(null);
+    const [loadingUnsorted, setLoadingUnsorted] = useState(false);
+    const [lookingUp, setLookingUp] = useState(false);
+    const [exporting, setExporting] = useState(false);
+    const [selected, setSelected] = useState<LeadRow | null>(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
 
+    const listed = useMemo(() => list.items.map((item) => toLeadRow(item.id, item)), [list.items]);
+    const rows = useMemo(() => {
+        if (extra.length === 0) return listed;
+        const ids = new Set(listed.map((lead) => lead.id));
+        return [...listed, ...extra.filter((lead) => !ids.has(lead.id))].sort(byActivity);
+    }, [listed, extra]);
+    const visible = useMemo(() => rows.filter((lead) => matches(lead, filters)), [rows, filters]);
+
+    const allLoaded = list.status === "ready" && !list.hasMore;
+    const loadedCount = list.items.length;
+
+    // Once every sorted page is here, one cheap count tells whether some leads couldn't be sorted
+    // (saved before `updatedAt` existed). They're only read when the owner asks.
     useEffect(() => {
-        // No orderBy on purpose: older leads have only `capturedAt` or only `updatedAt`, and Firestore
-        // leaves out documents that miss the ordered field. The list is small, so it's sorted here.
-        const unsubscribe = onSnapshot(
-            collection(db, "leads"),
-            (snapshot) => {
-                const rows = snapshot.docs.map((snap) => toLeadRow(snap.id, snap.data()));
-                rows.sort((a, b) => b.lastActivityMs - a.lastActivityMs);
-                setLeads(rows);
-                setLoadError(false);
-                setLoading(false);
-            },
-            (error) => {
-                console.error("Loading leads failed:", error);
-                setLoadError(true);
-                setLoading(false);
-            }
-        );
-        return () => unsubscribe();
-    }, []);
+        if (!allLoaded || serverFiltered) return undefined;
+        let active = true;
+        loadFirestore()
+            .then(({ db, collection, getCountFromServer }) => getCountFromServer(collection(db, "leads")))
+            .then((snap) => {
+                if (active) setUnsorted(Math.max(0, snap.data().count - loadedCount));
+            })
+            .catch((error: unknown) => console.error("Counting leads failed:", error));
+        return () => {
+            active = false;
+        };
+    }, [allLoaded, loadedCount, serverFiltered]);
 
-    const counts = useMemo(() => {
-        const result: Record<StatusFilter, number> = { all: leads.length, new: 0, contacted: 0, closed: 0 };
-        for (const lead of leads) result[lead.status] += 1;
-        return result;
-    }, [leads]);
+    const missing =
+        !serverFiltered && unsorted !== null
+            ? Math.max(0, unsorted - extra.filter((lead) => !listed.some((row) => row.id === lead.id)).length)
+            : 0;
 
-    const visible = useMemo(() => {
-        const query = search.trim().toLowerCase();
-        const digits = query.replace(/\D/g, "");
-        return leads.filter((lead) => {
-            if (status !== "all" && lead.status !== status) return false;
-            if (source !== "all" && lead.source !== source) return false;
-            if (!query) return true;
-            if (lead.name.toLowerCase().includes(query)) return true;
-            return (
-                digits.length > 0 &&
-                (lead.phone.replace(/\D/g, "").includes(digits) || lead.dialPhone.replace(/\D/g, "").includes(digits))
-            );
-        });
-    }, [leads, status, source, search]);
-
-    const csvData = useMemo(
-        () =>
-            visible.map((lead) => ({
-                name: csvSafe(lead.name),
-                phone: lead.dialPhone || lead.phone,
-                status: STATUS_LABEL[lead.status],
-                source: SOURCE_LABEL[lead.source],
-                service: csvSafe(lead.service),
-                message: csvSafe(lead.message),
-                activity: csvSafe(lead.activity),
-                preferredTime: csvSafe(lead.preferredTime),
-                userEmail: lead.userEmail,
-                page: lead.page,
-                firstContact: isoDate(lead.firstContactMs),
-                lastActivity: isoDate(lead.lastActivityMs),
-            })),
-        [visible]
-    );
-
-    const filtered = status !== "all" || source !== "all" || search.trim() !== "";
-    const clearFilters = () => {
-        setStatus("all");
-        setSource("all");
-        setSearch("");
+    const readAll = async () => {
+        const { db, collection, getDocs } = await loadFirestore();
+        const snap = await getDocs(collection(db, "leads"));
+        return snap.docs.map((item) => toLeadRow(item.id, item.data()));
     };
 
-    const changeStatus = async (lead: LeadRow, next: LeadStatus) => {
-        if (next === lead.status) return;
+    const showUnsorted = async () => {
+        setLoadingUnsorted(true);
         try {
-            await updateDoc(doc(db, "leads", lead.id), { status: next });
-            toast.success(`Marked as ${STATUS_LABEL[next].toLowerCase()}`);
+            const ids = new Set(listed.map((lead) => lead.id));
+            const others = (await readAll()).filter((lead) => !ids.has(lead.id));
+            setExtra((current) => [...current.filter((lead) => !others.some((other) => other.id === lead.id)), ...others]);
         } catch (error) {
-            console.error("Updating lead status failed:", error);
-            toast.error("Couldn't update the status");
-        }
-    };
-
-    const copyPhone = async (phone: string) => {
-        try {
-            await navigator.clipboard.writeText(phone);
-            toast.success("Phone number copied");
-        } catch {
-            toast.error("Couldn't copy the number");
-        }
-    };
-
-    const askDelete = (lead: LeadRow) => {
-        setPendingDelete(lead);
-        setDeleteOpen(true);
-    };
-    const closeDelete = useCallback(() => setDeleteOpen(false), []);
-
-    const confirmDelete = async () => {
-        if (!pendingDelete) return;
-        setDeleting(true);
-        try {
-            await deleteDoc(doc(db, "leads", pendingDelete.id));
-            toast.success("Lead deleted");
-            setDeleteOpen(false);
-        } catch (error) {
-            console.error("Deleting lead failed:", error);
-            toast.error("Couldn't delete the lead");
+            console.error("Loading older leads failed:", error);
+            toast.error("مقدرناش نحمّلهم. جرّب تاني.");
         } finally {
-            setDeleting(false);
+            setLoadingUnsorted(false);
         }
     };
+
+    const lookUpPhone = async (docId: string) => {
+        setLookingUp(true);
+        try {
+            const { db, doc, getDoc } = await loadFirestore();
+            const snap = await getDoc(doc(db, "leads", docId));
+            if (!snap.exists()) {
+                toast("مفيش عميل بالرقم ده.");
+                return;
+            }
+            const lead = toLeadRow(snap.id, snap.data());
+            setExtra((current) => [...current.filter((row) => row.id !== lead.id), lead]);
+        } catch (error) {
+            console.error("Looking up a lead failed:", error);
+            toast.error("مقدرناش ندوّر. جرّب تاني.");
+        } finally {
+            setLookingUp(false);
+        }
+    };
+
+    const reload = () => {
+        setExtra([]);
+        setUnsorted(null);
+        void list.reload();
+    };
+
+    /** Shows a saved status wherever the lead is listed, without reading the list again. */
+    const applyStatus = (id: string, status: LeadStatus) => {
+        if (list.items.some((item) => item.id === id)) list.updateItem(id, { status });
+        setExtra((current) => current.map((lead) => (lead.id === id ? { ...lead, status } : lead)));
+        setSelected((current) => (current?.id === id ? { ...current, status } : current));
+    };
+
+    /** After a change: the other filters' lists and every total load again when next shown. */
+    const afterChange = () => {
+        invalidateAdminLists("leads", options);
+        invalidateCounts("leads");
+        void refreshAdminCounts();
+    };
+
+    const changeStatus = async (lead: LeadRow, status: LeadStatus) => {
+        try {
+            const { db, doc, updateDoc } = await loadFirestore();
+            await updateDoc(doc(db, "leads", lead.id), { status });
+            applyStatus(lead.id, status);
+            afterChange();
+            toast.success(`بقى «${STATUS_LABEL[status]}».`);
+        } catch (error) {
+            console.error("Updating the lead status failed:", error);
+            toast.error("مقدرناش نغيّر الحالة. جرّب تاني.");
+        }
+    };
+
+    const deleteLead = async (lead: LeadRow) => {
+        try {
+            const { db, doc, deleteDoc } = await loadFirestore();
+            await deleteDoc(doc(db, "leads", lead.id));
+            list.removeItem(lead.id);
+            setExtra((current) => current.filter((row) => row.id !== lead.id));
+            setUnsorted((current) => (current !== null && !listed.some((row) => row.id === lead.id) ? Math.max(0, current - 1) : current));
+            setDetailsOpen(false);
+            afterChange();
+            toast.success("العميل اتمسح.");
+            return true;
+        } catch (error) {
+            console.error("Deleting the lead failed:", error);
+            toast.error("مقدرناش نمسحه. جرّب تاني.");
+            return false;
+        }
+    };
+
+    // Reads every lead only now, when the owner asks for the file; the filters above apply
+    const exportCsv = async () => {
+        setExporting(true);
+        try {
+            const leads = (await readAll()).filter((lead) => matches(lead, filters)).sort(byActivity);
+            if (leads.length === 0) {
+                toast("مفيش عملاء بالفلتر ده.");
+                return;
+            }
+            const url = URL.createObjectURL(new Blob([leadsToCsv(leads)], { type: "text/csv;charset=utf-8" }));
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `gtech-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.append(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+            toast.success(`اتصدّر ${leads.length} عميل.`);
+        } catch (error) {
+            console.error("Exporting leads failed:", error);
+            toast.error("مقدرناش نعمل الملف. جرّب تاني.");
+        } finally {
+            setExporting(false);
+        }
+    };
+
+    const openLead = useCallback((lead: LeadRow) => {
+        setSelected(lead);
+        setDetailsOpen(true);
+    }, []);
+    const closeDetails = useCallback(() => setDetailsOpen(false), []);
+
+
+    const setFilter = <K extends keyof Filters>(key: K, value: Filters[K]) => setFilters((current) => ({ ...current, [key]: value }));
+    const clearFilters = () => setFilters({ status: "all", source: "all", search: "" });
+    const searching = filters.search.trim() !== "";
+    const lookupId = searching ? phoneDocId(filters.search) : null;
+    const canLookUp = lookupId !== null && list.hasMore && !rows.some((lead) => lead.id === lookupId);
+    const failed = list.status === "error" && list.items.length === 0;
 
     return (
-        <>
-            <PageHeader
-                title="Leads"
-                description="People who left their name and number: from the popup, the contact page, pricing and the chat assistant. Newest first."
-                actions={
-                    <>
-                        <ButtonLink href="/admin/leads/capture" variant="secondary" className="w-full sm:w-auto">
-                            <MessageSquarePlus />
-                            Popup settings
-                        </ButtonLink>
-                        {visible.length > 0 && (
-                            <CSVLink
-                                data={csvData}
-                                headers={CSV_HEADERS}
-                                filename="gtech-leads.csv"
-                                className={buttonVariants({ variant: "secondary", className: "w-full sm:w-auto" })}
-                            >
-                                <Download />
-                                Export CSV
-                            </CSVLink>
-                        )}
-                    </>
-                }
-            />
-
-            {loading ? (
-                <LoadingBlock label="Loading leads…" />
-            ) : loadError ? (
-                <Alert variant="danger">Couldn&apos;t load the leads. Check your connection and reload the page.</Alert>
-            ) : leads.length === 0 ? (
+        <AdminPage
+            title="العملاء المحتملين"
+            description="الناس اللي سابت اسمها ورقمها من النافذة أو صفحة التواصل أو الأسعار أو المساعد الذكي. آخر نشاط فوق."
+            width="wide"
+            actions={
+                <>
+                    <Button variant="ghost" size="sm" onClick={reload} disabled={list.loading || list.loadingMore}>
+                        <RefreshCw />
+                        تحديث
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => void exportCsv()}
+                        disabled={exporting || list.loading}
+                        title="بيقرا كل العملاء (بالفلتر الحالي) ويحمّلهم في ملف يفتح في Excel"
+                    >
+                        {exporting ? <Spinner className="size-4" /> : <Download />}
+                        تصدير CSV
+                    </Button>
+                </>
+            }
+        >
+            {/* The whole screen waits only for the first, unfiltered page; a filter reloads just the rows */}
+            {list.loading && !serverFiltered ? (
+                <ListSkeleton />
+            ) : failed && !serverFiltered ? (
+                <ReadError message="مقدرناش نقرا العملاء. اتأكد من النت وجرّب تاني." onRetry={reload} indexUrl={list.indexUrl} />
+            ) : rows.length === 0 && missing === 0 && !serverFiltered ? (
                 <EmptyState
                     icon={<UserPlus />}
-                    title="No leads yet"
-                    description="When visitors leave their number in the popup, on the contact page, on pricing or in the chat, they show up here."
+                    title="لسه مفيش عملاء"
+                    description="أول ما حد يسيب رقمه في النافذة أو صفحة التواصل أو الأسعار أو الشات، هيظهر هنا."
                 />
             ) : (
                 <>
                     <div className="mb-4 space-y-3">
                         <div className="flex flex-col gap-3 sm:flex-row">
                             <div className="relative min-w-0 flex-1">
-                                <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
+                                <Search aria-hidden className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
                                 <Input
                                     type="search"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Search by name or phone"
-                                    aria-label="Search leads by name or phone"
-                                    className="pl-9"
+                                    value={filters.search}
+                                    onChange={(e) => setFilter("search", e.target.value)}
+                                    placeholder="دوّر بالاسم أو الرقم أو الخدمة"
+                                    aria-label="دوّر في العملاء"
+                                    className="ps-9"
                                 />
                             </div>
                             <Select
-                                value={source}
-                                onChange={(e) => setSource(e.target.value as SourceFilter)}
-                                aria-label="Filter by source"
+                                value={filters.source}
+                                onChange={(e) => setFilter("source", e.target.value as SourceFilter)}
+                                aria-label="المصدر"
                                 className="sm:w-48"
                             >
-                                <option value="all">All sources</option>
+                                <option value="all">كل المصادر</option>
                                 {SOURCES.map((value) => (
                                     <option key={value} value={value}>
                                         {SOURCE_LABEL[value]}
@@ -242,186 +308,120 @@ export default function LeadsPage() {
                                 ))}
                             </Select>
                         </div>
-                        <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-2">
-                            {STATUS_FILTERS.map((value) => (
-                                <Chip key={value} active={status === value} onClick={() => setStatus(value)}>
-                                    {value === "all" ? "All" : STATUS_LABEL[value]}
-                                    <span className="tabular-nums opacity-70">{counts[value]}</span>
+                        <div role="group" aria-label="الحالة" className="flex flex-wrap gap-2">
+                            {(["all", ...STATUSES] as StatusFilter[]).map((value) => (
+                                <Chip key={value} active={filters.status === value} onClick={() => setFilter("status", value)}>
+                                    {value === "all" ? "الكل" : STATUS_LABEL[value]}
+                                    {typeof statusCounts?.[value] === "number" && (
+                                        <span className="tabular-nums opacity-70">{statusCounts[value]}</span>
+                                    )}
                                 </Chip>
                             ))}
                         </div>
                     </div>
 
-                    {visible.length === 0 ? (
+                    {list.loading ? (
+                        <RowsSkeleton />
+                    ) : failed ? (
+                        <ReadError message="مقدرناش نقرا العملاء بالفلتر ده. جرّب تاني." onRetry={reload} indexUrl={list.indexUrl} />
+                    ) : visible.length === 0 ? (
                         <EmptyState
-                            title="No leads match these filters"
+                            title="مفيش عملاء بالفلتر ده"
+                            description={
+                                searching && list.hasMore ? "البحث بيدوّر في اللي اتحمّل بس. حمّل المزيد تحت، أو دوّر بالرقم في كل العملاء." : undefined
+                            }
                             action={
                                 <Button variant="secondary" onClick={clearFilters}>
-                                    Clear filters
+                                    امسح الفلتر
                                 </Button>
                             }
                         />
                     ) : (
-                        <>
-                            {filtered && (
-                                <p className="mb-3 text-xs text-subtle">
-                                    Showing {visible.length} of {leads.length}
-                                </p>
+                        <Card padding="none" className="overflow-hidden">
+                            <ul className="divide-y divide-border">
+                                {visible.map((lead) => (
+                                    <LeadListItem key={lead.id} lead={lead} onOpen={openLead} />
+                                ))}
+                            </ul>
+                        </Card>
+                    )}
+
+                    {!list.loading && !failed && (
+                        <div className="mt-4 flex flex-col items-center gap-3 text-center">
+                            <p className="text-xs text-subtle">
+                                {searching ? `ظاهر ${visible.length} من ${rows.length} اتحمّلوا` : `${rows.length} عميل`}
+                                {list.hasMore && " — فيه أقدم"}
+                            </p>
+
+                            {canLookUp && (
+                                <Button variant="secondary" size="sm" onClick={() => void lookUpPhone(lookupId)} disabled={lookingUp}>
+                                    {lookingUp ? <Spinner className="size-4" /> : <Search />}
+                                    دوّر بالرقم ده في كل العملاء
+                                </Button>
                             )}
-                            <Card padding="none" className="overflow-hidden">
-                                <ul className="divide-y divide-border">
-                                    {visible.map((lead) => (
-                                        <LeadItem
-                                            key={lead.id}
-                                            lead={lead}
-                                            onStatus={changeStatus}
-                                            onCopy={copyPhone}
-                                            onDelete={askDelete}
-                                        />
-                                    ))}
-                                </ul>
-                            </Card>
-                        </>
+
+                            {list.status === "error" ? (
+                                <Alert variant="danger" className="flex w-full flex-col gap-3 text-start sm:flex-row sm:items-center sm:justify-between">
+                                    <span>مقدرناش نحمّل الباقي.</span>
+                                    <Button variant="secondary" size="sm" onClick={() => void list.loadMore()} className="shrink-0">
+                                        جرّب تاني
+                                    </Button>
+                                </Alert>
+                            ) : (
+                                list.hasMore && (
+                                    <Button variant="secondary" onClick={() => void list.loadMore()} disabled={list.loadingMore}>
+                                        {list.loadingMore && <Spinner className="size-4" />}
+                                        تحميل المزيد
+                                    </Button>
+                                )
+                            )}
+
+                            {allLoaded && missing > 0 && (
+                                <Alert className="flex w-full flex-col gap-3 text-start sm:flex-row sm:items-center sm:justify-between">
+                                    <span>فيه {missing} عميل قديم مش ظاهرين في الترتيب (اتسجلوا من نسخة قديمة من الموقع).</span>
+                                    <Button variant="secondary" size="sm" onClick={() => void showUnsorted()} disabled={loadingUnsorted} className="shrink-0">
+                                        {loadingUnsorted && <Spinner className="size-4" />}
+                                        اعرضهم
+                                    </Button>
+                                </Alert>
+                            )}
+                        </div>
                     )}
                 </>
             )}
 
-            <Modal open={deleteOpen} onClose={closeDelete} title="Delete lead" size="sm">
-                <div className="p-5">
-                    <p className="text-sm leading-relaxed text-muted">
-                        <span dir="auto" className="font-medium text-foreground">
-                            {pendingDelete?.name || "This lead"}
-                        </span>
-                        {pendingDelete?.phone && (
-                            <>
-                                {" "}
-                                (<span dir="ltr">{pendingDelete.phone}</span>)
-                            </>
-                        )}{" "}
-                        will be removed permanently. This can&apos;t be undone.
-                    </p>
-                    <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                        <Button variant="secondary" onClick={closeDelete}>
-                            Cancel
-                        </Button>
-                        <Button variant="danger" onClick={confirmDelete} disabled={deleting}>
-                            {deleting ? "Deleting…" : "Delete lead"}
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
-        </>
+            <LeadDetails
+                lead={selected}
+                open={detailsOpen}
+                onClose={closeDetails}
+                onStatus={changeStatus}
+                onDelete={deleteLead}
+            />
+        </AdminPage>
     );
 }
 
-// Phones get 40px tap targets; wider screens get compact buttons
-const ACTION = "h-10 sm:h-8";
-
-interface LeadItemProps {
-    lead: LeadRow;
-    onStatus: (lead: LeadRow, status: LeadStatus) => void;
-    onCopy: (phone: string) => void;
-    onDelete: (lead: LeadRow) => void;
+function RowsSkeleton() {
+    return (
+        <div role="status" aria-label="جاري التحميل…" className="divide-y divide-border rounded-card border border-border bg-surface">
+            {[0, 1, 2, 3, 4].map((row) => (
+                <div key={row} className="space-y-2 px-4 py-4">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-3 w-64 max-w-full" />
+                </div>
+            ))}
+        </div>
+    );
 }
 
-function LeadItem({ lead, onStatus, onCopy, onDelete }: LeadItemProps) {
-    const links = lead.dialPhone ? leadContactLinks(lead.dialPhone) : null;
-    const returning = lead.firstContactMs > 0 && lead.lastActivityMs - lead.firstContactMs > 60_000;
-    const details = [
-        { label: "Service", value: lead.service },
-        { label: "Message", value: lead.message },
-        { label: "Business", value: lead.activity },
-        { label: "Best time", value: lead.preferredTime },
-        { label: "Account", value: lead.userEmail },
-        { label: "Page", value: lead.page },
-    ].filter((detail) => detail.value);
-
+function ListSkeleton() {
     return (
-        <li className="px-4 py-4 sm:px-5">
-            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <h3 dir="auto" className="min-w-0 break-words text-sm font-semibold text-foreground">
-                        {lead.name || "No name"}
-                    </h3>
-                    <Badge variant={STATUS_BADGE[lead.status]}>{STATUS_LABEL[lead.status]}</Badge>
-                    <Badge variant="outline">{SOURCE_LABEL[lead.source]}</Badge>
-                </div>
-                {lead.lastActivityMs > 0 && (
-                    <time dateTime={isoDate(lead.lastActivityMs)} className="shrink-0 text-xs text-subtle">
-                        {formatDate(lead.lastActivityMs)}
-                    </time>
-                )}
+        <div className="space-y-4">
+            <div className="flex flex-col gap-3 sm:flex-row">
+                <Skeleton className="h-10 flex-1" />
+                <Skeleton className="h-10 sm:w-48" />
             </div>
-
-            {lead.phone && (
-                <p className="mt-1 text-sm text-muted">
-                    <span dir="ltr" className="tabular-nums">
-                        {lead.phone}
-                    </span>
-                </p>
-            )}
-
-            {details.length > 0 && (
-                <dl className="mt-3 grid gap-y-0.5 text-sm sm:grid-cols-[7rem_1fr] sm:gap-x-4 sm:gap-y-1.5">
-                    {details.map((detail) => (
-                        <Fragment key={detail.label}>
-                            <dt className="text-xs text-subtle sm:pt-0.5">{detail.label}</dt>
-                            <dd dir="auto" className="mb-2 min-w-0 whitespace-pre-line break-words text-foreground sm:mb-0">
-                                {detail.value}
-                            </dd>
-                        </Fragment>
-                    ))}
-                </dl>
-            )}
-
-            {returning && <p className="mt-2 text-xs text-subtle">First contact {formatDate(lead.firstContactMs)}</p>}
-
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-                {links && (
-                    <>
-                        <a href={links.call} className={buttonVariants({ variant: "secondary", size: "sm", className: ACTION })}>
-                            <Phone />
-                            Call
-                        </a>
-                        <ButtonLink href={links.whatsapp} external variant="secondary" size="sm" className={ACTION}>
-                            <SocialIcon kind="whatsapp" />
-                            WhatsApp
-                        </ButtonLink>
-                        <ButtonLink href={links.telegram} external variant="secondary" size="sm" className={ACTION}>
-                            <Send />
-                            Telegram
-                        </ButtonLink>
-                        <Button variant="ghost" size="sm" className={ACTION} onClick={() => onCopy(lead.phone)}>
-                            <Copy />
-                            Copy
-                        </Button>
-                    </>
-                )}
-                <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
-                    <Select
-                        value={lead.status}
-                        onChange={(e) => onStatus(lead, e.target.value as LeadStatus)}
-                        aria-label={`Status of ${lead.name || "this lead"}`}
-                        className="h-10 min-w-0 flex-1 sm:h-8 sm:w-36 sm:flex-none"
-                    >
-                        {STATUSES.map((value) => (
-                            <option key={value} value={value}>
-                                {STATUS_LABEL[value]}
-                            </option>
-                        ))}
-                    </Select>
-                    <Button
-                        variant="danger"
-                        size="icon"
-                        className="sm:size-8"
-                        onClick={() => onDelete(lead)}
-                        aria-label={`Delete ${lead.name || "this lead"}`}
-                        title="Delete"
-                    >
-                        <Trash2 />
-                    </Button>
-                </div>
-            </div>
-        </li>
+            <RowsSkeleton />
+        </div>
     );
 }

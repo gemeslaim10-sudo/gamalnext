@@ -1,6 +1,6 @@
-import { getDocument } from "@/lib/server-utils";
+import { CACHE_TAGS, cached, readDoc, readOrFallback } from "@/lib/cache";
 
-// Shape of site_content/skills, edited in /admin/skills (keep in sync with src/app/admin/skills/types.ts).
+// Shape of site_content/skills, edited in /admin/skills (the dashboard imports these types from here).
 
 export interface SkillItem {
     title: string;
@@ -24,10 +24,17 @@ export interface SoftwareItem {
     color?: string;
 }
 
+export interface ToolItem {
+    name: string;
+    level: string;
+}
+
 export interface SkillsData {
     mainSkills?: SkillItem[];
     techStack?: TechStackItem[];
     software?: SoftwareItem[];
+    /** "Daily productivity tools", edited in /admin/skills */
+    tools?: ToolItem[];
 }
 
 /** Used only when the skills document can't be read. The real content lives in Firestore. */
@@ -84,21 +91,12 @@ export const DEFAULT_SKILLS: SkillsData = {
     ],
 };
 
+const readSkills = cached(async () => readDoc<SkillsData>("site_content", "skills"), "skills", [CACHE_TAGS.skills]);
+
 /**
- * The skills document, read on the server before the page renders (so there is no loading state).
- * A missing document or a failed read falls back to the defaults above.
+ * The skills document, read on the server before the page renders (so there is no loading state)
+ * and cached until the dashboard saves. A missing document or a failed read falls back to the defaults above.
  */
 export async function getSkillsData(): Promise<SkillsData> {
-    return (await getDocument<SkillsData>("site_content", "skills")) ?? DEFAULT_SKILLS;
-}
-
-/** The daily tools text from /admin/copy: one "name | level" per line → [{ name, level }]. */
-export function parseLevelList(text: string) {
-    return text
-        .split("\n")
-        .map((line) => {
-            const [name = "", ...level] = line.split("|");
-            return { name: name.trim(), level: level.join("|").trim() };
-        })
-        .filter((item) => item.name);
+    return (await readOrFallback("skills", readSkills, null)) ?? DEFAULT_SKILLS;
 }

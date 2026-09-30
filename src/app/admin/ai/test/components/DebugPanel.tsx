@@ -61,10 +61,10 @@ export function DebugPanel({ message }: { message: TestMessage | null }) {
                     <ul className="space-y-2">
                         {attempts.map((a, i) => (
                             <li key={i} className="text-xs">
-                                <p dir="ltr" className="text-left font-mono text-foreground">
+                                <p dir="ltr" className="text-start font-mono text-foreground">
                                     {PROVIDERS[a.provider] || a.provider} · {a.model} <span className="text-subtle">({(a.ms / 1000).toFixed(1)}s)</span>
                                 </p>
-                                <p dir="ltr" className="break-words text-left text-muted">
+                                <p dir="ltr" className="break-words text-start text-muted">
                                     {a.error}
                                 </p>
                             </li>
@@ -101,7 +101,9 @@ export function DebugPanel({ message }: { message: TestMessage | null }) {
                         <dt className="text-subtle">الاسم</dt>
                         <dd dir="auto" className="break-words text-foreground">{lead.name}</dd>
                         <dt className="text-subtle">الرقم</dt>
-                        <dd dir="ltr" className="text-left text-foreground">{lead.phone || "—"}</dd>
+                        <dd className="text-foreground">
+                            <span dir="ltr">{lead.phone || "—"}</span>
+                        </dd>
                         {lead.service && (
                             <>
                                 <dt className="text-subtle">الخدمة</dt>

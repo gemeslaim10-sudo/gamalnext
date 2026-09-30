@@ -3,14 +3,14 @@
 import { useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { deleteDoc, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { loadFirestore } from "@/lib/firebase-app";
 import { toast } from "react-hot-toast";
+import { refreshSite } from "@/lib/refreshSite";
 import { useCopy } from "@/components/providers/CopyProvider";
 import { Page } from "@/components/ui";
-import CommentSection from "@/components/social/CommentSection";
+import { CommentSection } from "@/components/social/LazySocial";
 import RelatedArticles from "./RelatedArticles";
-import type { FirebaseTimestamp } from "@/types";
+import type { ArticleCard as ArticleCardData, FirebaseTimestamp } from "@/types";
 import { formatTimestamp, getTimestampMs } from "@/types";
 
 import { ArticleHeader } from "./components/ArticleHeader";
@@ -29,7 +29,7 @@ type Article = {
     authorName?: string;
 }
 
-export default function ArticleView({ article }: { article: Article }) {
+export default function ArticleView({ article, related = [] }: { article: Article; related?: ArticleCardData[] }) {
     const t = useCopy();
     const { user } = useAuth();
     const router = useRouter();
@@ -55,8 +55,12 @@ export default function ArticleView({ article }: { article: Article }) {
         toast.loading(t("blog.deleting"), { id: "delete" });
 
         try {
+            const { db, doc, deleteDoc } = await loadFirestore();
             await deleteDoc(doc(db, "articles", article.id));
+            // Take it off the cached pages before leaving, so the blog no longer lists it
+            await refreshSite({ articleId: article.id });
             toast.success(t("blog.deleted"), { id: "delete" });
+            router.refresh();
             router.push("/articles");
         } catch (error) {
             console.error("Delete error:", error);
@@ -107,7 +111,7 @@ export default function ArticleView({ article }: { article: Article }) {
                 </div>
             </article>
 
-            <RelatedArticles currentArticleId={article.id} />
+            <RelatedArticles articles={related} />
         </Page>
     );
 }

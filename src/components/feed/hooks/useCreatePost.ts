@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { loadFirestore } from "@/lib/firebase-app";
 import { toast } from "react-hot-toast";
+import { refreshSite } from "@/lib/refreshSite";
+import { reportEvent } from "@/lib/reportEvent";
 import { uploadToCloudinary } from "@/lib/cloudinary/upload";
 import { ALLOWED_ADMINS } from "@/lib/constants";
 import { useCopy } from "@/components/providers/CopyProvider";
@@ -87,10 +88,11 @@ export function useCreatePost() {
         if (!content.trim() && images.length === 0) return;
         setIsSubmitting(true);
         try {
-            await addDoc(collection(db, "posts"), {
+            const { db, addDoc, collection, serverTimestamp } = await loadFirestore();
+            // Posts are public, so they carry the name and photo only — never the email
+            const postRef = await addDoc(collection(db, "posts"), {
                 userId: user?.uid,
                 userName: user?.displayName || "User",
-                userEmail: user?.email,
                 userPhoto: user?.photoURL || null,
                 content: content.trim(),
                 mediaUrl: images[0] || null,
@@ -103,10 +105,14 @@ export function useCreatePost() {
             setContent("");
             setImages([]);
             if (isAdmin) {
+                // Published right away: put it in the cached home feed (posts waiting for review don't need this)
+                void refreshSite({ postId: postRef.id });
                 toast.success(t("home.postPublished"), {
                     duration: 3000,
                 });
             } else {
+                // Waiting for review: the owner can get an email about it
+                reportEvent({ event: "post.pending", id: postRef.id });
                 toast.success(t("home.postPending"), {
                     duration: 5000,
                 });

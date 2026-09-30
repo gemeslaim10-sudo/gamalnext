@@ -116,12 +116,18 @@ export async function runGemini(apiKey: string, model: string, req: ProviderRequ
 }
 
 /**
- * Gemini 2.x chats better a bit cooler. Gemini 3 and the "-latest" aliases keep their default
- * temperature (recommended by Google) and think at a low level: faster replies, same reasoning.
+ * Gemini 2.x chats better a bit cooler; its Flash models answer without "thinking" (a chat reply
+ * doesn't need it, and thinking tokens are billed as output). Gemini 3 and the "-latest" aliases
+ * keep their default temperature (recommended by Google) and think at a low level. Output is
+ * capped as a safety net; the reply-length rules in the prompt keep answers short anyway.
  */
 function geminiGenerationConfig(model: string): Record<string, unknown> {
-    if (/gemini-(1|2)\./.test(model)) return { temperature: 0.7 };
-    return { thinkingConfig: { thinkingLevel: "low" } };
+    if (/gemini-(1|2)\./.test(model)) {
+        return /flash/.test(model)
+            ? { temperature: 0.7, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } }
+            : { temperature: 0.7, maxOutputTokens: 2048 };
+    }
+    return { maxOutputTokens: 2048, thinkingConfig: { thinkingLevel: "low" } };
 }
 
 function toGeminiDeclaration(tool: ToolSpec) {

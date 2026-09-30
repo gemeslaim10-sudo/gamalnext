@@ -1,45 +1,16 @@
-"use client";
+import { getMemberArticles, getPublicMember } from "@/lib/members/server";
+import { MemberProfile } from "./components/MemberProfile";
 
-import { UserX } from "lucide-react";
-import { useCopy } from "@/components/providers/CopyProvider";
-import { ButtonLink, EmptyState, LoadingBlock, Page } from "@/components/ui";
+type Props = { params: Promise<{ id: string }> };
 
-import { useUserProfile } from "./useUserProfile";
-import { UserProfileCard } from "./components/UserProfileCard";
-import { UserArticlesList } from "./components/UserArticlesList";
+// Each member page is built on its first visit and kept until the member saves their profile
+// (or an article of theirs changes); none are built ahead of time.
+export async function generateStaticParams() {
+    return [];
+}
 
-export default function UserProfilePage() {
-    const t = useCopy();
-    const { id, user, profile, articles, loading } = useUserProfile();
-
-    if (loading) {
-        return (
-            <Page>
-                <LoadingBlock label={t("blog.loading")} />
-            </Page>
-        );
-    }
-
-    if (!profile) {
-        return (
-            <Page>
-                <EmptyState
-                    icon={<UserX />}
-                    title={t("blog.userNotFound")}
-                    action={
-                        <ButtonLink href="/" variant="secondary">
-                            {t("blog.userGoHome")}
-                        </ButtonLink>
-                    }
-                />
-            </Page>
-        );
-    }
-
-    return (
-        <Page>
-            <UserProfileCard profile={profile} currentUser={user} profileId={id} />
-            <UserArticlesList articles={articles} />
-        </Page>
-    );
+export default async function UserProfilePage({ params }: Props) {
+    const { id } = await params;
+    const [profile, articles] = await Promise.all([getPublicMember(id), getMemberArticles(id)]);
+    return <MemberProfile id={id} profile={profile} articles={profile ? articles : []} />;
 }

@@ -1,4 +1,4 @@
-import { auth } from "@/lib/firebase";
+import { auth } from "@/lib/firebase-app";
 import type { LeadFieldErrors, LeadInput } from "@/lib/leads/schema";
 
 export type SubmitLeadResult =

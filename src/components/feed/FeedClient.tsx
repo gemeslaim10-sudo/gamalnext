@@ -5,14 +5,14 @@ import Lightbox from "@/components/media/Lightbox";
 import CreatePost from "./CreatePost";
 import FeedPostCard from "./FeedPostCard";
 import { FeedSkeleton, FeedErrorBanner, FeedEndMessage, FeedLoadingSpinner } from "./FeedStates";
-import { useFeed } from "./hooks/useFeed";
+import { useFeed, type FeedInitialPage } from "./hooks/useFeed";
 
-export default function FeedClient() {
+export default function FeedClient({ initialPage }: { initialPage?: FeedInitialPage | null }) {
     const {
         items, loading, hasMore, error, activeComments, expandedItems, lightbox, lightboxOpen,
-        setError, setPage, lastItemElementRef, handleShare, toggleComments, toggleExpand,
+        retry, lastItemElementRef, handleShare, toggleComments, toggleExpand,
         openLightbox, closeLightbox
-    } = useFeed();
+    } = useFeed(initialPage);
 
     const branding = useBrandingContext();
 
@@ -31,9 +31,9 @@ export default function FeedClient() {
 
             <CreatePost />
 
-            {error && <FeedErrorBanner error={error} onRetry={() => { setError(null); setPage(p => p); }} />}
+            {error && <FeedErrorBanner error={error} onRetry={retry} />}
 
-            {loading && items.length === 0 && <FeedSkeleton />}
+            {(loading || (!error && items.length === 0 && hasMore)) && items.length === 0 && <FeedSkeleton />}
 
             {items.map((item, index) => {
                 const isLast = items.length === index + 1;

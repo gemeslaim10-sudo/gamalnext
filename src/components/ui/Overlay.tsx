@@ -88,7 +88,8 @@ export function Modal({ open, onClose, title, ariaLabel, size = "md", className,
                 {title && (
                     <div className="flex shrink-0 items-center justify-between gap-4 border-b border-border px-5 py-4">
                         <h2 className="text-base font-semibold text-foreground">{title}</h2>
-                        <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close">
+                        {/* Dialogs only render in the browser, so the page language is known here */}
+                        <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label={document.documentElement.lang === "ar" ? "إغلاق" : "Close"}>
                             <X />
                         </Button>
                     </div>
@@ -142,7 +143,8 @@ export function Dropdown({ trigger, children, align = "end", className }: Dropdo
                         OVERLAY_TRANSITION,
                         // Grows out of the corner it's anchored to
                         "data-[state=closed]:-translate-y-1 data-[state=closed]:scale-95 data-[state=closed]:opacity-0",
-                        align === "end" ? "right-0 origin-top-right" : "left-0 origin-top-left",
+                        // Logical sides, so menus also open the right way in the right-to-left dashboard
+                        align === "end" ? "end-0 origin-top-right rtl:origin-top-left" : "start-0 origin-top-left rtl:origin-top-right",
                         className
                     )}
                 >
@@ -154,7 +156,7 @@ export function Dropdown({ trigger, children, align = "end", className }: Dropdo
 }
 
 const MENU_ITEM =
-    "flex w-full items-center gap-2.5 rounded-control px-3 py-2 text-left text-sm text-muted transition-colors " +
+    "flex w-full items-center gap-2.5 rounded-control px-3 py-2 text-start text-sm text-muted transition-colors " +
     "hover:bg-surface-hover hover:text-foreground [&_svg]:size-4 [&_svg]:shrink-0";
 
 export function MenuItem({ href, onClick, danger, children }: { href?: string; onClick?: () => void; danger?: boolean; children: ReactNode }) {

@@ -3,6 +3,7 @@
 import { useState, type ComponentProps } from "react";
 import Image, { type ImageProps } from "next/image";
 import { cn } from "@/lib/utils";
+import { cloudinaryLoader, isCloudinaryImage } from "@/lib/cloudinary-loader";
 
 const FADE = "transition-opacity duration-(--motion-slow) ease-out";
 
@@ -10,11 +11,13 @@ const FADE = "transition-opacity duration-(--motion-slow) ease-out";
  * next/image that fades in once the file has loaded, instead of popping in.
  * Skip it for `priority` (above-the-fold) images so they paint immediately.
  */
-export function FadeImage({ className, onLoad, alt, ...props }: ImageProps) {
+export function FadeImage({ className, onLoad, alt, loader, ...props }: ImageProps) {
     const [loaded, setLoaded] = useState(false);
     return (
         <Image
             {...props}
+            // Cloudinary uploads are resized and converted by Cloudinary itself
+            loader={loader ?? (isCloudinaryImage(props.src) ? cloudinaryLoader : undefined)}
             alt={alt}
             onLoad={(e) => {
                 setLoaded(true);

@@ -1,23 +1,20 @@
 import { cache } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { CACHE_TAGS, cached, readDoc, readOrFallback } from "@/lib/cache";
 import { COPY_DEFAULTS, mergeCopy, type CopyKey } from "@/config/copy";
 import { formatCopy, type CopyValues } from "./types";
 
+const readCopy = cached(
+    async () => (await readDoc<{ values?: Record<string, unknown> }>("site_content", "copy"))?.values ?? null,
+    "copy",
+    [CACHE_TAGS.copy]
+);
+
 /**
- * The site texts for this request (read once per request, shared by the layout, pages and metadata).
- * If the database can't be read, every text falls back to its default — but a slow read never shows
- * defaults, because the page waits for this before rendering.
+ * The site texts (cached until the dashboard saves or clears the cache; shared by the layout, pages
+ * and metadata). If the database can't be read, every text falls back to its default — but a slow
+ * read never shows defaults, because the page waits for this before rendering.
  */
-export const getSiteCopy = cache(async (): Promise<CopyValues> => {
-    try {
-        const snap = await getDoc(doc(db, "site_content", "copy"));
-        return mergeCopy(snap.exists() ? (snap.data().values as Record<string, unknown>) : null);
-    } catch (error) {
-        console.error("Failed to load site copy, using defaults:", error);
-        return { ...COPY_DEFAULTS };
-    }
-});
+export const getSiteCopy = cache(async (): Promise<CopyValues> => mergeCopy(await readOrFallback("site copy", readCopy, null)));
 
 /** `t` for server components and generateMetadata: `const t = await getCopy(); t("projects.title")`. */
 export async function getCopy() {

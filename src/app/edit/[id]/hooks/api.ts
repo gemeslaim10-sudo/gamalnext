@@ -1,5 +1,6 @@
 import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { refreshSite } from "@/lib/refreshSite";
 
 export async function updatePostData(postId: string, content: string, images: string[]) {
     const postRef = doc(db, "posts", postId);
@@ -9,6 +10,8 @@ export async function updatePostData(postId: string, content: string, images: st
         gallery: images,
         mediaType: images.length > 0 ? "image" : null,
     });
+    // The home feed is cached: show the change there too
+    await refreshSite({ postId });
 }
 export async function fetchPostData(postId: string) {
     const docRef = doc(db, "posts", postId);
@@ -18,4 +21,5 @@ export async function fetchPostData(postId: string) {
 }
 export async function deletePostData(postId: string) {
     await deleteDoc(doc(db, "posts", postId));
+    await refreshSite({ postId });
 }

@@ -9,22 +9,21 @@ export interface PricingItem {
     price: number | null;
     /** Shows the "custom quote" label (and a "request a quote" button) instead of a price */
     customQuote: boolean;
+    /** The price is where it starts (systems priced by scope): the "from" label shows before it */
+    priceFrom?: boolean;
     /** Short note under the price */
     description: string;
     // Spec list — an empty value hides that row
     pages: string;
-    stack: string;
     hosting: string;
     hostingCost: string;
-    seo: string;
-    editing: string;
     /** Subtle emphasis: stronger border, a badge and the primary button */
     featured: boolean;
     visible: boolean;
 }
 
 /** Keys of the spec rows shown on a card. They double as keys of their labels in `PricingLabels`. */
-export const SPEC_KEYS = ["pages", "stack", "hosting", "hostingCost", "seo", "editing"] as const;
+export const SPEC_KEYS = ["pages", "hosting", "hostingCost"] as const;
 export type SpecKey = (typeof SPEC_KEYS)[number];
 
 /** A paid extra, usually with a limited-time discount. */
@@ -70,8 +69,10 @@ export interface PricingSectionText {
 }
 
 export interface PricingLabels extends Record<SpecKey, string> {
-    /** Shown before every amount, e.g. "EGP" */
+    /** Shown before every amount, e.g. "USD" */
     currency: string;
+    /** Before a starting price, e.g. "From" */
+    priceFrom: string;
     customQuote: string;
     request: string;
     requestQuote: string;

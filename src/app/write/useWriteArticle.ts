@@ -3,6 +3,8 @@ import { useAuth } from "@/context/AuthContext";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { ALLOWED_ADMINS } from "@/lib/constants";
+import { refreshSite } from "@/lib/refreshSite";
+import { reportEvent } from "@/lib/reportEvent";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useCopy } from "@/components/providers/CopyProvider";
@@ -65,6 +67,7 @@ export function useWriteArticle() {
 
             // If pending, notify admin
             if (status === "pending") {
+                reportEvent({ event: "article.pending", id: articleRef.id });
                 await addDoc(collection(db, "notifications"), {
                     recipientId: 'ADMIN',
                     senderId: user.uid,
@@ -77,6 +80,8 @@ export function useWriteArticle() {
                 toast.success(t("account.writeSubmitted"));
                 router.push("/users/" + user.uid);
             } else {
+                // Published right away: add it to the cached blog, home feed and sitemap first
+                await refreshSite({ articleId: articleRef.id });
                 toast.success(t("account.writePublished"));
                 router.push(`/articles/${articleRef.id}`);
             }

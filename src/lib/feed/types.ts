@@ -15,7 +15,7 @@ export interface ProjectItem {
 
 export interface FeedItem {
     id: string;
-    type: string;
+    type: "article" | "post" | "project";
     title: string;
     description: string;
     fullContent?: string;

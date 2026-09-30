@@ -1,65 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
-import {
-    BookOpen,
-    Bot,
-    Code,
-    ExternalLink,
-    FileText,
-    FlaskConical,
-    FolderOpen,
-    History,
-    LayoutDashboard,
-    LogOut,
-    MessageSquarePlus,
-    MessagesSquare,
-    PanelTop,
-    Settings,
-    Star,
-    Tag,
-    Type,
-    UserPlus,
-    Users,
-    X,
-    type LucideIcon,
-} from "lucide-react";
+import { ExternalLink, LogOut, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useBrandingContext } from "@/components/providers/BrandingProvider";
 import { Avatar, Badge, Button, ButtonLink, OVERLAY_TRANSITION } from "@/components/ui";
 import { usePresence } from "@/hooks/usePresence";
-import { db } from "@/lib/firebase";
+import { ADMIN_NAV, findAdminNavItem } from "@/config/admin-nav";
+import { useAdminCounts, type AdminCounts } from "@/components/admin/data/useAdminCounts";
 import { cn } from "@/lib/utils";
-
-const menuItems: { icon: LucideIcon; label: string; href: string }[] = [
-    { icon: LayoutDashboard, label: "لوحة التحكم", href: "/admin" },
-    { icon: PanelTop, label: "محتوى الواجهة (Hero)", href: "/admin/content" },
-    { icon: Type, label: "نصوص الموقع", href: "/admin/copy" },
-    { icon: Code, label: "المهارات", href: "/admin/skills" },
-    { icon: FolderOpen, label: "معرض الأعمال", href: "/admin/projects" },
-    { icon: Tag, label: "الأسعار والباقات (Pricing)", href: "/admin/pricing" },
-    { icon: FileText, label: "المقالات والمدونة", href: "/admin/articles" },
-    { icon: MessagesSquare, label: "منشورات المستخدمين (Feed)", href: "/admin/posts" },
-    { icon: Star, label: "آراء العملاء", href: "/admin/reviews" },
-    { icon: Users, label: "المستخدمين", href: "/admin/users" },
-    { icon: UserPlus, label: "العملاء المحتملين (Leads)", href: "/admin/leads" },
-    { icon: MessageSquarePlus, label: "مودال جمع الأرقام", href: "/admin/leads/capture" },
-    { icon: Bot, label: "إعدادات المساعد الذكي", href: "/admin/ai" },
-    { icon: BookOpen, label: "قاعدة معرفة المساعد", href: "/admin/ai/knowledge" },
-    { icon: FlaskConical, label: "تجربة المساعد", href: "/admin/ai/test" },
-    { icon: History, label: "سجلات محادثات AI", href: "/admin/ai-chats" },
-    { icon: Settings, label: "إعدادات الموقع", href: "/admin/settings" },
-];
-
-/** The most specific menu item wins, so /admin/ai/knowledge doesn't also light up /admin/ai. */
-function isActive(pathname: string, href: string) {
-    const matches = (h: string) => (h === "/admin" ? pathname === "/admin" : pathname === h || pathname.startsWith(`${h}/`));
-    if (!matches(href)) return false;
-    return !menuItems.some((item) => item.href.length > href.length && item.href.startsWith(href) && matches(item.href));
-}
 
 interface AdminSidebarProps {
     /** Whether the drawer is open (phones and tablets only) */
@@ -68,22 +19,15 @@ interface AdminSidebarProps {
 }
 
 /**
- * Admin navigation. A fixed column on large screens and a drawer on smaller ones,
- * both rendered from the same panel so the links live in one place.
+ * Dashboard navigation, grouped by what the owner is doing (src/config/admin-nav.ts). A fixed
+ * column on large screens and a drawer on smaller ones, rendered from the same panel.
  */
 export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
     const pathname = usePathname();
     const { logout } = useAuth();
     const branding = useBrandingContext();
-    const [pendingReviewsCount, setPendingReviewsCount] = useState(0);
-
-    useEffect(() => {
-        const q = query(collection(db, "reviews"), where("status", "==", "pending"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            setPendingReviewsCount(snapshot.size);
-        });
-        return () => unsubscribe();
-    }, []);
+    // Counted once per visit (no live connection); moderation pages refresh them
+    const counts = useAdminCounts();
 
     // Drawer: Escape closes it, the page behind doesn't scroll, and it closes when the screen grows to desktop size
     useEffect(() => {
@@ -107,19 +51,19 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
     const panelProps = {
         siteName: branding?.siteName || "GTech",
         siteLogo: branding?.siteLogo,
-        pathname,
-        pendingReviewsCount,
+        activeHref: findAdminNavItem(pathname)?.href,
+        counts,
         onLogout: logout,
     };
 
     return (
         <>
-            <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-border bg-background lg:flex">
+            <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-e border-border bg-background lg:flex">
                 <SidebarPanel {...panelProps} />
             </aside>
 
             {drawer.mounted && (
-                <div className="fixed inset-0 z-50 lg:hidden">
+                <div className="fixed inset-0 z-50 flex lg:hidden">
                     <div
                         aria-hidden
                         data-state={drawer.state}
@@ -129,12 +73,13 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
                     <aside
                         role="dialog"
                         aria-modal="true"
-                        aria-label="Admin menu"
+                        aria-label="قائمة لوحة التحكم"
                         data-state={drawer.state}
                         className={cn(
-                            "relative flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-background",
+                            "relative flex h-full w-72 max-w-[85vw] flex-col border-e border-border bg-background",
                             OVERLAY_TRANSITION,
-                            "data-[state=closed]:-translate-x-full"
+                            // Slides in from the side it sits on (the right in the right-to-left dashboard)
+                            "rtl:data-[state=closed]:translate-x-full ltr:data-[state=closed]:-translate-x-full"
                         )}
                     >
                         <SidebarPanel {...panelProps} onNavigate={onClose} onClose={onClose} />
@@ -148,8 +93,8 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
 interface SidebarPanelProps {
     siteName: string;
     siteLogo?: string;
-    pathname: string;
-    pendingReviewsCount: number;
+    activeHref?: string;
+    counts: AdminCounts | null;
     onLogout: () => void;
     /** Called when a link is followed (closes the drawer) */
     onNavigate?: () => void;
@@ -157,63 +102,69 @@ interface SidebarPanelProps {
     onClose?: () => void;
 }
 
-function SidebarPanel({ siteName, siteLogo, pathname, pendingReviewsCount, onLogout, onNavigate, onClose }: SidebarPanelProps) {
+function SidebarPanel({ siteName, siteLogo, activeHref, counts, onLogout, onNavigate, onClose }: SidebarPanelProps) {
     return (
         <>
-            <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border pl-4 pr-2">
+            <div className="flex h-16 shrink-0 items-center gap-2 border-b border-border ps-4 pe-2">
                 <Link href="/admin" onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-2.5">
-                    <Avatar src={siteLogo} alt={siteName} size={28} />
+                    <Avatar src={siteLogo} alt={siteName} size={32} />
                     <span className="min-w-0 leading-tight">
                         <span className="block truncate text-sm font-semibold text-foreground">{siteName}</span>
-                        <span className="block text-xs text-subtle">Admin</span>
+                        <span className="block text-xs text-subtle">لوحة التحكم</span>
                     </span>
                 </Link>
                 {onClose && (
                     // autoFocus moves keyboard focus into the drawer when it opens
-                    <Button variant="ghost" size="icon" aria-label="Close menu" onClick={onClose} autoFocus>
+                    <Button variant="ghost" size="icon" aria-label="إغلاق القائمة" onClick={onClose} autoFocus>
                         <X className="size-5" />
                     </Button>
                 )}
             </div>
 
-            <nav aria-label="Admin" className="flex-1 overflow-y-auto px-2 py-3">
-                <ul className="space-y-0.5">
-                    {menuItems.map((item) => {
-                        const Icon = item.icon;
-                        const active = isActive(pathname, item.href);
-                        const showCount = item.href === "/admin/reviews" && pendingReviewsCount > 0;
-
-                        return (
-                            <li key={item.href}>
-                                <Link
-                                    href={item.href}
-                                    onClick={onNavigate}
-                                    aria-current={active ? "page" : undefined}
-                                    className={cn(
-                                        "flex items-center gap-2.5 rounded-control px-3 py-2 text-sm transition-colors",
-                                        active
-                                            ? "bg-surface-hover font-medium text-foreground"
-                                            : "text-muted hover:bg-surface-hover hover:text-foreground"
-                                    )}
-                                >
-                                    <Icon className="size-4 shrink-0" />
-                                    <span className="min-w-0 flex-1">{item.label}</span>
-                                    {showCount && (
-                                        <Badge variant="warning" className="px-2">
-                                            {pendingReviewsCount}
-                                        </Badge>
-                                    )}
-                                </Link>
-                            </li>
-                        );
-                    })}
-                </ul>
+            <nav aria-label="لوحة التحكم" className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+                {ADMIN_NAV.map((section) => (
+                    <div key={section.id}>
+                        {section.id !== "overview" && (
+                            <p className="mb-1.5 px-3 text-[11px] font-medium tracking-wide text-subtle">{section.label}</p>
+                        )}
+                        <ul className="space-y-0.5">
+                            {section.items.map((item) => {
+                                const Icon = item.icon;
+                                const active = item.href === activeHref;
+                                const count = item.badge && counts ? counts[item.badge] : 0;
+                                return (
+                                    <li key={item.href}>
+                                        <Link
+                                            href={item.href}
+                                            onClick={onNavigate}
+                                            aria-current={active ? "page" : undefined}
+                                            className={cn(
+                                                "flex items-center gap-2.5 rounded-control px-3 py-2 text-sm transition-colors",
+                                                active
+                                                    ? "bg-surface-hover font-medium text-foreground"
+                                                    : "text-muted hover:bg-surface-hover hover:text-foreground"
+                                            )}
+                                        >
+                                            <Icon className="size-4 shrink-0" />
+                                            <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                                            {count > 0 && (
+                                                <Badge variant="warning" className="px-2 tabular-nums">
+                                                    {count}
+                                                </Badge>
+                                            )}
+                                        </Link>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
+                ))}
             </nav>
 
-            <div className="shrink-0 space-y-0.5 border-t border-border px-2 py-3">
+            <div className="shrink-0 space-y-0.5 border-t border-border px-3 py-3">
                 <ButtonLink href="/" variant="ghost" onClick={onNavigate} className="w-full justify-start gap-2.5 px-3">
                     <ExternalLink />
-                    العودة للموقع
+                    عرض الموقع
                 </ButtonLink>
                 <Button
                     variant="ghost"

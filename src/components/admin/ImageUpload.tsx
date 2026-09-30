@@ -42,9 +42,9 @@ export function ImageUpload({ value, onChange, label = "صورة المشروع"
                         const url = e.dataTransfer.getData("text/plain");
                         if (url && /^https?:\/\//.test(url)) {
                             onChange(url);
-                            toast.success("URL dropped!");
+                            toast.success("اتحط الرابط");
                         } else {
-                            toast.error("Drop an image file or URL");
+                            toast.error("اسحب ملف صورة أو رابط صورة");
                         }
                     }
                 }}
@@ -54,7 +54,7 @@ export function ImageUpload({ value, onChange, label = "صورة المشروع"
                 {value ? (
                     <div className="h-32 w-full overflow-hidden rounded-control border border-border bg-surface-hover sm:h-40">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={value} alt="Preview" className="size-full object-contain" />
+                        <img src={value} alt="معاينة الصورة" className="size-full object-contain" />
                     </div>
                 ) : (
                     <button
@@ -68,14 +68,14 @@ export function ImageUpload({ value, onChange, label = "صورة المشروع"
                     >
                         <ImageIcon aria-hidden className="size-6 text-subtle" />
                         <span className="text-xs leading-relaxed text-muted">
-                            {isDragging ? 'Drop image here' : 'Click to browse, drag & drop, or paste (Ctrl+V)'}
+                            {isDragging ? "سيب الصورة هنا" : "اضغط عشان تختار صورة، أو اسحبها هنا، أو الصقها (Ctrl+V)"}
                         </span>
                     </button>
                 )}
 
                 {isDragging && value && (
                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-control border border-dashed border-border-strong bg-overlay">
-                        <span className="text-sm font-medium text-foreground">Drop to upload</span>
+                        <span className="text-sm font-medium text-foreground">سيبها عشان تترفع</span>
                     </div>
                 )}
             </div>
@@ -84,7 +84,7 @@ export function ImageUpload({ value, onChange, label = "صورة المشروع"
             <div className="flex flex-wrap gap-2">
                 <Button variant="secondary" size="sm" onClick={handleUpload} disabled={loading} className="flex-1">
                     <Upload />
-                    {loading ? "..." : value ? "Change" : "Browse"}
+                    {loading ? "جاري الرفع…" : value ? "تغيير الصورة" : "اختيار صورة"}
                 </Button>
 
                 <Button
@@ -92,14 +92,14 @@ export function ImageUpload({ value, onChange, label = "صورة المشروع"
                     size="sm"
                     onClick={handleSmartPaste}
                     disabled={loading}
-                    title="Paste image or URL from clipboard (Ctrl+V also works)"
+                    title="الصق صورة أو رابط من الحافظة (Ctrl+V كمان بيشتغل)"
                 >
                     <ClipboardPaste />
-                    Paste
+                    لصق
                 </Button>
 
                 {value && (
-                    <Button variant="danger" size="icon-sm" onClick={() => onChange("")} aria-label="Remove image" title="Remove">
+                    <Button variant="danger" size="icon-sm" onClick={() => onChange("")} aria-label="شيل الصورة" title="شيل الصورة">
                         <Trash2 />
                     </Button>
                 )}

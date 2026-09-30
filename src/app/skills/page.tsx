@@ -2,50 +2,38 @@ import type { Metadata } from "next";
 import Skills from "@/components/sections/Skills";
 import { getSkillsData } from "@/components/sections/skills/data";
 import { Page, PageHeader } from "@/components/ui";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { getCopy } from "@/lib/copy/server";
-import { SITE_URL } from "@/lib/constants";
+import { getSiteSeo, pageMetadata } from "@/lib/seo/server";
+import { breadcrumbs, pageGraph, serviceNodes, webPage } from "@/lib/seo/structured-data";
 
+// Title, description and keywords: /admin/seo → Pages → Services & skills
 export async function generateMetadata(): Promise<Metadata> {
-    const t = await getCopy();
-    return {
-        title: t("skills.seoTitle") || undefined,
-        description: t("skills.seoDescription") || undefined,
-        alternates: {
-            canonical: './',
-        },
-    };
+    return pageMetadata("skills");
 }
 
-export const revalidate = 0; // Revalidate immediately (dynamic)
-
 export default async function SkillsPage() {
-    // Read on the server so the page arrives complete (defaults only if the read fails)
-    const [skillsData, t] = await Promise.all([getSkillsData(), getCopy()]);
-
-    const breadcrumbs = {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [{
-            "@type": "ListItem",
-            "position": 1,
-            "name": t("nav.home"),
-            "item": SITE_URL
-        }, {
-            "@type": "ListItem",
-            "position": 2,
-            "name": t("skills.title"),
-            "item": `${SITE_URL}/skills`
-        }]
-    };
+    // Read on the server (cached) so the page arrives complete (defaults only if the read fails)
+    const [skillsData, t, site] = await Promise.all([getSkillsData(), getCopy(), getSiteSeo()]);
+    const services = (skillsData.mainSkills ?? []).filter((skill) => skill.title?.trim());
 
     return (
         <Page>
             <PageHeader title={t("skills.title")} description={t("skills.description")} />
             <Skills data={skillsData} />
-            <script
-                type="application/ld+json"
-                // "<" is escaped so a dashboard text can never close the script tag
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs).replace(/</g, "\\u003c") }}
+            {/* The services, each offered by the company (details in the site-wide data) */}
+            <JsonLd
+                data={pageGraph(
+                    webPage("WebPage", "/skills", t("skills.title"), site.fill(site.seo.pages.skills.description)),
+                    ...serviceNodes(
+                        services.map((skill) => ({ name: skill.title.trim(), description: skill.description?.trim() || undefined })),
+                        "/skills"
+                    ),
+                    breadcrumbs([
+                        { name: t("nav.home"), path: "/" },
+                        { name: t("skills.title"), path: "/skills" },
+                    ])
+                )}
             />
         </Page>
     );

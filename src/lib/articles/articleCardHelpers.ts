@@ -1,5 +1,6 @@
 import type { FirebaseTimestamp } from '@/types';
 import { getTimestampMs, formatTimestamp } from '@/types';
+import { markdownExcerpt } from './plainText';
 
 export type ArticleBase = {
     id: string;
@@ -12,8 +13,8 @@ export type ArticleBase = {
 
 export const getArticleSummary = (article: { summary?: string; content?: string }, maxLength: number = 100) => {
     if (article.summary) return article.summary;
-    if (!article.content) return "";
-    return article.content.substring(0, maxLength) + "...";
+    // The text is Markdown: show it without its marks
+    return article.content ? markdownExcerpt(article.content, maxLength) : "";
 };
 
 export const formatArticleDateEn = (timestamp: FirebaseTimestamp) => {

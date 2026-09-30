@@ -1,33 +1,35 @@
 import type { Metadata } from "next";
 import Contact from "@/components/sections/Contact";
 import { Page, PageHeader } from "@/components/ui";
-import { LEAD_CAPTURE_DOC, normalizeLeadCapture } from "@/components/leads/settings";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { getCopy } from "@/lib/copy/server";
-import { getDocument } from "@/lib/server-utils";
+import { getLeadCaptureSettings } from "@/lib/content/server";
+import { pageMetadata } from "@/lib/seo/server";
+import { ORGANIZATION_ID, breadcrumbs, pageGraph, webPage } from "@/lib/seo/structured-data";
 
-// Texts are edited in the dashboard (/admin/leads/capture), so always render the latest
-export const revalidate = 0;
-
-// Google title/description: /admin/copy → Contact page (shared-link data follows them)
+// Title, description and keywords: /admin/seo → Pages → Contact
 export async function generateMetadata(): Promise<Metadata> {
-    const t = await getCopy();
-    return {
-        title: t("contact.seoTitle") || undefined,
-        description: t("contact.seoDescription") || undefined,
-        alternates: {
-            canonical: './',
-        },
-    };
+    return pageMetadata("contact");
 }
 
 export default async function ContactPage() {
-    // Falls back to the code defaults only if the read fails
-    const settings = normalizeLeadCapture(
-        await getDocument<Record<string, unknown>>(LEAD_CAPTURE_DOC.collection, LEAD_CAPTURE_DOC.id)
-    );
+    // Texts from /admin/leads/capture (cached; code defaults only if the read fails)
+    const [settings, t] = await Promise.all([getLeadCaptureSettings(), getCopy()]);
 
     return (
         <Page>
+            {/* The company's phone, email and address are in the site-wide data this page points to */}
+            <JsonLd
+                data={pageGraph(
+                    webPage("ContactPage", "/contact", settings.contactTitle, settings.contactDescription, {
+                        mainEntity: { "@id": ORGANIZATION_ID },
+                    }),
+                    breadcrumbs([
+                        { name: t("nav.home"), path: "/" },
+                        { name: t("nav.contact"), path: "/contact" },
+                    ])
+                )}
+            />
             <PageHeader title={settings.contactTitle} description={settings.contactDescription} />
             <Contact settings={settings} />
         </Page>

@@ -4,36 +4,21 @@ import { BadgePercent } from "lucide-react";
 import { Alert, Card, Page, PageHeader, Section } from "@/components/ui";
 import { loadPricing } from "@/lib/pricing/server";
 import { isListed, phoneLinks } from "@/lib/pricing/utils";
-import { getSiteOpenGraph } from "@/lib/seo/server";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { getCopy } from "@/lib/copy/server";
+import { getSiteSeo, pageMetadata } from "@/lib/seo/server";
+import { breadcrumbs, faqPage, pageGraph, serviceNodes, webPage } from "@/lib/seo/structured-data";
 import { AddonList } from "./components/AddonList";
 import { ContactBlock } from "./components/ContactBlock";
 import { FaqList } from "./components/FaqList";
 import { PricingItemCard } from "./components/PricingItemCard";
 
-// Prices change often: always render from the latest saved content
-export const revalidate = 0;
-
+// Title, description and keywords: /admin/seo → Pages → Pricing. The page itself is cached until the
+// pricing editor saves (or the owner clears the cache).
 export async function generateMetadata(): Promise<Metadata> {
     const result = await loadPricing();
     if (result.status === "missing") return {};
-
-    const { seo } = result.content;
-    // Empty fields fall back to the site-wide metadata from the root layout
-    const title = seo.title.trim() || undefined;
-    const description = seo.description.trim() || undefined;
-    const keywords = seo.keywords
-        .split(",")
-        .map((keyword) => keyword.trim())
-        .filter(Boolean);
-
-    return {
-        title: title ? { absolute: title } : undefined,
-        description,
-        keywords: keywords.length > 0 ? keywords : undefined,
-        alternates: { canonical: "./" },
-        // Shared links take the title and description above
-        openGraph: await getSiteOpenGraph(),
-    };
+    return pageMetadata("pricing");
 }
 
 export default async function PricingPage() {
@@ -50,8 +35,31 @@ export default async function PricingPage() {
     const hasContact =
         contact.email.trim() !== "" || contact.numbers.some((entry) => phoneLinks(entry.number, contact.countryCode));
 
+    // Prices and questions as structured data, matching what the page shows
+    const [t, site] = await Promise.all([getCopy(), getSiteSeo()]);
+    const currency = /^[A-Z]{3}$/.test(labels.currency.trim().toUpperCase()) ? labels.currency.trim().toUpperCase() : "USD";
+    const jsonLd = pageGraph(
+        webPage("WebPage", "/pricing", header.title || site.fill(site.seo.pages.pricing.title), header.description || site.fill(site.seo.pages.pricing.description)),
+        ...serviceNodes(
+            [...packages, ...services, ...addons].map((item) => ({
+                name: item.name.trim(),
+                description: item.description.trim() || undefined,
+                price: item.customQuote ? null : item.price,
+                priceFrom: "priceFrom" in item ? item.priceFrom : false,
+                currency,
+            })),
+            "/pricing"
+        ),
+        faqPage("/pricing", faq.map((item) => ({ question: item.question.trim(), answer: item.answer.trim() }))),
+        breadcrumbs([
+            { name: t("nav.home"), path: "/" },
+            { name: t("nav.pricing"), path: "/pricing" },
+        ])
+    );
+
     return (
         <Page>
+            <JsonLd data={jsonLd} />
             {header.eyebrow && <p className="mb-2 text-sm font-medium text-subtle">{header.eyebrow}</p>}
             {(header.title || header.description) && (
                 <PageHeader title={header.title} description={header.description || undefined} />

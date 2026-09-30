@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
 import { X } from "lucide-react";
-import { auth, db } from "@/lib/firebase";
+import { auth, loadFirestore } from "@/lib/firebase-app";
 import { ALLOWED_ADMINS } from "@/lib/constants";
 import { getSocialLinks } from "@/lib/social";
 import { LEAD_LIMITS, type LeadSource } from "@/lib/leads/schema";
@@ -31,6 +30,8 @@ interface OpenRequest {
 interface LeadCaptureModalProps {
     /** Dashboard preview: shows these (unsaved) settings, never opens by itself and never saves */
     preview?: LeadCaptureSettings;
+    /** Texts rendered with the page (cached on the server); without them the popup reads them itself */
+    initialSettings?: LeadCaptureSettings | null;
 }
 
 /**
@@ -38,10 +39,11 @@ interface LeadCaptureModalProps {
  * Opens by itself once per visit (after `delaySeconds`) until the visitor leaves their number,
  * and anytime on the "open-lead-modal" event (see ./events.ts).
  */
-export default function LeadCaptureModal({ preview }: LeadCaptureModalProps) {
+export default function LeadCaptureModal({ preview, initialSettings }: LeadCaptureModalProps) {
     const pathname = usePathname();
     const branding = useBrandingContext();
-    const [loaded, setLoaded] = useState<LeadCaptureSettings | null>(null);
+    const [loaded, setLoaded] = useState<LeadCaptureSettings | null>(initialSettings ?? null);
+    const hasInitialSettings = Boolean(initialSettings);
     const [open, setOpen] = useState(false);
     const [request, setRequest] = useState<OpenRequest>({ key: 0, source: "popup", service: "" });
     const [sentName, setSentName] = useState<string | null>(null);
@@ -81,9 +83,11 @@ export default function LeadCaptureModal({ preview }: LeadCaptureModalProps) {
 
     // Load the texts right away, well before the popup is due, so it never shows placeholder text
     useEffect(() => {
-        if (isPreview) return undefined;
+        if (isPreview || hasInitialSettings) return undefined;
         let active = true;
-        getDoc(doc(db, LEAD_CAPTURE_DOC.collection, LEAD_CAPTURE_DOC.id))
+        // Only when the page didn't bring the texts (the server couldn't read them)
+        loadFirestore()
+            .then(({ db, doc, getDoc }) => getDoc(doc(db, LEAD_CAPTURE_DOC.collection, LEAD_CAPTURE_DOC.id)))
             .then((snapshot) => {
                 if (active) setLoaded(normalizeLeadCapture(snapshot.data()));
             })
@@ -94,7 +98,7 @@ export default function LeadCaptureModal({ preview }: LeadCaptureModalProps) {
         return () => {
             active = false;
         };
-    }, [isPreview]);
+    }, [isPreview, hasInitialSettings]);
 
     // Pricing buttons, the dashboard preview, etc. open it on demand, even after the visitor submitted
     useEffect(() => {

@@ -1,6 +1,6 @@
 import { cache } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { unstable_noStore } from "next/cache";
+import { CACHE_TAGS, cached, readDoc } from "@/lib/cache";
 import { DEFAULT_PRICING, PRICING_COLLECTION, PRICING_DOC_ID } from "./defaults";
 import type { PricingContent } from "./types";
 import { normalizePricing } from "./utils";
@@ -12,17 +12,21 @@ export type PricingLoadResult =
     /** The database couldn't be read; `content` is the built-in safety net */
     | { status: "error"; content: PricingContent };
 
+const readPricing = cached(async () => readDoc<Record<string, unknown>>(PRICING_COLLECTION, PRICING_DOC_ID), "pricing", [CACHE_TAGS.pricing]);
+
 /**
- * Reads `site_content/pricing` for the /pricing page (server only).
+ * Reads `site_content/pricing` (server only), cached until the dashboard saves or clears the cache.
  * Wrapped in React `cache` so `generateMetadata` and the page share one read per request.
  */
 export const loadPricing = cache(async (): Promise<PricingLoadResult> => {
     try {
-        const snap = await getDoc(doc(db, PRICING_COLLECTION, PRICING_DOC_ID));
-        if (!snap.exists()) return { status: "missing" };
-        return { status: "ok", content: normalizePricing(snap.data()) };
+        const data = await readPricing();
+        if (!data) return { status: "missing" };
+        return { status: "ok", content: normalizePricing(data) };
     } catch (error) {
         console.error(`Error reading ${PRICING_COLLECTION}/${PRICING_DOC_ID}:`, error);
+        // The safety-net render isn't cached, so the next visitor tries the database again
+        unstable_noStore();
         return { status: "error", content: DEFAULT_PRICING };
     }
 });

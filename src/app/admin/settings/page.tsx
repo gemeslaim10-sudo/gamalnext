@@ -1,53 +1,22 @@
-"use client";
+import { Fingerprint, Link2, Phone, UserRound } from "lucide-react";
+import { AdminHub, AdminPage, type HubGroup } from "@/components/admin/kit";
 
-import { Save } from "lucide-react";
-import { Button, LoadingBlock, PageHeader } from "@/components/ui";
-import { useSettings } from "./useSettings";
-import { BrandingSection } from "./components/BrandingSection";
-import { PersonalSection } from "./components/PersonalSection";
-import { ContactSection } from "./components/ContactSection";
+const GROUPS: HubGroup[] = [
+    {
+        items: [
+            { href: "/admin/settings/identity", title: "الهوية", description: "اسم الموقع وصورتك ووصف الموقع", icon: Fingerprint },
+            { href: "/admin/settings/profile", title: "الصفحة الشخصية", description: "اسمك ومسمّاك الوظيفي ونبذة عنك والشارات", icon: UserRound },
+            { href: "/admin/settings/contact", title: "التواصل", description: "رقم الواتساب والتليفون والإيميل", icon: Phone },
+            { href: "/admin/settings/links", title: "الروابط", description: "حساباتك على GitHub وLinkedIn", icon: Link2 },
+        ],
+    },
+];
 
-export default function SettingsPage() {
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        watch,
-        isSubmitting,
-        loading,
-        onSubmit
-    } = useSettings();
-
+/** Start screen of the site settings: one card per part, nothing is read from the database here. */
+export default function SettingsHubPage() {
     return (
-        <div className="max-w-content">
-            <PageHeader title="إعدادات الموقع" description="اسم الموقع وهويته، بياناتك الشخصية، وروابط التواصل." />
-
-            {loading ? (
-                <LoadingBlock />
-            ) : (
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <BrandingSection
-                        register={register}
-                        watch={watch}
-                        setValue={setValue}
-                    />
-
-                    <PersonalSection
-                        register={register}
-                    />
-
-                    <ContactSection
-                        register={register}
-                    />
-
-                    <div className="flex justify-end">
-                        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
-                            <Save />
-                            {isSubmitting ? "Saving..." : "Save Changes"}
-                        </Button>
-                    </div>
-                </form>
-            )}
-        </div>
+        <AdminPage title="إعدادات الموقع" description="هوية الموقع وبياناتك وطرق التواصل معاك. كل جزء في صفحة لوحده.">
+            <AdminHub groups={GROUPS} />
+        </AdminPage>
     );
 }

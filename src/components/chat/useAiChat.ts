@@ -38,7 +38,6 @@ export function useAiChat(isOpen: boolean) {
     const input = useChatStore((s) => s.input);
     const loading = useChatStore((s) => s.loading);
     const userContext = useChatStore((s) => s.userContext);
-    const sessionId = useChatStore((s) => s.sessionId);
     const config = useChatStore((s) => s.config);
     const configStatus = useChatStore((s) => s.configStatus);
     const setInput = useChatStore((s) => s.setInput);
@@ -76,7 +75,7 @@ export function useAiChat(isOpen: boolean) {
 
         try {
             const headers: Record<string, string> = { "Content-Type": "application/json" };
-            // Signed-in visitors prove who they are, so their chat can be saved to their account
+            // Signed-in visitors prove who they are, so a lead they leave is linked to their account
             if (user) {
                 try {
                     headers.Authorization = `Bearer ${await user.getIdToken()}`;
@@ -92,7 +91,6 @@ export function useAiChat(isOpen: boolean) {
                     message: text,
                     history,
                     userContext: { name: userContext.name, phone: userContext.phone },
-                    sessionId,
                     page: pathname,
                 }),
             });
