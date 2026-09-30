@@ -4,13 +4,25 @@ import { toast } from "react-hot-toast";
 import type { FeedItem } from "../types";
 import { useCopy } from "@/components/providers/CopyProvider";
 
-export function useFeed() {
+export interface FeedInitialPage {
+    items: FeedItem[];
+    hasMore: boolean;
+}
+
+/**
+ * @param initialPage the first page, rendered with the home page on the server (null when the
+ *   server couldn't read it — then the browser loads page 1 itself)
+ */
+export function useFeed(initialPage?: FeedInitialPage | null) {
     const t = useCopy();
-    const [items, setItems] = useState<FeedItem[]>([]);
+    const [items, setItems] = useState<FeedItem[]>(initialPage?.items ?? []);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
+    const [hasMore, setHasMore] = useState(initialPage?.hasMore ?? true);
     const [error, setError] = useState<string | null>(null);
+    // Pages already shown or on their way; page 1 usually came with the page
+    const requestedPages = useRef(new Set<number>(initialPage ? [1] : []));
+    const [attempt, setAttempt] = useState(0);
     const [activeComments, setActiveComments] = useState<string | null>(null);
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
     // The last opened images stay in state after closing so the viewer can animate out
@@ -32,6 +44,8 @@ export function useFeed() {
     }, [loading, hasMore]);
 
     useEffect(() => {
+        if (requestedPages.current.has(page)) return;
+        requestedPages.current.add(page);
         const fetchFeed = async () => {
             setLoading(true);
             setError(null);
@@ -52,6 +66,8 @@ export function useFeed() {
                     setHasMore(false);
                 }
             } catch (error) {
+                // Allow "Retry" to ask for this page again
+                requestedPages.current.delete(page);
                 console.error("Failed to load feed", error);
                 setError(error instanceof Error ? error.message : "Failed to load content");
                 toast.error(t("home.loadFailed"));
@@ -61,7 +77,12 @@ export function useFeed() {
         };
 
         fetchFeed();
-    }, [page, t]);
+    }, [page, t, attempt]);
+
+    const retry = () => {
+        setError(null);
+        setAttempt((value) => value + 1);
+    };
 
     const handleShare = async (item: FeedItem) => {
         const shareData = {
@@ -113,6 +134,7 @@ export function useFeed() {
         lightboxOpen,
         setError,
         setPage,
+        retry,
         lastItemElementRef,
         handleShare,
         toggleComments,

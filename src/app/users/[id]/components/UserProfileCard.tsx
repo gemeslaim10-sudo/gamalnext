@@ -15,9 +15,9 @@ export function UserProfileCard({ profile, currentUser, profileId }: UserProfile
     const t = useCopy();
     const isOwner = currentUser && currentUser.uid === profileId;
     const isAdmin = currentUser && ALLOWED_ADMINS.includes(currentUser.email || "");
-    const joined = profile.createdAt
+    const joined = profile.joinedAt
         ? t("blog.userJoined", {
-              date: new Date(profile.createdAt.seconds * 1000).toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+              date: new Date(profile.joinedAt).toLocaleDateString("en-US", { month: "long", year: "numeric" }),
           })
         : t("blog.userJoinedUnknown");
 

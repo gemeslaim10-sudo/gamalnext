@@ -3,6 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "react-hot-toast";
+import { refreshSite } from "@/lib/refreshSite";
 import { useRouter } from "next/navigation";
 import { useCopy } from "@/components/providers/CopyProvider";
 
@@ -77,7 +78,10 @@ export function useEditArticle(id: string) {
                 updatedAt: serverTimestamp()
             });
 
+            // The article page is cached: refresh it before showing it
+            await refreshSite({ articleId: id });
             toast.success(t("blog.saved"));
+            router.refresh();
             router.push(`/articles/${id}`);
         } catch (error) {
             console.error(error);

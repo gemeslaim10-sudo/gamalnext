@@ -37,10 +37,12 @@ service cloud.firestore {
     // ══════════════════════════════════════════════════════════════════
     // 📰 Posts (User Feed Posts)
     // ══════════════════════════════════════════════════════════════════
+    // Posts are public, so a member's post never carries their email
     match /posts/{postId} {
       allow read: if true;
-      allow create: if isLoggedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isAdmin() || (isLoggedIn() && isOwner(resource.data.userId) && request.resource.data.userId == request.auth.uid);
+      allow create: if isLoggedIn() && request.resource.data.userId == request.auth.uid &&
+                    (isAdmin() || !('userEmail' in request.resource.data));
+      allow update: if isAdmin() || (isLoggedIn() && isOwner(resource.data.userId) && request.resource.data.userId == request.auth.uid && !('userEmail' in request.resource.data));
       allow delete: if isAdmin() || isOwner(resource.data.userId);
     }
 
@@ -74,10 +76,11 @@ service cloud.firestore {
     }
 
     // ══════════════════════════════════════════════════════════════════
-    // 👤 Users
+    // 👤 Users — private (email…): only the member and the admins.
+    // Public profile pages are built on the server with only the public fields.
     // ══════════════════════════════════════════════════════════════════
     match /users/{userId} {
-      allow read: if true;
+      allow read: if isOwner(userId) || isAdmin();
       allow create: if isLoggedIn() && request.auth.uid == userId;
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isOwner(userId) || isAdmin();
@@ -119,24 +122,8 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // 💬 Chat Sessions + Messages
-    // ══════════════════════════════════════════════════════════════════
-    match /chat_sessions/{sessionId} {
-      function isSessionOwner(sid) {
-        return isLoggedIn() && sid == 'session_' + request.auth.uid;
-      }
-
-      allow read: if isAdmin() || isSessionOwner(sessionId) || !sessionId.matches('^session_');
-      allow create: if isAdmin() || isSessionOwner(sessionId) || !sessionId.matches('^session_');
-      allow update: if isAdmin() || isSessionOwner(sessionId) || !sessionId.matches('^session_');
-      allow delete: if isAdmin();
-
-      match /messages/{messageId} {
-        allow read, create: if isAdmin() || isSessionOwner(sessionId) || !sessionId.matches('^session_');
-        allow delete: if isAdmin() || isSessionOwner(sessionId) || !sessionId.matches('^session_');
-      }
-    }
+    // Chat conversations are not stored (the old chat_sessions collection is closed to everyone).
+    // Anything without a rule above is denied.
 
   }
 }

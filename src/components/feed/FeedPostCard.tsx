@@ -1,6 +1,6 @@
 "use client";
 
-import CommentSection from "@/components/social/CommentSection";
+import { CommentSection } from "@/components/social/LazySocial";
 import { Card } from "@/components/ui";
 import { usePresence } from "@/hooks/usePresence";
 import type { FeedItem } from "./types";

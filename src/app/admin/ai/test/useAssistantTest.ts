@@ -1,8 +1,10 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+"use client";
+
+import { useState, type FormEvent } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { AI_SETTINGS_DOC, fillWelcome, resolveProfile, type AssistantDebug, type AssistantProfile } from "@/lib/ai/assistant/shared";
+import { useAdminDoc } from "@/components/admin/kit";
+import { fillWelcome, type AssistantDebug } from "@/lib/ai/assistant/shared";
+import { AI_SETTINGS_PATH, normalizeAiSettings } from "../settings";
 
 export interface TestMessage {
     id: string;
@@ -22,8 +24,11 @@ const nextId = () => `m${Date.now().toString(36)}${counter++}`;
  */
 export function useAssistantTest() {
     const { user } = useAuth();
-    const [profile, setProfile] = useState<AssistantProfile | null>(null);
-    const [profileError, setProfileError] = useState(false);
+    // Read straight from Firestore (not the cached public endpoint), shared with the settings
+    // sections, so a change saved a moment ago shows up without another read
+    const settings = useAdminDoc(AI_SETTINGS_PATH, normalizeAiSettings);
+    const profile = settings.data;
+    const profileError = Boolean(settings.error) && !settings.data;
     const [messages, setMessages] = useState<TestMessage[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -31,16 +36,6 @@ export function useAssistantTest() {
     /** Empty = the model saved in the settings */
     const [model, setModel] = useState("");
     const [selectedId, setSelectedId] = useState<string | null>(null);
-
-    // Read straight from Firestore (not the cached public endpoint) so a change saved a moment ago shows up
-    useEffect(() => {
-        getDoc(doc(db, AI_SETTINGS_DOC.collection, AI_SETTINGS_DOC.id))
-            .then((snap) => setProfile(resolveProfile(snap.exists() ? snap.data() : undefined)))
-            .catch((error) => {
-                console.error("Could not load AI settings:", error);
-                setProfileError(true);
-            });
-    }, []);
 
     const welcome = profile?.welcomeMessage ? fillWelcome(profile.welcomeMessage, visitorName.trim() || null) : "";
 
@@ -100,6 +95,7 @@ export function useAssistantTest() {
     return {
         profile,
         profileError,
+        reloadProfile: settings.reload,
         welcome,
         messages,
         input,

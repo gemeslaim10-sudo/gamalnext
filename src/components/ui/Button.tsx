@@ -65,10 +65,11 @@ type BackLinkProps = { children: ReactNode; className?: string } & (
 
 /** "← Back to …" shown above a page title. Pass `href`, or `onClick` for history back. */
 export function BackLink({ href, onClick, children, className }: BackLinkProps) {
-    const classes = cn("-ml-3 mb-6", className);
+    const classes = cn("-ms-3 mb-6", className);
     const content = (
         <>
-            <ArrowLeft />
+            {/* Points back in both reading directions (the dashboard is right-to-left) */}
+            <ArrowLeft className="rtl:rotate-180" />
             {children}
         </>
     );

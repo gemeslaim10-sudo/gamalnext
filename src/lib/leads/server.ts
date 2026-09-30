@@ -1,12 +1,13 @@
 // Server only (uses the Admin SDK) — never import this from a client component.
 import admin from "firebase-admin";
+import { after } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
+import { notify } from "@/lib/notifications/server";
 import { LEAD_LIMITS, normalizePhone, validateLead, type LeadInput } from "./schema";
 
 interface SaveLeadOptions {
     userId?: string | null;
     userEmail?: string | null;
-    sessionId?: string | null;
 }
 
 /**
@@ -36,7 +37,6 @@ export async function saveLead(input: LeadInput, options: SaveLeadOptions = {}) 
             // Only overwrite account details when we know them, so a later guest visit doesn't erase them
             ...(options.userId ? { userId: options.userId } : {}),
             ...(options.userEmail ? { userEmail: options.userEmail } : {}),
-            ...(options.sessionId ? { sessionId: options.sessionId } : {}),
             // Reaching out again is a new request, even if the owner had closed the old one
             status: "new",
             updatedAt: now,
@@ -45,6 +45,23 @@ export async function saveLead(input: LeadInput, options: SaveLeadOptions = {}) 
         },
         { merge: true }
     );
+
+    // Email the owner (if turned on in the dashboard) after the visitor has their answer
+    const payload = {
+        name: input.name.trim().slice(0, LEAD_LIMITS.nameMax),
+        phone,
+        service: (input.service || "").trim() || null,
+        message: (input.message || "").trim() || null,
+        source: input.source,
+        page: input.page || null,
+        isNew: !existing.exists,
+    };
+    try {
+        after(() => notify("lead.new", payload));
+    } catch {
+        // Outside a request (e.g. a script): send right away
+        void notify("lead.new", payload);
+    }
 
     return { ok: true as const, id: ref.id, isNew: !existing.exists };
 }

@@ -20,7 +20,6 @@ export interface AssistantInput {
     /** Earlier turns as sent by the widget */
     history: unknown;
     visitor: VisitorInfo;
-    sessionId?: string | null;
     userId?: string | null;
     userEmail?: string | null;
     /** Admin test mode: fresh settings, no lead is stored */
@@ -61,7 +60,6 @@ export async function runAssistant(input: AssistantInput): Promise<AssistantOutp
     const query = buildRetrievalQuery(message, history.map((t) => t.text));
     const leads = createLeadRecorder({
         test: !!input.test,
-        sessionId: input.sessionId,
         userId: input.userId,
         userEmail: input.userEmail,
         page: input.visitor.page,
@@ -71,6 +69,8 @@ export async function runAssistant(input: AssistantInput): Promise<AssistantOutp
     const promptBase: Omit<PromptInput, "cards" | "partialKnowledge"> = {
         profile,
         facts,
+        // Full prices / project details only when the recent messages are about them (saves most of the prompt)
+        detail: conversationFocus(query),
         visitor: input.visitor,
         openingMessage: profile.welcomeMessage ? fillWelcome(profile.welcomeMessage, input.visitor.name) : undefined,
         latestMessage: input.message,
@@ -188,15 +188,15 @@ function backupEndpoints(keys: ProviderKeys): CompatibleEndpoint[] {
     const list: CompatibleEndpoint[] = [];
     if (keys.groq) {
         list.push(
-            { provider: "groq", url: GROQ_URL, apiKey: keys.groq, model: "openai/gpt-oss-120b", extra: { temperature: 0.6, reasoning_effort: "low" } },
-            { provider: "groq", url: GROQ_URL, apiKey: keys.groq, model: "qwen/qwen3.8-27b", extra: { temperature: 0.6 } }
+            { provider: "groq", url: GROQ_URL, apiKey: keys.groq, model: "openai/gpt-oss-120b", extra: { temperature: 0.6, reasoning_effort: "low", max_tokens: 1500 } },
+            { provider: "groq", url: GROQ_URL, apiKey: keys.groq, model: "qwen/qwen3.8-27b", extra: { temperature: 0.6, max_tokens: 1024 } }
         );
     }
     if (keys.openRouter) {
         const headers = { "X-Title": "Website assistant" };
         list.push(
-            { provider: "openrouter", url: OPENROUTER_URL, apiKey: keys.openRouter, model: "qwen/qwen3.8-27b:free", extra: { temperature: 0.6 }, headers },
-            { provider: "openrouter", url: OPENROUTER_URL, apiKey: keys.openRouter, model: "google/gemma-4-31b-it:free", extra: { temperature: 0.6 }, headers }
+            { provider: "openrouter", url: OPENROUTER_URL, apiKey: keys.openRouter, model: "qwen/qwen3.8-27b:free", extra: { temperature: 0.6, max_tokens: 1024 }, headers },
+            { provider: "openrouter", url: OPENROUTER_URL, apiKey: keys.openRouter, model: "google/gemma-4-31b-it:free", extra: { temperature: 0.6, max_tokens: 1024 }, headers }
         );
     }
     if (keys.openai) {
@@ -233,4 +233,15 @@ export function samePhone(a: string, b: string): boolean {
 
 function unique(models: string[]): string[] {
     return [...new Set(models.map((m) => m.trim().replace(/^models\//, "")).filter(Boolean))];
+}
+
+// Words that mean the visitor is asking about prices, or about past work (English, Arabic, Franco)
+const PRICING_WORDS =
+    /price|pricing|cost|how much|quote|package|plan|budget|hosting|domain|discount|offer|سعر|اسعار|أسعار|بكام|بكم|تكلف|باقة|باقات|عرض سعر|ميزانية|استضافة|هوست|دومين|خصم|جنيه|فلوس|تمن|ثمن|bekam|b kam|as3ar|se3r|t2lefa|taklefa/i;
+const PROJECT_WORDS =
+    /project|portfolio|previous work|your work|example|sample|case stud|client|built|مشروع|مشاريع|اعمال|أعمال|شغلك|شغلكم|نماذج|نموذج|سابقة|عملاء|عملتوا|عملت|mashro3|a3mal|shoghl|namazeg/i;
+
+/** Which site data is worth sending in full for this conversation (the latest messages). */
+export function conversationFocus(text: string) {
+    return { pricing: PRICING_WORDS.test(text), projects: PROJECT_WORDS.test(text) };
 }

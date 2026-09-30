@@ -1,17 +1,17 @@
 import { create } from "zustand";
 import type { User } from "firebase/auth";
 import type { Message, PublicChatConfig, UserContext } from "@/components/chat/types";
-import { deleteChatMessages, fetchChatConfig, fetchChatMessages, fetchUserContextData } from "./chatStoreHelpers";
+import { fetchChatConfig, fetchUserContextData, forgetOldChatSession } from "./chatStoreHelpers";
 
 type LoadStatus = "idle" | "loading" | "ready" | "error";
 
 interface ChatState {
+    /** The conversation lives only here, in this tab: it's never stored anywhere */
     messages: Message[];
     input: string;
     loading: boolean;
     userContext: UserContext;
     isInitialized: boolean;
-    sessionId: string;
     /** Texts from the dashboard; null until loaded */
     config: PublicChatConfig | null;
     configStatus: LoadStatus;
@@ -20,8 +20,10 @@ interface ChatState {
     setLoading: (loading: boolean) => void;
     addMessage: (msg: Message) => void;
     setMessages: (msgs: Message[]) => void;
-    clearChat: () => Promise<void>;
+    clearChat: () => void;
     loadConfig: () => Promise<void>;
+    /** Texts that came with the page (cached on the server), so opening the chat needs no request */
+    seedConfig: (config: PublicChatConfig) => void;
     initChat: (user: User | null | undefined) => Promise<void>;
 }
 
@@ -31,7 +33,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     loading: false,
     userContext: { name: "Guest" },
     isInitialized: false,
-    sessionId: "",
     config: null,
     configStatus: "idle",
 
@@ -39,6 +40,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
     setLoading: (loading) => set({ loading }),
     addMessage: (msg) => set((state) => ({ messages: [...state.messages, msg] })),
     setMessages: (msgs) => set({ messages: msgs }),
+
+    seedConfig: (config) => {
+        if (get().configStatus !== "ready") set({ config, configStatus: "ready" });
+    },
 
     loadConfig: async () => {
         const { configStatus } = get();
@@ -54,45 +59,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     initChat: async (user) => {
         if (get().isInitialized) return;
-
-        // Signed-in users keep one conversation across devices; visitors get an id in this browser
-        let sid = "";
-        if (user?.uid) {
-            sid = `session_${user.uid}`;
-        } else {
-            try {
-                sid = localStorage.getItem("chatSessionId") || "";
-                if (!sid) {
-                    sid = crypto.randomUUID();
-                    localStorage.setItem("chatSessionId", sid);
-                }
-            } catch {
-                sid = crypto.randomUUID();
-            }
-        }
-
-        set({ sessionId: sid, isInitialized: true });
+        set({ isInitialized: true });
+        forgetOldChatSession();
         void get().loadConfig();
 
         try {
-            const [messages, userContext] = await Promise.all([fetchChatMessages(sid), fetchUserContextData(user)]);
-            // Don't overwrite messages the visitor already sent while the history was loading
-            set((state) => ({ userContext, messages: state.messages.length ? [...messages, ...state.messages] : messages }));
+            // A signed-in visitor's name, so the assistant can greet them by it
+            set({ userContext: await fetchUserContextData(user) });
         } catch (error) {
             console.error("Chat init error:", error);
         }
     },
 
-    clearChat: async () => {
-        const { sessionId } = get();
-        if (!sessionId) return;
-        try {
-            set({ loading: true });
-            await deleteChatMessages(sessionId);
-            set({ messages: [], loading: false });
-        } catch (error) {
-            console.error("Failed to clear chat:", error);
-            set({ loading: false });
-        }
-    },
+    clearChat: () => set({ messages: [] }),
 }));

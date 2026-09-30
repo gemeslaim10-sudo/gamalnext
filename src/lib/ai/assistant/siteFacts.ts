@@ -2,6 +2,7 @@
 // read with the Admin SDK and cached for a minute. Every part is optional — a missing or broken
 // document just leaves that part out of the prompt.
 import { getAdminDb } from "@/lib/firebase-admin";
+import { CACHE_TAGS, cached } from "@/lib/cache";
 import { NAV_LINKS } from "@/config/navigation";
 import { slugify } from "@/lib/utils";
 
@@ -32,8 +33,25 @@ export interface SiteFacts {
     ownerPhones: string[];
 }
 
-const CACHE_TTL_MS = 60_000;
-let cache: { value: SiteFacts; at: number } | null = null;
+type Doc = Record<string, unknown> | undefined;
+
+async function readContentDoc(id: string): Promise<Doc> {
+    const snap = await getAdminDb().collection("site_content").doc(id).get();
+    return snap.exists ? snap.data() : undefined;
+}
+
+async function readLatestArticles(): Promise<Record<string, unknown>[]> {
+    const snap = await getAdminDb().collection("articles").orderBy("createdAt", "desc").limit(15).get();
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>);
+}
+
+// Cached with the rest of the site content (no time limit; dashboard saves and "Clear cache" refresh it)
+const cachedContentDoc = cached(
+    readContentDoc,
+    "ai-site-content",
+    [CACHE_TAGS.settings, CACHE_TAGS.pricing, CACHE_TAGS.projects, CACHE_TAGS.skills]
+);
+const cachedLatestArticles = cached(readLatestArticles, "ai-latest-articles", [CACHE_TAGS.articles]);
 
 /** What each page in the site navigation is for (the nav itself decides which pages exist). */
 const PAGE_LABELS: Record<string, string> = {
@@ -46,24 +64,15 @@ const PAGE_LABELS: Record<string, string> = {
     "/contact": "Contact",
 };
 
+/** `fresh` skips the cache (the admin test page). */
 export async function loadSiteFacts({ fresh = false }: { fresh?: boolean } = {}): Promise<SiteFacts> {
-    if (!fresh && cache && Date.now() - cache.at < CACHE_TTL_MS) return cache.value;
-
-    const db = getAdminDb();
-    const content = db.collection("site_content");
+    const contentDoc = fresh ? readContentDoc : cachedContentDoc;
     const [settings, pricing, projects, skills, articles] = await Promise.all([
-        safe(() => content.doc("settings").get().then((s) => s.data())),
-        safe(() => content.doc("pricing").get().then((s) => s.data())),
-        safe(() => content.doc("projects").get().then((s) => s.data())),
-        safe(() => content.doc("skills").get().then((s) => s.data())),
-        safe(() =>
-            db
-                .collection("articles")
-                .orderBy("createdAt", "desc")
-                .limit(15)
-                .get()
-                .then((s) => s.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>))
-        ),
+        safe(() => contentDoc("settings")),
+        safe(() => contentDoc("pricing")),
+        safe(() => contentDoc("projects")),
+        safe(() => contentDoc("skills")),
+        safe(() => (fresh ? readLatestArticles() : cachedLatestArticles())),
     ]);
 
     const value: SiteFacts = {
@@ -79,7 +88,6 @@ export async function loadSiteFacts({ fresh = false }: { fresh?: boolean } = {})
         })),
         ownerPhones: readOwnerPhones(settings, pricing),
     };
-    cache = { value, at: Date.now() };
     return value;
 }
 
@@ -93,8 +101,6 @@ async function safe<T>(read: () => Promise<T>): Promise<T | undefined> {
 }
 
 // ── Readers ───────────────────────────────────────────────────────────────────
-
-type Doc = Record<string, unknown> | undefined;
 
 function text(value: unknown, max = 400): string | undefined {
     if (typeof value === "number") return String(value);
@@ -283,6 +289,7 @@ function formatPricingPage(d: Record<string, unknown>, compact: boolean): string
     const priceOf = (item: Record<string, unknown>) => {
         const price = money(item.price);
         if (item.customQuote === true || !price) return "custom quote (priced by scope)";
+        if (item.priceFrom === true) return `from ${price} (final price depends on scope)`;
         const original = money(item.originalPrice);
         const hasDiscount = typeof item.originalPrice === "number" && typeof item.price === "number" && item.originalPrice > item.price;
         return hasDiscount ? `${price} (discounted from ${original})` : price;
@@ -294,11 +301,8 @@ function formatPricingPage(d: Record<string, unknown>, compact: boolean): string
         }
         const parts = [
             ["pages", "pages"],
-            ["stack", "built with"],
             ["hosting", "hosting"],
             ["hostingCost", "hosting cost"],
-            ["seo", "SEO"],
-            ["editing", "editing"],
         ]
             .map(([key, label]) => (text(item[key], 60) ? `${label}: ${text(item[key], 60)}` : null))
             .filter(Boolean);
@@ -306,7 +310,7 @@ function formatPricingPage(d: Record<string, unknown>, compact: boolean): string
     };
 
     const lines: string[] = [];
-    if (currency) lines.push(`All package and add-on prices are in ${currency}.`);
+    if (currency) lines.push(`All prices are in ${currency}.`);
     const offer = obj(d.offer);
     if (offer.enabled === true && text(offer.text, 200)) lines.push(`Current offer: ${text(offer.text, 200)}`);
 

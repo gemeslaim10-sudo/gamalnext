@@ -10,6 +10,7 @@ export const homeCopy = {
         { key: "typePost", label: "Feed label for community posts", default: "Post" },
         { key: "showMore", label: "Expand a long post", default: "Show more" },
         { key: "showLess", label: "Collapse a long post", default: "Show less" },
+        { key: "readArticle", label: "Link under an article in the feed", default: "Read the article" },
         { key: "comment", label: "Comment button", default: "Comment" },
         { key: "share", label: "Share button", default: "Share" },
         { key: "linkCopied", label: "Toast after copying a post link", default: "Link copied to clipboard" },

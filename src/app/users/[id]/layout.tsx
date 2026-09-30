@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { getCopy } from "@/lib/copy/server";
-import { getDocument } from "@/lib/server-utils";
+import { getPublicMember } from "@/lib/members/server";
 import { clean, getSiteOpenGraph, getSiteSeo } from "@/lib/seo/server";
-import type { UserProfile } from "./types";
 
-// The member page itself loads in the browser; this only gives it a real title and share card.
+// Title and share card of a member page (same cached read as the page itself).
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { id } = await params;
     const [profile, t, seo, openGraph] = await Promise.all([
-        getDocument<UserProfile>("users", id),
+        getPublicMember(id),
         getCopy(),
         getSiteSeo(),
         getSiteOpenGraph(),

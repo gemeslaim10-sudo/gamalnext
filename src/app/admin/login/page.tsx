@@ -1,12 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { ArrowRight } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { auth } from "@/lib/firebase-app";
 import { useBrandingContext } from "@/components/providers/BrandingProvider";
 import { Alert, Avatar, Button, Card, Field, Input } from "@/components/ui";
+
+function loginError(error: unknown) {
+    const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+    if (code === "auth/invalid-credential" || code === "auth/user-not-found" || code === "auth/wrong-password") {
+        return "الإيميل أو كلمة السر مش صح.";
+    }
+    if (code === "auth/too-many-requests") return "محاولات كتير ورا بعض. استنى شوية وجرّب تاني.";
+    return "ماقدرناش ندخّلك. اتأكد من الاتصال وجرّب تاني.";
+}
 
 export default function AdminLogin() {
     const [email, setEmail] = useState("");
@@ -17,12 +28,12 @@ export default function AdminLogin() {
     const router = useRouter();
     const branding = useBrandingContext();
 
-    if (user) {
-        router.push("/admin");
-        return null;
-    }
+    // Already signed in: go straight to the dashboard
+    useEffect(() => {
+        if (user) router.replace("/admin");
+    }, [user, router]);
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
         setError("");
         setIsSubmitting(true);
@@ -31,27 +42,19 @@ export default function AdminLogin() {
             router.push("/admin");
         } catch (err: unknown) {
             console.error(err);
-            if (err instanceof Error && 'code' in err) {
-                const code = err.code as string;
-                if (code === "auth/invalid-credential" || code === "auth/user-not-found" || code === "auth/wrong-password") {
-                    setError("Incorrect email or password.");
-                } else if (code === "auth/too-many-requests") {
-                    setError("Too many attempts. Try again later.");
-                } else {
-                    setError("Failed to login. Please check your connection.");
-                }
-            } else {
-                setError("Failed to login. Please check your connection.");
-            }
+            setError(loginError(err));
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    if (user) return null;
+
     const siteName = branding?.siteName || "GTech";
 
     return (
-        <div className="flex flex-1 flex-col items-center justify-center px-4 py-12">
+        // The dashboard is Arabic, read right to left (this page is outside its frame)
+        <div dir="rtl" lang="ar" className="flex flex-1 flex-col items-center justify-center px-4 py-12">
             <div className="w-full max-w-sm">
                 <div className="mb-6 flex flex-col items-center gap-3 text-center">
                     <Avatar src={branding?.siteLogo} alt={siteName} size={40} priority />
@@ -59,13 +62,15 @@ export default function AdminLogin() {
                 </div>
 
                 <Card padding="lg">
-                    <h1 className="text-xl font-semibold tracking-tight text-foreground">Admin Access</h1>
+                    <h1 className="text-xl font-semibold tracking-tight text-foreground">دخول لوحة التحكم</h1>
+                    <p className="mt-1.5 text-sm text-muted">الدخول للأدمن بس.</p>
 
                     <form onSubmit={handleLogin} className="mt-6 space-y-4">
-                        <Field label="Email Address" htmlFor="admin-email">
+                        <Field label="الإيميل" htmlFor="admin-email">
                             <Input
                                 id="admin-email"
                                 type="email"
+                                dir="ltr"
                                 required
                                 autoComplete="email"
                                 value={email}
@@ -74,10 +79,11 @@ export default function AdminLogin() {
                             />
                         </Field>
 
-                        <Field label="Password" htmlFor="admin-password">
+                        <Field label="كلمة السر" htmlFor="admin-password">
                             <Input
                                 id="admin-password"
                                 type="password"
+                                dir="ltr"
                                 required
                                 autoComplete="current-password"
                                 value={password}
@@ -89,10 +95,18 @@ export default function AdminLogin() {
                         {error && <Alert variant="danger">{error}</Alert>}
 
                         <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
-                            {isSubmitting ? "Signing in..." : "Sign In"}
+                            {isSubmitting ? "جاري الدخول…" : "دخول"}
                         </Button>
                     </form>
                 </Card>
+
+                <div className="mt-6 text-center">
+                    <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground">
+                        {/* Points back in the right-to-left layout */}
+                        <ArrowRight aria-hidden className="size-4 ltr:rotate-180" />
+                        الرجوع للموقع
+                    </Link>
+                </div>
             </div>
         </div>
     );

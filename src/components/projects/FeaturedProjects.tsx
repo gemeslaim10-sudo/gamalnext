@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { getDocument } from "@/lib/server-utils";
+import { getProjects } from "@/lib/content/server";
 import { ButtonLink, Section } from "@/components/ui";
 import { getCopy } from "@/lib/copy/server";
 import ProjectCard, { type ProjectCardData } from "./ProjectCard";
@@ -15,7 +15,7 @@ const FEATURED_COUNT = 6;
 const PHONE_LIMIT = 3;
 
 export default async function FeaturedProjects() {
-    const [projectsData, t] = await Promise.all([getDocument("site_content", "projects"), getCopy()]);
+    const [projectsData, t] = await Promise.all([getProjects(), getCopy()]);
 
     // Default fallback data if empty, using the structure from Projects.tsx
     const defaultProjects: Project[] = [
@@ -45,8 +45,8 @@ export default async function FeaturedProjects() {
         }
     ];
 
-    // Assuming structure: { items: [...] }
-    const items = (projectsData as unknown as { items: Project[] })?.items || defaultProjects;
+    // The defaults only show when the projects couldn't be read
+    const items: Project[] = (projectsData as Project[] | null) ?? defaultProjects;
     const featured = items.filter((project) => project?.title).slice(0, FEATURED_COUNT);
 
     if (featured.length === 0) return null;

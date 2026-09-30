@@ -1,35 +1,49 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { loadFirestore } from "@/lib/firebase-app";
 
 /**
  * Hook to subscribe to a Firestore document.
  * Returns the document data if it exists, otherwise returns defaultData.
+ * With `enabled: false` it only returns `defaultData` (e.g. the server already sent the content).
  */
-export function useContent<T>(collectionName: string, docId: string, defaultData?: T) {
+export function useContent<T>(collectionName: string, docId: string, defaultData?: T, enabled = true) {
     const [data, setData] = useState<T | undefined>(defaultData);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(enabled);
 
     useEffect(() => {
-        // If we're on the server or db isn't ready (though it initializes sync), be safe
-        const unsubscribe = onSnapshot(doc(db, collectionName, docId), (docSnapshot) => {
-            if (docSnapshot.exists()) {
-                setData(docSnapshot.data() as T);
-            } else {
-                // Doc doesn't exist, keep default data
-                setData(defaultData);
-            }
-            setLoading(false);
-        }, (error) => {
-            // The caller shows its fallback content, so visitors get a page instead of an error message
-            console.error(`Error fetching ${collectionName}/${docId}:`, error);
-            setLoading(false);
-        });
+        if (!enabled) return undefined;
+        let unsubscribe: (() => void) | undefined;
+        let cancelled = false;
+        // The database library loads only when this fallback is actually needed
+        loadFirestore()
+            .then(({ db, doc, onSnapshot }) => {
+                if (cancelled) return;
+                unsubscribe = onSnapshot(
+                    doc(db, collectionName, docId),
+                    (docSnapshot) => {
+                        // A missing document keeps the default data
+                        setData(docSnapshot.exists() ? (docSnapshot.data() as T) : defaultData);
+                        setLoading(false);
+                    },
+                    (error) => {
+                        // The caller shows its fallback content, so visitors get a page instead of an error message
+                        console.error(`Error fetching ${collectionName}/${docId}:`, error);
+                        setLoading(false);
+                    }
+                );
+            })
+            .catch((error: unknown) => {
+                console.error(`Error loading ${collectionName}/${docId}:`, error);
+                setLoading(false);
+            });
 
-        return () => unsubscribe();
-    }, [collectionName, docId, defaultData]);
+        return () => {
+            cancelled = true;
+            unsubscribe?.();
+        };
+    }, [collectionName, docId, defaultData, enabled]);
 
     return { data, loading };
 }

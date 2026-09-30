@@ -27,8 +27,8 @@ interface ListEditorProps<T extends { id: string }> {
 }
 
 /**
- * An editable, reorderable list: each item is a summary row (click to open its fields),
- * with move up/down buttons. New items are added at the bottom and open right away.
+ * An editable, reorderable list: each item is a summary row that opens its fields (one item at a
+ * time, so long lists stay short), with move up/down buttons. New items go at the bottom and open.
  */
 export function ListEditor<T extends { id: string }>({
     items,
@@ -44,15 +44,7 @@ export function ListEditor<T extends { id: string }>({
     renderFields,
 }: ListEditorProps<T>) {
     const listId = useId();
-    const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
-
-    const toggle = (id: string) =>
-        setExpanded((previous) => {
-            const next = new Set(previous);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
-            return next;
-        });
+    const [openId, setOpenId] = useState<string | null>(null);
 
     const move = (id: string, delta: -1 | 1) =>
         onChange((list) => {
@@ -67,12 +59,15 @@ export function ListEditor<T extends { id: string }>({
     const change = (id: string, patch: Partial<T>) =>
         onChange((list) => list.map((item) => (item.id === id ? { ...item, ...patch } : item)));
 
-    const remove = (id: string) => onChange((list) => list.filter((item) => item.id !== id));
+    const remove = (id: string) => {
+        onChange((list) => list.filter((item) => item.id !== id));
+        setOpenId(null);
+    };
 
     const add = () => {
         const item = createItem();
         onChange((list) => [...list, item]);
-        setExpanded((previous) => new Set(previous).add(item.id));
+        setOpenId(item.id);
     };
 
     return (
@@ -82,7 +77,7 @@ export function ListEditor<T extends { id: string }>({
             ) : (
                 <ul className="divide-y divide-border rounded-card border border-border">
                     {items.map((item, index) => {
-                        const open = expanded.has(item.id);
+                        const open = openId === item.id;
                         const panelId = `${listId}-${item.id}`;
                         const title = getTitle(item).trim();
                         const name = title || untitledLabel;
@@ -94,10 +89,10 @@ export function ListEditor<T extends { id: string }>({
                                 <div className="flex items-center gap-1 p-1.5">
                                     <button
                                         type="button"
-                                        onClick={() => toggle(item.id)}
+                                        onClick={() => setOpenId(open ? null : item.id)}
                                         aria-expanded={open}
                                         aria-controls={panelId}
-                                        className="flex min-h-10 min-w-0 flex-1 items-center gap-2.5 rounded-control px-2 py-1.5 text-left transition-colors hover:bg-surface-hover"
+                                        className="flex min-h-10 min-w-0 flex-1 items-center gap-2.5 rounded-control px-2 py-1.5 text-start transition-colors hover:bg-surface-hover"
                                     >
                                         <ChevronDown
                                             aria-hidden
@@ -130,8 +125,8 @@ export function ListEditor<T extends { id: string }>({
                                         size="icon"
                                         onClick={() => move(item.id, -1)}
                                         disabled={index === 0}
-                                        aria-label={`تحريك لأعلى: ${name}`}
-                                        title="تحريك لأعلى"
+                                        aria-label={`لفوق: ${name}`}
+                                        title="لفوق"
                                     >
                                         <ArrowUp />
                                     </Button>
@@ -140,8 +135,8 @@ export function ListEditor<T extends { id: string }>({
                                         size="icon"
                                         onClick={() => move(item.id, 1)}
                                         disabled={index === items.length - 1}
-                                        aria-label={`تحريك لأسفل: ${name}`}
-                                        title="تحريك لأسفل"
+                                        aria-label={`لتحت: ${name}`}
+                                        title="لتحت"
                                     >
                                         <ArrowDown />
                                     </Button>

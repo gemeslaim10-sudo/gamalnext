@@ -32,12 +32,12 @@ const defaultProjectsData: ProjectsData = {
 };
 
 /**
- * The projects list. The server's data renders on the first paint and the live subscription keeps it
- * current. Without server data it reports `loading` (show a skeleton) until the subscription answers;
- * the defaults above only appear if that read fails or finds nothing.
+ * The projects list. The server's data (cached, refreshed on every dashboard save) is used as is, so
+ * the browser opens no database connection. Only when the server couldn't read it does the browser
+ * load it itself: `loading` (show a skeleton) until then, and the defaults above only if that fails too.
  */
 export function useProjects(initialData?: ProjectsData) {
-    const { data, loading } = useContent<ProjectsData>("site_content", "projects", initialData);
+    const { data, loading } = useContent<ProjectsData>("site_content", "projects", initialData, !initialData);
     const projects = data ?? (loading ? null : defaultProjectsData);
 
     const getItemsByCategory = (catId: string): ProjectItem[] => {

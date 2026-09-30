@@ -1,4 +1,5 @@
 import admin from "firebase-admin";
+import { ALLOWED_ADMINS } from "@/lib/constants";
 
 function initFirebaseAdmin() {
     if (admin.apps.length) return;
@@ -34,6 +35,12 @@ export const getAdminAuth = () => {
     initFirebaseAdmin();
     return admin.auth();
 };
+
+/** Account ids of the dashboard admins (ALLOWED_ADMINS lists their emails). */
+export async function getAdminUids(): Promise<Set<string>> {
+    const { users } = await getAdminAuth().getUsers(ALLOWED_ADMINS.map((email) => ({ email })));
+    return new Set(users.map((user) => user.uid));
+}
 
 export async function verifyAuthUser(req: Request) {
     const authHeader = req.headers.get("Authorization");

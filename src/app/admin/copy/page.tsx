@@ -1,148 +1,93 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { toast } from "react-hot-toast";
-import { RotateCcw, Save, Search } from "lucide-react";
-import { db } from "@/lib/firebase";
-import { COPY_DEFAULTS, COPY_SECTIONS, mergeCopy } from "@/config/copy";
-import type { CopyValues } from "@/lib/copy/types";
-import { refreshSite } from "@/lib/refreshSite";
-import { SectionCard } from "@/components/admin/SectionCard";
-import { Alert, Button, EmptyState, Field, Input, LoadingBlock, PageHeader, Textarea } from "@/components/ui";
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { SearchX } from "lucide-react";
+import { AdminHub, AdminPage, useAdminDocPeek, type HubGroup } from "@/components/admin/kit";
+import { Card, EmptyState } from "@/components/ui";
+import { COPY_SECTIONS } from "@/config/copy";
+import { SearchBox } from "./components/SearchBox";
+import { COPY_DOC, copyFieldMatches, copyKey, copySectionHref, normalizeCopy, normalizeQuery, sectionInfo, textCount } from "./copyAdmin";
 
-/** Every fixed text on the public site, grouped by page. Saved to site_content/copy. */
-export default function SiteCopyPage() {
-    const [values, setValues] = useState<CopyValues>(COPY_DEFAULTS);
-    const [saved, setSaved] = useState<CopyValues>(COPY_DEFAULTS);
-    const [loading, setLoading] = useState(true);
-    const [loadError, setLoadError] = useState(false);
-    const [saving, setSaving] = useState(false);
+const MAX_RESULTS = 50;
+
+// One card per section; the numbers come from the definitions in code, not the database
+const GROUPS: HubGroup[] = [
+    {
+        items: COPY_SECTIONS.map((section) => {
+            const info = sectionInfo(section);
+            return {
+                href: copySectionHref(section),
+                title: info.title,
+                description: info.description,
+                icon: info.icon,
+                meta: textCount(section.fields.length),
+            };
+        }),
+    },
+];
+
+/** Start screen of the site texts: the sections, and a search across every text that links straight to it. */
+export default function CopyHubPage() {
     const [query, setQuery] = useState("");
+    // Current texts only if an editor already loaded them this visit; the hub itself reads nothing
+    // The current texts, only if a section editor already loaded them this visit (the hub reads nothing)
+    const loaded = useAdminDocPeek(COPY_DOC);
+    const current = useMemo(() => (loaded ? normalizeCopy(loaded) : null), [loaded]);
+    const q = normalizeQuery(query);
 
-    useEffect(() => {
-        getDoc(doc(db, "site_content", "copy"))
-            .then((snap) => {
-                const merged = mergeCopy(snap.exists() ? (snap.data().values as Record<string, unknown>) : null);
-                setValues(merged);
-                setSaved(merged);
-            })
-            .catch((error) => {
-                console.error(error);
-                setLoadError(true);
-            })
-            .finally(() => setLoading(false));
-    }, []);
-
-    const dirty = useMemo(() => Object.keys(values).some((key) => values[key] !== saved[key]), [values, saved]);
-
-    const sections = useMemo(() => {
-        const q = query.trim().toLowerCase();
-        return COPY_SECTIONS.map((section) => ({
-            ...section,
-            fields: section.fields.filter((field) => {
-                if (!q) return true;
-                const key = `${section.id}.${field.key}`;
-                return [field.label, key, values[key] ?? ""].some((text) => text.toLowerCase().includes(q));
-            }),
-        })).filter((section) => section.fields.length > 0);
-    }, [query, values]);
-
-    const save = async () => {
-        setSaving(true);
-        try {
-            await setDoc(doc(db, "site_content", "copy"), { values, updatedAt: serverTimestamp() }, { merge: true });
-            setSaved(values);
-            await refreshSite();
-            toast.success("تم حفظ النصوص وتحديث الموقع");
-        } catch (error) {
-            console.error(error);
-            toast.error("تعذّر الحفظ، حاول مرة تانية");
-        } finally {
-            setSaving(false);
-        }
-    };
+    const results = useMemo(
+        () =>
+            q
+                ? COPY_SECTIONS.flatMap((section) =>
+                      section.fields
+                          .filter((field) => copyFieldMatches(section, field, q, current?.[copyKey(section, field)]))
+                          .map((field) => ({ section, field }))
+                  )
+                : [],
+        [q, current]
+    );
 
     return (
-        <div className="max-w-content">
-            <PageHeader
-                title="نصوص الموقع"
-                description="كل النصوص الثابتة في الموقع: العناوين والأزرار والرسائل وعناوين جوجل. التعديل هنا بيظهر في الموقع كله."
-                actions={
-                    <Button onClick={save} disabled={!dirty || saving || loading}>
-                        <Save />
-                        {saving ? "جارِ الحفظ…" : "حفظ التغييرات"}
-                    </Button>
-                }
-            />
+        <AdminPage title="نصوص الموقع" description="كل الكلام الثابت اللي بيظهر للزوار، مقسّم حسب الصفحة. افتح صفحة، أو دوّر على أي نص.">
+            <div className="mb-6">
+                <SearchBox value={query} onChange={setQuery} placeholder="دوّر في كل النصوص…" label="دوّر في كل نصوص الموقع" />
+            </div>
 
-            {loadError && (
-                <Alert variant="danger" className="mb-6">
-                    تعذّر تحميل النصوص المحفوظة، والمعروض دلوقتي هو النصوص الافتراضية. الحفظ هيكتب فوق المحفوظ.
-                </Alert>
-            )}
-
-            {loading ? (
-                <LoadingBlock />
+            {!q ? (
+                <AdminHub groups={GROUPS} />
+            ) : results.length === 0 ? (
+                <EmptyState icon={<SearchX />} title="مفيش نص مطابق" description="جرّب كلمة تانية، أو اكتبها بالإنجليزي زي ما هي مكتوبة في الموقع." />
             ) : (
-                <div className="space-y-6">
-                    <div className="relative">
-                        <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
-                        <Input
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="ابحث في النصوص…"
-                            aria-label="Search texts"
-                            className="pl-9"
-                        />
-                    </div>
-
-                    {sections.length === 0 && <EmptyState title="مفيش نصوص مطابقة للبحث" />}
-
-                    {sections.map((section) => (
-                        <SectionCard key={section.id} title={section.title} description={section.description}>
-                            <div className="space-y-5">
-                                {section.fields.map((field) => {
-                                    const key = `${section.id}.${field.key}`;
-                                    const id = `copy-${key}`;
-                                    const changedFromDefault = values[key] !== COPY_DEFAULTS[key];
-                                    const Control = field.type === "textarea" ? Textarea : Input;
-                                    return (
-                                        <Field key={key} label={field.label} htmlFor={id} hint={field.hint}>
-                                            <div className="flex items-start gap-2">
-                                                <Control
-                                                    id={id}
-                                                    dir="auto"
-                                                    value={values[key] ?? ""}
-                                                    onChange={(e) => setValues((prev) => ({ ...prev, [key]: e.target.value }))}
-                                                    rows={field.type === "textarea" ? 3 : undefined}
-                                                />
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    disabled={!changedFromDefault}
-                                                    onClick={() => setValues((prev) => ({ ...prev, [key]: COPY_DEFAULTS[key] }))}
-                                                    aria-label="Reset to default"
-                                                    title={`الافتراضي: ${COPY_DEFAULTS[key]}`}
-                                                >
-                                                    <RotateCcw />
-                                                </Button>
-                                            </div>
-                                        </Field>
-                                    );
-                                })}
-                            </div>
-                        </SectionCard>
-                    ))}
-
-                    <div className="flex justify-end">
-                        <Button onClick={save} disabled={!dirty || saving} className="w-full sm:w-auto">
-                            <Save />
-                            {saving ? "جارِ الحفظ…" : "حفظ التغييرات"}
-                        </Button>
-                    </div>
-                </div>
+                <Card padding="none">
+                    <p className="border-b border-border px-4 py-3 text-xs text-subtle" role="status">
+                        {results.length > MAX_RESULTS
+                            ? `أول ${MAX_RESULTS} من ${results.length} نتيجة. كمّل كتابة عشان تضيّق البحث.`
+                            : `${results.length} نتيجة`}
+                    </p>
+                    <ul className="divide-y divide-border">
+                        {results.slice(0, MAX_RESULTS).map(({ section, field }) => {
+                            const key = copyKey(section, field);
+                            const value = current?.[key] ?? field.default;
+                            return (
+                                <li key={key}>
+                                    <Link href={copySectionHref(section, field)} className="block px-4 py-3 transition-colors hover:bg-surface-hover">
+                                        <span className="block text-xs text-subtle">{sectionInfo(section).title}</span>
+                                        <span className="mt-0.5 block text-sm text-foreground">
+                                            <bdi dir="ltr">{field.label}</bdi>
+                                        </span>
+                                        {value && (
+                                            <span dir="auto" className="mt-0.5 block truncate text-xs text-muted">
+                                                {value}
+                                            </span>
+                                        )}
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </Card>
             )}
-        </div>
+        </AdminPage>
     );
 }

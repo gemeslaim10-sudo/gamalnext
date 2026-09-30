@@ -1,6 +1,6 @@
 import { Pencil, Share2, Trash2 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import LikeButton from "@/components/social/LikeButton";
+import { LikeButton } from "@/components/social/LazySocial";
 import { useCopy } from "@/components/providers/CopyProvider";
 import { Button, ButtonLink } from "@/components/ui";
 

@@ -3,17 +3,17 @@
 import { ArrowRight } from 'lucide-react';
 import { ButtonLink, Section } from '@/components/ui';
 import { useCopy } from '@/components/providers/CopyProvider';
-import { useRelatedArticles } from './useRelatedArticles';
-import { ArticleCard, ArticleCardSkeleton, hasAnyCover } from '@/components/articles/ArticleCard';
+import { ArticleCard, hasAnyCover } from '@/components/articles/ArticleCard';
+import type { ArticleCard as ArticleCardData } from '@/types';
 
 // Two columns show two cards; the third would sit alone on its own row
 const THIRD_ON_TABLET = (index: number) => (index === 2 ? 'sm:max-lg:hidden' : undefined);
 
-export default function RelatedArticles({ currentArticleId }: { currentArticleId: string }) {
+/** Other published articles, picked on the server (cached with the article page). */
+export default function RelatedArticles({ articles }: { articles: ArticleCardData[] }) {
     const t = useCopy();
-    const { articles, loading } = useRelatedArticles(currentArticleId);
 
-    if (!loading && articles.length === 0) return null;
+    if (articles.length === 0) return null;
 
     const showCovers = hasAnyCover(articles);
 
@@ -29,16 +29,14 @@ export default function RelatedArticles({ currentArticleId }: { currentArticleId
             className="mt-10 border-t border-border pb-0 sm:mt-14 sm:pb-0"
         >
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {loading
-                    ? [0, 1, 2].map((i) => <ArticleCardSkeleton key={i} className={THIRD_ON_TABLET(i)} />)
-                    : articles.map((article, index) => (
-                          <ArticleCard
-                              key={article.id}
-                              article={article}
-                              showCover={showCovers}
-                              className={THIRD_ON_TABLET(index)}
-                          />
-                      ))}
+                {articles.map((article, index) => (
+                    <ArticleCard
+                        key={article.id}
+                        article={article}
+                        showCover={showCovers}
+                        className={THIRD_ON_TABLET(index)}
+                    />
+                ))}
             </div>
         </Section>
     );

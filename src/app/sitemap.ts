@@ -1,103 +1,47 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next'
 import { SITE_URL } from '@/lib/constants'
-import { getCollection, getDocument } from '@/lib/server-utils'
-import { slugify } from '@/lib/utils'
+import { getProjects, getPublicArticles, projectImage } from '@/lib/content/server'
 
-export const revalidate = 3600; // Revalidate every hour
+// Built from the cached content, so it changes exactly when the content does (every dashboard save
+// or "Clear cache" rebuilds it) and "last modified" stays meaningful.
 
-interface Article {
-    id: string;
-    status?: string;
-    updatedAt?: { seconds: number };
-    createdAt?: { seconds: number };
-}
-
-interface ProjectsDoc {
-    items?: { title?: string; name?: string }[];
-}
+/** Pages every visitor can reach from the menu. */
+const MAIN_PAGES = ['/', '/profile', '/projects', '/skills', '/articles', '/pricing', '/contact'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = SITE_URL;
+    const [projects, articles] = await Promise.all([getProjects(), getPublicArticles()]);
+    const builtAt = new Date();
+    const latestArticle = articles?.[0] ? new Date(articles[0].updatedAt || articles[0].createdAt) : undefined;
 
-    // Static Routes
-    const routes: MetadataRoute.Sitemap = [
-        {
-            url: `${baseUrl}/`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 1,
-        },
-        {
-            url: `${baseUrl}/profile`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/skills`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/projects`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/articles`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/pricing`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/contact`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.7,
-        },
-    ];
-
-    const [articles, projectsDoc, users] = await Promise.all([
-        getCollection<Article>('articles'),
-        getDocument<ProjectsDoc>('site_content', 'projects'),
-        getCollection<{ id: string }>('users'),
-    ]);
-
-    // Project pages, with the same links the Projects page uses
-    const projectSlugs = new Set(
-        (projectsDoc?.items ?? []).map((project) => slugify(project.title || project.name || '')).filter(Boolean)
-    );
-    const projectRoutes: MetadataRoute.Sitemap = [...projectSlugs].map((slug) => ({
-        url: `${baseUrl}/projects/${slug}`,
-        changeFrequency: 'monthly',
-        priority: 0.8,
+    const mainRoutes: MetadataRoute.Sitemap = MAIN_PAGES.map((path) => ({
+        url: `${SITE_URL}${path === '/' ? '' : path}`,
+        lastModified: path === '/articles' && latestArticle ? latestArticle : builtAt,
     }));
 
-    // Published articles (articles waiting for review stay out; no status = published before moderation existed)
-    const articleRoutes: MetadataRoute.Sitemap = articles
-        .filter((article) => article.status !== 'pending')
-        .map((article) => ({
-            url: `${baseUrl}/articles/${article.id}`,
-            lastModified: new Date((article.updatedAt?.seconds || article.createdAt?.seconds || Date.now() / 1000) * 1000),
-            changeFrequency: 'weekly',
-            priority: 0.7,
-        }));
+    // Project pages at the same addresses the project cards use, with their pictures
+    const seen = new Set<string>();
+    const projectRoutes: MetadataRoute.Sitemap = (projects ?? []).flatMap((project) => {
+        if (!project.urlSlug || seen.has(project.urlSlug)) return [];
+        seen.add(project.urlSlug);
+        const images = [projectImage(project), ...((project.gallery as string[] | undefined) ?? [])].filter(
+            (url): url is string => typeof url === 'string' && /^https?:\/\//.test(url)
+        );
+        return [{ url: `${SITE_URL}/projects/${project.urlSlug}`, lastModified: builtAt, images: [...new Set(images)].slice(0, 10) }];
+    });
 
-    // Dynamic Users (Public Profiles)
-    const userRoutes: MetadataRoute.Sitemap = users.map((user) => ({
-        url: `${baseUrl}/users/${user.id}`,
-        lastModified: new Date(Date.now()), // Users might not have updatedAt, default to now
-        changeFrequency: 'monthly',
-        priority: 0.6,
-    }));
+    // Published articles only (articles waiting for review stay out)
+    const articleRoutes: MetadataRoute.Sitemap = (articles ?? []).map((article) => {
+        const cover = article.media?.find((item) => item.type === 'image' && item.url)?.url;
+        return {
+            url: `${SITE_URL}/articles/${article.id}`,
+            lastModified: new Date(article.updatedAt || article.createdAt || builtAt),
+            ...(cover ? { images: [cover] } : {}),
+        };
+    });
 
-    return [...routes, ...projectRoutes, ...articleRoutes, ...userRoutes];
+    // Member pages of people who published articles (empty profiles aren't worth indexing)
+    const authors = [...new Set((articles ?? []).map((article) => article.authorId).filter(Boolean))];
+    const authorRoutes: MetadataRoute.Sitemap = authors.map((id) => ({ url: `${SITE_URL}/users/${id}` }));
+
+    return [...mainRoutes, ...projectRoutes, ...articleRoutes, ...authorRoutes];
 }

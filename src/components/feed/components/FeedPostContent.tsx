@@ -35,14 +35,24 @@ export function FeedPostContent({ item, isExpanded, hasLongContent, onToggleExpa
                     {text}
                 </p>
             )}
-            {hasLongContent && (
-                <button
-                    type="button"
-                    onClick={() => onToggleExpand(item.id)}
-                    className="mt-1.5 text-sm font-medium text-foreground hover:underline hover:underline-offset-4"
+            {item.type === "article" ? (
+                // Articles are read on their own page, where the formatting is shown properly
+                <Link
+                    href={item.link}
+                    className="mt-1.5 inline-block text-sm font-medium text-foreground hover:underline hover:underline-offset-4"
                 >
-                    {isExpanded ? t("home.showLess") : t("home.showMore")}
-                </button>
+                    {t("home.readArticle")}
+                </Link>
+            ) : (
+                hasLongContent && (
+                    <button
+                        type="button"
+                        onClick={() => onToggleExpand(item.id)}
+                        className="mt-1.5 text-sm font-medium text-foreground hover:underline hover:underline-offset-4"
+                    >
+                        {isExpanded ? t("home.showLess") : t("home.showMore")}
+                    </button>
+                )
             )}
         </div>
     );

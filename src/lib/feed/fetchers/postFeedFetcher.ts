@@ -3,12 +3,17 @@ import { db } from "@/lib/firebase";
 import { parseDate } from "../utils";
 import type { FeedItem } from "../types";
 import { ALLOWED_ADMINS } from "@/lib/constants";
+import { getAdminUids } from "@/lib/firebase-admin";
 
 export async function fetchUserPostsFeed(allFeed: FeedItem[]) {
     try {
-        const postsSnap = await getDocs(
-            query(collection(db, "posts"), where("status", "==", "approved"), orderBy("createdAt", "desc"))
-        );
+        const [postsSnap, ownerIds] = await Promise.all([
+            getDocs(query(collection(db, "posts"), where("status", "==", "approved"), orderBy("createdAt", "desc"))),
+            getAdminUids().catch((error: unknown) => {
+                console.error("Feed: Couldn't look up the owner's account", error);
+                return new Set<string>();
+            }),
+        ]);
         postsSnap.docs.forEach(docSnap => {
             const data = docSnap.data();
             allFeed.push({
@@ -26,11 +31,14 @@ export async function fetchUserPostsFeed(allFeed: FeedItem[]) {
                 createdAt: parseDate(data.createdAt),
                 author: data.userName || "User",
                 authorPhoto: data.userPhoto || null,
-                byOwner: ALLOWED_ADMINS.includes(data.userEmail),
+                // Posts no longer store the email (they're public); older ones still have it
+                byOwner: ownerIds.has(data.userId) || ALLOWED_ADMINS.includes(data.userEmail),
                 userId: data.userId,
             });
         });
     } catch (err) {
         console.error("Feed: Failed to fetch user posts", err);
+        // A feed missing its posts must not be cached
+        throw err;
     }
 }

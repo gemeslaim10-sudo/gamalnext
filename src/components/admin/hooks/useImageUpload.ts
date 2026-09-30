@@ -7,12 +7,12 @@ export function useImageUpload(onChange: (value: string) => void) {
 
     const uploadFile = useCallback(async (file: File) => {
         if (!cloudinaryConfig.cloudName) {
-            toast.error("Cloudinary is not configured correctly");
+            toast.error("إعدادات Cloudinary مش مظبوطة");
             return;
         }
 
         setLoading(true);
-        const toastId = toast.loading("Uploading...");
+        const toastId = toast.loading("جاري الرفع…");
         try {
             const formData = new FormData();
             formData.append("file", file);
@@ -23,12 +23,12 @@ export function useImageUpload(onChange: (value: string) => void) {
                 body: formData,
             });
 
-            if (!res.ok) throw new Error("Upload failed");
+            if (!res.ok) throw new Error("الرفع ماتمّش");
             const data = await res.json();
             onChange(data.secure_url);
-            toast.success("Uploaded successfully!", { id: toastId });
+            toast.success("اترفعت بنجاح", { id: toastId });
         } catch {
-            toast.error("Upload failed", { id: toastId });
+            toast.error("الرفع ماتمّش", { id: toastId });
         } finally {
             setLoading(false);
         }
@@ -71,14 +71,14 @@ export function useImageUpload(onChange: (value: string) => void) {
         if (text && /^https?:\/\/.+\.(png|jpe?g|gif|svg|webp|avif|bmp|ico|tiff?|jfif)/i.test(text)) {
             e.preventDefault();
             onChange(text);
-            toast.success("Image URL pasted!");
+            toast.success("اتلزق رابط الصورة");
             return;
         }
 
         if (text && /^https?:\/\//.test(text)) {
             e.preventDefault();
             onChange(text);
-            toast.success("URL pasted!");
+            toast.success("اتلزق الرابط");
             return;
         }
     }, [uploadFile, onChange]);
@@ -104,22 +104,22 @@ export function useImageUpload(onChange: (value: string) => void) {
 
             const text = await navigator.clipboard.readText();
             if (!text?.trim()) {
-                toast.error("Clipboard is empty");
+                toast.error("الحافظة فاضية");
                 return;
             }
 
             const trimmed = text.trim();
             if (/^https?:\/\//.test(trimmed)) {
                 onChange(trimmed);
-                toast.success("URL pasted!");
+                toast.success("اتلزق الرابط");
             } else if (/^data:image\//.test(trimmed)) {
                 onChange(trimmed);
-                toast.success("Image data pasted!");
+                toast.success("اتلزقت الصورة");
             } else {
-                toast.error("No image or URL found in clipboard");
+                toast.error("مفيش صورة أو رابط في الحافظة");
             }
         } catch {
-            toast.error("Cannot access clipboard. Try Ctrl+V instead.");
+            toast.error("مش قادر أوصل للحافظة. جرّب Ctrl+V");
         }
     }, [uploadFile, onChange]);
 

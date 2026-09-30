@@ -1,119 +1,96 @@
-"use client";
+import { Briefcase, CircleQuestionMark, ExternalLink, Info, Package, PanelTop, Phone, Puzzle, SearchCheck, Type } from "lucide-react";
+import { AdminHub, AdminPage, type HubGroup } from "@/components/admin/kit";
+import { ButtonLink } from "@/components/ui";
 
-import { useState } from "react";
-import { ExternalLink, RotateCcw, Save } from "lucide-react";
-import { Alert, Button, ButtonLink, Chip, LoadingBlock, PageHeader } from "@/components/ui";
-import type { PricingContent } from "@/lib/pricing/types";
-import { AddonsTab } from "./components/AddonsTab";
-import { ContactTab } from "./components/ContactTab";
-import { GeneralTab } from "./components/GeneralTab";
-import { InfoTab } from "./components/InfoTab";
-import { ItemsTab } from "./components/ItemsTab";
-import { LabelsTab } from "./components/LabelsTab";
-import { usePricingEditor } from "./usePricingEditor";
+// The pricing page is one document (site_content/pricing) edited in parts: each card opens one part,
+// which loads the document once and saves only its own fields. Nothing is read here.
 
-const TABS: { id: string; label: string; count?: (content: PricingContent) => number }[] = [
-    { id: "general", label: "رأس الصفحة و SEO" },
-    { id: "packages", label: "الباقات", count: (c) => c.packages.length },
-    { id: "addons", label: "الإضافات", count: (c) => c.addons.length },
-    { id: "services", label: "الخدمات", count: (c) => c.services.length },
-    { id: "info", label: "معلومات وأسئلة" },
-    { id: "contact", label: "التواصل" },
-    { id: "labels", label: "النصوص" },
+// In the order the sections appear on the page
+const GROUPS: HubGroup[] = [
+    {
+        title: "أعلى الصفحة والأسعار",
+        items: [
+            {
+                href: "/admin/pricing/header",
+                title: "رأس الصفحة والعرض",
+                description: "العنوان والوصف اللي فوق، وشريط العرض أو الخصم.",
+                icon: PanelTop,
+            },
+            {
+                href: "/admin/pricing/packages",
+                title: "الباقات",
+                description: "باقات المواقع بأسعارها ومواصفاتها وترتيبها.",
+                icon: Package,
+            },
+            {
+                href: "/admin/pricing/addons",
+                title: "الإضافات",
+                description: "إضافات مدفوعة بالسعر قبل الخصم وبعده.",
+                icon: Puzzle,
+            },
+            {
+                href: "/admin/pricing/services",
+                title: "الخدمات بعرض سعر",
+                description: "خدمات من غير سعر ثابت، بزر «طلب عرض سعر».",
+                icon: Briefcase,
+            },
+        ],
+    },
+    {
+        title: "معلومات وتواصل",
+        items: [
+            {
+                href: "/admin/pricing/info",
+                title: "كروت المعلومات",
+                description: "ملاحظات قصيرة زي الصيانة والهوية البصرية.",
+                icon: Info,
+            },
+            {
+                href: "/admin/pricing/faq",
+                title: "الأسئلة الشائعة",
+                description: "الأسئلة وإجاباتها في آخر الصفحة.",
+                icon: CircleQuestionMark,
+            },
+            {
+                href: "/admin/pricing/contact",
+                title: "أرقام التواصل",
+                description: "أرقام الاتصال وواتساب والإيميل في قسم التواصل.",
+                icon: Phone,
+            },
+        ],
+    },
+    {
+        title: "نصوص عامة",
+        items: [
+            {
+                href: "/admin/pricing/labels",
+                title: "نصوص الأزرار والأسعار",
+                description: "العملة وأزرار الطلب والتواصل وعناوين سطور المواصفات.",
+                icon: Type,
+            },
+            {
+                href: "/admin/seo/pages/pricing",
+                title: "الصفحة في جوجل",
+                description: "عنوان ووصف صفحة الأسعار في نتايج البحث.",
+                icon: SearchCheck,
+            },
+        ],
+    },
 ];
 
-const savedAtFormat = new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeStyle: "short" });
-
-export default function AdminPricingPage() {
-    const { status, draft, update, dirty, saving, save, discard, retry, updatedAt } = usePricingEditor();
-    const [tab, setTab] = useState("packages");
-
-    const canSave = !saving && (dirty || status === "missing");
-    const statusText = saving
-        ? "جارٍ الحفظ…"
-        : dirty
-          ? "توجد تغييرات غير محفوظة."
-          : status === "missing"
-            ? "المحتوى الافتراضي، لم يُحفظ بعد."
-            : updatedAt
-              ? `آخر حفظ: ${savedAtFormat.format(updatedAt)}`
-              : "لا توجد تغييرات.";
-
-    const confirmDiscard = () => {
-        if (window.confirm("تجاهل كل التغييرات غير المحفوظة؟")) discard();
-    };
-
+export default function AdminPricingHub() {
     return (
-        <div className="max-w-content">
-            <PageHeader
-                title="الأسعار والباقات"
-                description="كل محتوى صفحة الأسعار: الباقات، الإضافات، الخدمات، المعلومات، الأسئلة والتواصل."
-                actions={
-                    <ButtonLink href="/pricing" external variant="secondary">
-                        <ExternalLink />
-                        عرض الصفحة
-                    </ButtonLink>
-                }
-            />
-
-            {status === "loading" && <LoadingBlock label="جارٍ تحميل المحتوى…" />}
-
-            {status === "error" && (
-                <Alert variant="danger" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <span>تعذر تحميل محتوى صفحة الأسعار. المحرر مغلق حتى لا يُستبدل المحتوى الحالي بالمحتوى الافتراضي.</span>
-                    <Button variant="secondary" onClick={retry} className="shrink-0">
-                        <RotateCcw />
-                        إعادة المحاولة
-                    </Button>
-                </Alert>
-            )}
-
-            {draft && (
-                <>
-                    {status === "missing" && (
-                        <Alert variant="warning" className="mb-6">
-                            لا يوجد محتوى محفوظ لصفحة الأسعار بعد، والصفحة لن تظهر للزوار حتى تحفظ. المعروض هنا هو المحتوى
-                            الافتراضي: راجعه ثم اضغط «حفظ».
-                        </Alert>
-                    )}
-
-                    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
-                        {TABS.map((item) => (
-                            <Chip key={item.id} active={tab === item.id} onClick={() => setTab(item.id)}>
-                                {item.label}
-                                {item.count && <span className="tabular-nums opacity-60">{item.count(draft)}</span>}
-                            </Chip>
-                        ))}
-                    </div>
-
-                    <div className="mt-6 space-y-6">
-                        {tab === "general" && <GeneralTab content={draft} update={update} />}
-                        {tab === "packages" && <ItemsTab kind="packages" content={draft} update={update} />}
-                        {tab === "addons" && <AddonsTab content={draft} update={update} />}
-                        {tab === "services" && <ItemsTab kind="services" content={draft} update={update} />}
-                        {tab === "info" && <InfoTab content={draft} update={update} />}
-                        {tab === "contact" && <ContactTab content={draft} update={update} />}
-                        {tab === "labels" && <LabelsTab content={draft} update={update} />}
-                    </div>
-
-                    {/* Always reachable: one Save writes the whole page */}
-                    <div className="sticky bottom-3 z-20 mt-8 flex flex-wrap items-center justify-between gap-3 rounded-card border border-border-strong bg-surface px-4 py-3">
-                        <p role="status" className="min-w-0 text-xs text-subtle">
-                            {statusText}
-                        </p>
-                        <div className="flex gap-2">
-                            <Button variant="ghost" onClick={confirmDiscard} disabled={!dirty || saving}>
-                                <RotateCcw />
-                                تراجع
-                            </Button>
-                            <Button onClick={save} disabled={!canSave}>
-                                <Save />
-                                {saving ? "جارٍ الحفظ…" : "حفظ"}
-                            </Button>
-                        </div>
-                    </div>
-                </>
-            )}
-        </div>
+        <AdminPage
+            title="الأسعار والباقات"
+            description="محتوى صفحة الأسعار متقسّم لأجزاء. افتح الجزء اللي عايز تعدّله، وكل جزء بيتحفظ لوحده."
+            actions={
+                <ButtonLink href="/pricing" external variant="secondary">
+                    <ExternalLink />
+                    عرض الصفحة
+                </ButtonLink>
+            }
+        >
+            <AdminHub groups={GROUPS} />
+        </AdminPage>
     );
 }

@@ -1,6 +1,9 @@
 // Server only: reads the assistant settings and knowledge with the Admin SDK (both documents
-// are admin-only in firestore.rules), cached for a minute so every chat message doesn't hit Firestore.
+// are admin-only in firestore.rules). They are cached with no time limit like the rest of the site
+// content (src/lib/cache.ts): saving in the dashboard or "Clear cache" refreshes them.
+import { unstable_noStore } from "next/cache";
 import { getAdminDb } from "@/lib/firebase-admin";
+import { CACHE_TAGS, cached } from "@/lib/cache";
 import {
     AI_KNOWLEDGE_DOC,
     AI_SETTINGS_DOC,
@@ -11,8 +14,6 @@ import {
     type KnowledgeCard,
     type PublicChatConfig,
 } from "./shared";
-
-const CACHE_TTL_MS = 60_000;
 
 export interface ProviderKeys {
     gemini?: string;
@@ -29,15 +30,18 @@ export interface LoadedSettings {
     fromDatabase: boolean;
 }
 
-interface CacheEntry<T> {
-    value: T;
-    at: number;
+async function readDocData(id: string) {
+    const snap = await getAdminDb().collection(AI_SETTINGS_DOC.collection).doc(id).get();
+    return snap.exists ? ((snap.data() ?? null) as Record<string, unknown> | null) : null;
 }
 
-let settingsCache: CacheEntry<LoadedSettings> | null = null;
-let knowledgeCache: CacheEntry<KnowledgeCard[]> | null = null;
+// The raw documents are cached; keys and defaults are resolved on every call so environment keys stay current
+const readSettingsDoc = cached(() => readDocData(AI_SETTINGS_DOC.id), "ai-settings", [CACHE_TAGS.ai]);
+const readKnowledgeDoc = cached(() => readDocData(AI_KNOWLEDGE_DOC.id), "ai-knowledge", [CACHE_TAGS.ai]);
 
-const isFresh = <T>(entry: CacheEntry<T> | null): entry is CacheEntry<T> => !!entry && Date.now() - entry.at < CACHE_TTL_MS;
+// Last good copies, used when a read fails (per server instance)
+let lastSettings: Record<string, unknown> | null | undefined;
+let lastKnowledge: unknown[] | undefined;
 
 /** A key saved in the dashboard wins over the one in the environment. */
 function resolveKeys(data: Record<string, unknown> | undefined): ProviderKeys {
@@ -56,31 +60,32 @@ function resolveKeys(data: Record<string, unknown> | undefined): ProviderKeys {
 
 /** `fresh` skips the cache (used by the admin test page right after saving). */
 export async function loadSettings({ fresh = false }: { fresh?: boolean } = {}): Promise<LoadedSettings> {
-    if (!fresh && isFresh(settingsCache)) return settingsCache.value;
     try {
-        const snap = await getAdminDb().collection(AI_SETTINGS_DOC.collection).doc(AI_SETTINGS_DOC.id).get();
-        const data = snap.exists ? snap.data() : undefined;
-        const value: LoadedSettings = { profile: resolveProfile(data), keys: resolveKeys(data), fromDatabase: true };
-        settingsCache = { value, at: Date.now() };
-        return value;
+        const data = fresh ? await readDocData(AI_SETTINGS_DOC.id) : await readSettingsDoc();
+        lastSettings = data;
+        return { profile: resolveProfile(data ?? undefined), keys: resolveKeys(data ?? undefined), fromDatabase: true };
     } catch (error) {
         console.error("[assistant] Could not read settings/ai:", error);
+        // A page showing this fallback must not be cached
+        unstable_noStore();
         // An older copy is better than the built-in defaults
-        if (settingsCache) return settingsCache.value;
+        if (lastSettings !== undefined) {
+            const data = lastSettings ?? undefined;
+            return { profile: resolveProfile(data), keys: resolveKeys(data), fromDatabase: true };
+        }
         return { profile: resolveProfile(undefined), keys: resolveKeys(undefined), fromDatabase: false };
     }
 }
 
 export async function loadKnowledge({ fresh = false }: { fresh?: boolean } = {}): Promise<KnowledgeCard[]> {
-    if (!fresh && isFresh(knowledgeCache)) return knowledgeCache.value;
     try {
-        const snap = await getAdminDb().collection(AI_KNOWLEDGE_DOC.collection).doc(AI_KNOWLEDGE_DOC.id).get();
-        const cards = sanitizeCards(snap.exists ? snap.data()?.cards : []);
-        knowledgeCache = { value: cards, at: Date.now() };
-        return cards;
+        const data = fresh ? await readDocData(AI_KNOWLEDGE_DOC.id) : await readKnowledgeDoc();
+        const cards = Array.isArray(data?.cards) ? (data.cards as unknown[]) : [];
+        lastKnowledge = cards;
+        return sanitizeCards(cards);
     } catch (error) {
         console.error("[assistant] Could not read settings/ai_knowledge:", error);
-        return knowledgeCache?.value ?? [];
+        return sanitizeCards(lastKnowledge ?? []);
     }
 }
 

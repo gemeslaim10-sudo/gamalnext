@@ -29,6 +29,7 @@ export function PricingItemCard({ item, labels, showQuoteLabel = true }: Pricing
 
                 {price !== null ? (
                     <p className="flex flex-wrap items-baseline gap-x-1.5 text-foreground">
+                        {item.priceFrom && labels.priceFrom && <span className="text-sm text-muted">{labels.priceFrom}</span>}
                         {currency && <span className="text-sm font-medium text-muted">{currency}</span>}
                         <span className="text-2xl font-semibold tracking-tight tabular-nums">{formatAmount(price)}</span>
                     </p>

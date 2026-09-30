@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { RotateCcw, Send, Settings } from "lucide-react";
-import { Alert, Button, ButtonLink, Card, Field, Input, PageHeader, Select, Spinner } from "@/components/ui";
+import { RotateCcw, RotateCw, Send, Settings } from "lucide-react";
+import { AdminPage } from "@/components/admin/kit";
+import { Alert, Button, ButtonLink, Card, Field, Input, Select, Spinner } from "@/components/ui";
 import ChatMessage from "@/components/chat/ChatMessage";
 import { GEMINI_MODEL_OPTIONS } from "@/lib/ai/assistant/shared";
 import { cn } from "@/lib/utils";
+import { AI_CRUMBS } from "../settings";
 import { useAssistantTest } from "./useAssistantTest";
 import { DebugPanel } from "./components/DebugPanel";
 
@@ -13,6 +15,7 @@ export default function AssistantTestPage() {
     const {
         profile,
         profileError,
+        reloadProfile,
         welcome,
         messages,
         input,
@@ -36,29 +39,32 @@ export default function AssistantTestPage() {
     const savedModel = profile?.modelName;
 
     return (
-        <>
-            <PageHeader
-                title="تجربة المساعد"
-                description="اتكلم مع المساعد بنفس التعليمات والمعرفة اللي على الموقع. في وضع التجربة مفيش عملاء بيتسجلوا ولا محادثات بتتحفظ."
-                actions={
-                    <ButtonLink href="/admin/ai" variant="secondary" className="flex-1 sm:flex-none">
-                        <Settings /> الإعدادات
-                    </ButtonLink>
-                }
-            />
-
+        <AdminPage
+            title="تجربة المساعد"
+            description="اتكلم مع المساعد بنفس التعليمات والمعرفة اللي على الموقع. في التجربة مفيش عملاء بيتسجلوا ولا محادثات بتتحفظ."
+            breadcrumbs={AI_CRUMBS}
+            width="wide"
+            actions={
+                <ButtonLink href="/admin/ai" variant="secondary">
+                    <Settings /> الإعدادات
+                </ButtonLink>
+            }
+        >
             {profileError && (
-                <Alert variant="warning" className="mb-4">
-                    تعذّرت قراءة الإعدادات لعرض رسالة الترحيب، لكن التجربة شغالة.
+                <Alert variant="warning" className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <span>ماقدرناش نقرا الإعدادات عشان نعرض رسالة الترحيب، بس التجربة شغالة.</span>
+                    <Button variant="secondary" size="sm" onClick={reloadProfile} className="self-start sm:self-auto">
+                        <RotateCw /> حاول تاني
+                    </Button>
                 </Alert>
             )}
 
             <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
                 {/* Conversation */}
-                <Card padding="none" className="flex h-[70dvh] min-h-[26rem] flex-col overflow-hidden lg:h-[calc(100dvh-12rem)]">
+                <Card padding="none" className="flex h-[70dvh] min-h-[26rem] flex-col overflow-hidden lg:h-[calc(100dvh-15rem)]">
                     <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
-                        <p className="text-sm font-semibold text-foreground">
-                            {profile?.assistantName || "المساعد"} <span className="font-normal text-subtle">— تجربة</span>
+                        <p className="min-w-0 truncate text-sm font-semibold text-foreground">
+                            <span dir="auto">{profile?.assistantName || "المساعد"}</span> <span className="font-normal text-subtle">— تجربة</span>
                         </p>
                         <Button variant="ghost" size="sm" onClick={reset} disabled={loading || messages.length === 0}>
                             <RotateCcw /> محادثة جديدة
@@ -114,7 +120,7 @@ export default function AssistantTestPage() {
                             className="flex-1"
                         />
                         <Button type="submit" size="icon" disabled={!input.trim() || loading} aria-label="إرسال">
-                            <Send />
+                            <Send className="rtl:-scale-x-100" />
                         </Button>
                     </form>
                 </Card>
@@ -122,12 +128,12 @@ export default function AssistantTestPage() {
                 {/* Test options + what happened behind the selected reply */}
                 <div className="space-y-4">
                     <Card padding="sm" className="space-y-3">
-                        <Field label="اسم الزائر (اختياري)" htmlFor="test-visitor" hint="جرّب كأن الزائر مسجّل دخول بالاسم ده.">
+                        <Field label="اسم الزائر (اختياري)" htmlFor="test-visitor" hint="جرّب كأن الزائر عامل تسجيل دخول بالاسم ده.">
                             <Input id="test-visitor" dir="auto" value={visitorName} onChange={(e) => setVisitorName(e.target.value)} />
                         </Field>
                         <Field label="الموديل" htmlFor="test-model" hint="جرّب موديل تاني قبل ما تحفظه في الإعدادات.">
                             <Select id="test-model" dir="ltr" value={model} onChange={(e) => setModel(e.target.value)}>
-                                <option value="">{savedModel ? `Saved model (${savedModel})` : "Saved model"}</option>
+                                <option value="">{savedModel ? `المحفوظ في الإعدادات (${savedModel})` : "المحفوظ في الإعدادات"}</option>
                                 {GEMINI_MODEL_OPTIONS.filter((m) => m.id !== savedModel).map((m) => (
                                     <option key={m.id} value={m.id}>
                                         {m.label}
@@ -140,6 +146,6 @@ export default function AssistantTestPage() {
                     <DebugPanel message={selected} />
                 </div>
             </div>
-        </>
+        </AdminPage>
     );
 }

@@ -52,13 +52,11 @@ const toItem = (raw: Raw, id: string): PricingItem => ({
     name: text(raw.name),
     price: toAmount(raw.price),
     customQuote: flag(raw.customQuote, false),
+    priceFrom: flag(raw.priceFrom, false),
     description: text(raw.description),
     pages: text(raw.pages),
-    stack: text(raw.stack),
     hosting: text(raw.hosting),
     hostingCost: text(raw.hostingCost),
-    seo: text(raw.seo),
-    editing: text(raw.editing),
     featured: flag(raw.featured, false),
     visible: flag(raw.visible, true),
 });
@@ -171,7 +169,7 @@ export function formatAmount(amount: number) {
     return amountFormat.format(amount);
 }
 
-/** 3000, "EGP" → "EGP 3,000" (non-breaking space, so the two never wrap apart). */
+/** 3000, "USD" → "USD 3,000" (non-breaking space, so the two never wrap apart). */
 export function formatPrice(amount: number, currency: string) {
     const value = formatAmount(amount);
     return currency.trim() ? `${currency.trim()} ${value}` : value;

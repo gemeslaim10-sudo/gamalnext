@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { auth, loadFirestore } from "@/lib/firebase-app";
 import { toast } from "react-hot-toast";
+import { reportEvent } from "@/lib/reportEvent";
 import { useCopy } from "@/components/providers/CopyProvider";
 
 export function useAuthModal(onClose: () => void) {
@@ -55,6 +55,7 @@ export function useAuthModal(onClose: () => void) {
             } else {
                 const cred = await createUserWithEmailAndPassword(auth, email, password);
                 await updateProfile(cred.user, { displayName: name });
+                const { db, doc, setDoc, serverTimestamp } = await loadFirestore();
                 await setDoc(doc(db, "users", cred.user.uid), {
                     uid: cred.user.uid,
                     name: name,
@@ -62,6 +63,7 @@ export function useAuthModal(onClose: () => void) {
                     role: "user",
                     createdAt: serverTimestamp()
                 });
+                reportEvent({ event: "user.signup" });
                 toast.success(t("account.authAccountCreated"));
             }
             onClose();

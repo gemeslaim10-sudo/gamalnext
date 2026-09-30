@@ -11,7 +11,6 @@ import { blogCopy } from "./blog";
 import { contactCopy } from "./contact";
 import { accountCopy } from "./account";
 import { errorsCopy } from "./errors";
-import { seoCopy } from "./seo";
 
 const SECTIONS = [
     navigationCopy,
@@ -24,7 +23,6 @@ const SECTIONS = [
     accountCopy,
     errorsCopy,
     footerCopy,
-    seoCopy,
 ] as const;
 
 type KeysOf<S> = S extends { id: infer Id extends string; fields: readonly (infer F)[] }

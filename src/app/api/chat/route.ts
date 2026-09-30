@@ -1,10 +1,9 @@
-import { after, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import type { DecodedIdToken } from "firebase-admin/auth";
 import { verifyAuthUser } from "@/lib/firebase-admin";
 import { ALLOWED_ADMINS } from "@/lib/constants";
 import { AssistantUnavailableError, MESSAGE_MAX_CHARS, runAssistant, type VisitorInfo } from "@/lib/ai/assistant";
 import { getPublicChatConfig } from "@/lib/ai/assistant/settings";
-import { canLogSession, logChatTurn } from "@/lib/ai/assistant/session";
 import { allowRequest, rateLimitKey } from "@/lib/ai/assistant/rateLimit";
 import { isRealName } from "@/lib/ai/assistant/shared";
 
@@ -20,13 +19,13 @@ export async function GET() {
 }
 
 /**
- * Body: { message, history, userContext?, sessionId?, page?, test? } → { response }
- * `test: true` is admin-only (Firebase ID token in `Authorization: Bearer …`): nothing is saved,
- * and the reply comes with debug info (model used, knowledge cards, prompt).
+ * Body: { message, history, userContext?, page?, test? } → { response }
+ * Conversations are not stored: the widget sends the earlier turns with each message, and only a
+ * lead the visitor agrees to leave is saved. `test: true` is admin-only (Firebase ID token in
+ * `Authorization: Bearer …`): not even a lead is saved, and the reply comes with debug info
+ * (model used, knowledge cards, prompt).
  */
 export async function POST(req: Request) {
-    const receivedAt = Date.now();
-
     let body: Record<string, unknown>;
     try {
         body = (await req.json()) as Record<string, unknown>;
@@ -56,36 +55,18 @@ export async function POST(req: Request) {
     }
 
     const visitor = readVisitor(body.userContext, body.page, authUser);
-    const sessionId = !test && canLogSession(body.sessionId, authUser?.uid) ? body.sessionId : null;
 
     try {
         const result = await runAssistant({
             message,
             history: body.history,
             visitor,
-            sessionId,
             userId: authUser?.uid ?? null,
             userEmail: authUser?.email ?? null,
             test,
             // The test page can try another Gemini model before saving it
             model: test && typeof body.model === "string" && /^[\w.-]{3,80}$/.test(body.model) ? body.model : undefined,
         });
-
-        if (sessionId) {
-            // Saved after the response is sent, so the visitor doesn't wait for it
-            after(() =>
-                logChatTurn({
-                    sessionId,
-                    userMessage: message,
-                    reply: result.reply,
-                    receivedAt,
-                    model: result.model,
-                    visitorName: visitor.name,
-                    userId: authUser?.uid ?? null,
-                    lead: result.lead,
-                })
-            );
-        }
 
         return NextResponse.json(test ? { response: result.reply, debug: result.debug } : { response: result.reply });
     } catch (error) {

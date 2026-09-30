@@ -2,6 +2,8 @@ import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { parseDate } from "../utils";
 import type { FeedItem } from "../types";
+import { isPublicArticle } from "@/lib/content/shared";
+import { markdownExcerpt } from "@/lib/articles/plainText";
 
 export async function fetchArticlesFeed(allFeed: FeedItem[]) {
     try {
@@ -9,14 +11,15 @@ export async function fetchArticlesFeed(allFeed: FeedItem[]) {
         const articlesSnap = await getDocs(articlesQ);
         articlesSnap.docs.forEach(docSnap => {
             const data = docSnap.data();
-            // Articles without a status predate moderation and count as published
-            if (data.status === "pending") return;
+            // Articles waiting for review stay out (no status = published before moderation existed)
+            if (!isPublicArticle(data)) return;
             allFeed.push({
                 id: docSnap.id,
                 type: "article",
                 title: data.title || "Untitled Article",
-                description: data.summary || (data.content ? (data.content as string).substring(0, 150) + "..." : ""),
-                fullContent: data.content || data.summary || "",
+                // The text is Markdown, so the feed shows the summary (or a plain start) and links to
+                // the article page, which renders it; the full text isn't sent with the feed
+                description: data.summary || markdownExcerpt(String(data.content || ""), 150),
                 imageUrl: data.media?.[0]?.url || null,
                 gallery: Array.isArray(data.media) ? (data.media as Array<{ url: string }>).map(m => m.url) : null,
                 mediaType: data.media?.[0]?.type || "image",
@@ -26,5 +29,7 @@ export async function fetchArticlesFeed(allFeed: FeedItem[]) {
         });
     } catch (err) {
         console.error("Feed: Failed to fetch articles", err);
+        // A feed missing its articles must not be cached
+        throw err;
     }
 }

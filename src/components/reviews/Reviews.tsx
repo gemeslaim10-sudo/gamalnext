@@ -1,6 +1,5 @@
-import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { Star } from "lucide-react";
-import { db } from "@/lib/firebase";
+import { getApprovedReviews } from "@/lib/content/server";
 import { Card, Section } from "@/components/ui";
 import { getCopy } from "@/lib/copy/server";
 import { cn } from "@/lib/utils";
@@ -8,31 +7,10 @@ import { formatTimestamp, getTimestampMs } from "@/types";
 import type { Review } from "@/types";
 import AddReview from "./AddReview";
 
-async function getReviews() {
-    try {
-        const q = query(
-            collection(db, "reviews"),
-            where("status", "==", "approved"),
-            orderBy("createdAt", "desc")
-        );
-        const snap = await getDocs(q);
-        return snap.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            // Serialize timestamps if needed, though they pass fine to client components in Server Actions usually,
-            // but for props passing we might need simple JSON types or ensure the client handles the detailed object.
-            // For safety with Firestore timestamps passing to Client Component:
-            createdAt: doc.data().createdAt?.seconds ? doc.data().createdAt.seconds * 1000 : Date.now()
-        } as Review));
-    } catch (e) {
-        console.error("Error fetching reviews:", e);
-        return [];
-    }
-}
-
 /** Approved reviews + the review form. Texts: /admin/copy → Profile page; reviews are moderated in /admin/reviews. */
 export default async function Reviews() {
-    const [reviews, t] = await Promise.all([getReviews(), getCopy()]);
+    // Approved reviews, cached until the next dashboard save (approving a review refreshes them)
+    const [reviews, t] = await Promise.all([getApprovedReviews(), getCopy()]);
 
     return (
         <Section

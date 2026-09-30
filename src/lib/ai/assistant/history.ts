@@ -7,8 +7,9 @@ export interface ChatTurn {
 
 export const MESSAGE_MAX_CHARS = 2_000;
 const TURN_MAX_CHARS = 4_000;
-const HISTORY_MAX_TURNS = 24;
-const HISTORY_MAX_CHARS = 16_000;
+// The latest dozen turns carry the conversation; older ones mostly cost tokens
+const HISTORY_MAX_TURNS = 12;
+const HISTORY_MAX_CHARS = 8_000;
 
 /**
  * Accepts the widget format (`{ role, parts: [{ text }] }`) and plain `{ role, text }` /

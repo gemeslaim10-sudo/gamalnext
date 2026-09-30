@@ -1,5 +1,5 @@
 import { MessageCircle, Share2 } from "lucide-react";
-import LikeButton from "@/components/social/LikeButton";
+import { LikeButton } from "@/components/social/LazySocial";
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import type { FeedItem } from "../types";

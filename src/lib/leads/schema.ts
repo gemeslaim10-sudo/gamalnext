@@ -23,6 +23,7 @@ export interface LeadRecord extends LeadInput {
     status: LeadStatus;
     userId?: string | null;
     userEmail?: string | null;
+    /** Only on chat leads saved before conversations stopped being stored */
     sessionId?: string | null;
     capturedAt?: unknown;
     updatedAt?: unknown;

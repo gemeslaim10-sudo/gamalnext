@@ -1,9 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { onAuthStateChanged, User, GoogleAuthProvider, getAdditionalUserInfo, signInWithPopup, signOut } from "firebase/auth";
+import { auth, loadFirestore } from "@/lib/firebase-app";
+import { reportEvent } from "@/lib/reportEvent";
 
 interface AuthContextType {
     user: User | null;
@@ -35,17 +35,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
+            const isNewUser = Boolean(getAdditionalUserInfo(result)?.isNewUser);
 
-            // Create/Update User Document
+            // Create/Update User Document (the database library loads only now)
+            const { db, doc, setDoc, serverTimestamp } = await loadFirestore();
             await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 name: user.displayName || "Anonymous",
                 email: user.email,
                 photoURL: user.photoURL,
                 lastLoginAt: serverTimestamp(),
-                // Only set createdAt if it doesn't exist (merge won't overwrite existing fields but we want to be sure)
+                // Only on the first sign-in, so the join date never moves (the dashboard sorts members by it)
+                ...(isNewUser ? { createdAt: serverTimestamp() } : {}),
             }, { merge: true });
 
+            // A brand-new account: let the owner know (if turned on in the dashboard)
+            if (isNewUser) reportEvent({ event: "user.signup" });
         } catch (error) {
             console.error("Error signing in with Google", error);
             let errorMessage = "Failed to sign in with Google.";

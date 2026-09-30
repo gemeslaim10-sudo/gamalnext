@@ -1,5 +1,6 @@
 import { collection, getDocs, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { projectSlug } from "@/lib/content/shared";
 import type { FeedItem, ProjectItem } from "../types";
 
 export async function fetchProjectsFeed(allFeed: FeedItem[]) {
@@ -20,11 +21,14 @@ export async function fetchProjectsFeed(allFeed: FeedItem[]) {
                 gallery: p.gallery || (p.image ? [p.image] : null),
                 mediaType: p.videoUrl ? "video" : "image",
                 videoUrl: p.videoUrl || null,
-                link: `/projects/${p.slug || p.id || `proj-${idx}`}`,
+                // Same address as the project cards and the sitemap (one URL per project)
+                link: `/projects/${projectSlug(p) || `proj-${idx}`}`,
                 createdAt: p.createdAt || new Date(Date.now() - idx * 86400000).toISOString(),
             });
         });
     } catch (err) {
         console.error("Feed: Failed to fetch projects", err);
+        // A feed missing its projects must not be cached
+        throw err;
     }
 }

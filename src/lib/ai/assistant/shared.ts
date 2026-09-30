@@ -26,10 +26,14 @@ export interface KnowledgeCard {
 }
 
 export const KNOWLEDGE_LIMITS = {
-    /** While all active cards fit in this many characters, every card is sent with each message */
-    allCardsMaxChars: 24_000,
+    /**
+     * While all active cards fit in this many characters, every card is sent with each message.
+     * Kept small on purpose: every message pays for the whole prompt, so a bigger knowledge base
+     * sends the pinned cards plus the ones that match the conversation.
+     */
+    allCardsMaxChars: 4_000,
     /** Above that: pinned cards + the most relevant cards, up to this many characters */
-    relevantMaxChars: 16_000,
+    relevantMaxChars: 3_500,
     /** Smaller budget used for the backup models, whose free tiers allow only a few thousand tokens a minute */
     compactMaxChars: 3_500,
     /** Firestore documents max out at 1 MiB; warn well before that */

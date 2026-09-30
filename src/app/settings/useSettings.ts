@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { deleteUser } from "firebase/auth";
 import { openCloudinaryWidget } from "@/lib/cloudinary";
+import { refreshSite } from "@/lib/refreshSite";
 import { useCopy } from "@/components/providers/CopyProvider";
 
 export interface SettingsFormData {
@@ -94,6 +95,8 @@ export function useSettings() {
                 ...formData,
                 updatedAt: new Date()
             });
+            // The public profile page is cached; show the new details there right away
+            void refreshSite({ memberId: user.uid });
             toast.success(t("account.settingsSaved"));
         } catch (error) {
             console.error(error);
@@ -118,6 +121,8 @@ export function useSettings() {
             setDeleting(true);
             // 1. Delete Firestore Document
             await deleteDoc(doc(db, "users", user.uid));
+            // Take the cached profile page down too (needs the account, so before it's deleted)
+            await refreshSite({ memberId: user.uid });
 
             // 2. Delete Auth User
             await deleteUser(user);

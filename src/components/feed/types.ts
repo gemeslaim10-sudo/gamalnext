@@ -6,7 +6,7 @@ export type FeedItem = {
     description: string;
     fullContent?: string;
     imageUrl: string | null;
-    gallery?: string[];
+    gallery?: string[] | null;
     mediaType: "image" | "video";
     videoUrl?: string | null;
     link: string;

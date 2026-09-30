@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
@@ -12,8 +13,12 @@ import { NAV_LINKS, isActivePath, type NavLink } from "@/config/navigation";
 import { Avatar, Button, Container } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { UserMenu } from "./navbar/UserMenu";
-import { NotificationsMenu } from "./navbar/NotificationsMenu";
 import { MobileMenu } from "./navbar/MobileMenu";
+
+// Signed-in members only: loads (with the database library it needs) after sign-in, not for every visitor
+const NotificationsMenu = dynamic(() => import("./navbar/NotificationsMenu").then((mod) => mod.NotificationsMenu), {
+    ssr: false,
+});
 
 export default function Navbar() {
     const pathname = usePathname();

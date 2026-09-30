@@ -44,7 +44,6 @@ export type ToolExecutor = (name: string, args: Record<string, unknown>) => Prom
 interface LeadContext {
     /** In test mode nothing is written — the details are only validated and reported */
     test: boolean;
-    sessionId?: string | null;
     userId?: string | null;
     userEmail?: string | null;
     page?: string | null;
@@ -96,7 +95,7 @@ export function createLeadRecorder(ctx: LeadContext) {
             }
             const result = await saveLead(
                 { ...input, source: "chat", page: ctx.page || undefined },
-                { userId: ctx.userId ?? null, userEmail: ctx.userEmail ?? null, sessionId: ctx.sessionId ?? null }
+                { userId: ctx.userId ?? null, userEmail: ctx.userEmail ?? null }
             );
             if (!result.ok) {
                 last = { ...input, saved: false, errors: result.errors, via };

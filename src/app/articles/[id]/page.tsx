@@ -1,10 +1,11 @@
-import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getDocument, getCollection } from "@/lib/server-utils";
 import { getCopy } from "@/lib/copy/server";
-import { SHARE_IMAGE, getSiteOpenGraph, getSiteSeo } from "@/lib/seo/server";
-import { SITE_URL } from "@/lib/constants";
+import { getArticle, getPublicArticles, isPublicArticle } from "@/lib/content/server";
+import { markdownExcerpt } from "@/lib/articles/plainText";
+import { SHARE_IMAGE, absoluteUrl, getSiteOpenGraph, getSiteSeo } from "@/lib/seo/server";
+import { ORGANIZATION_ID, PERSON_ID, breadcrumbs, pageGraph } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/seo/JsonLd";
 import ArticleView from "./ArticleView";
 import type { ArticleRaw } from "@/types";
 import { getTimestampMs } from "@/types";
@@ -13,51 +14,50 @@ type Props = {
     params: Promise<{ id: string }>;
 };
 
-// Cached per request: generateMetadata and the page share one read
-const getArticle = cache((id: string) => getDocument<ArticleRaw>("articles", id));
+/** The article if visitors may see it; throws when the database couldn't be read (never cached as "not found"). */
+async function getPublishedArticle(id: string) {
+    const article = await getArticle(id);
+    if (article === undefined) throw new Error(`Article ${id} couldn't be read`);
+    return article && isPublicArticle(article) ? article : null;
+}
+
+/** Arabic when most letters of the title and text are Arabic. */
+function articleLanguage(article: ArticleRaw) {
+    const text = `${article.title ?? ""} ${article.content ?? ""}`.slice(0, 2000);
+    const letters = text.match(/\p{L}/gu)?.length ?? 0;
+    const arabic = text.match(/[؀-ۿ]/g)?.length ?? 0;
+    return letters > 0 && arabic / letters > 0.3 ? "ar" : "en";
+}
 
 /** The first image of the article (its cover), if any. */
 function coverImage(article: ArticleRaw) {
     return article.media?.find((item) => item.type === "image" && item.url)?.url;
 }
 
-/** Markdown → one line of plain text, cut at a word boundary (for search and share descriptions). */
-function plainExcerpt(markdown: string, max = 155) {
-    const text = markdown
-        .replace(/!\[[^\]]*\]\([^)]*\)/g, " ") // images
-        .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // links → their text
-        .replace(/^\s{0,3}(?:#{1,6}|>|[-*+]|\d+\.)\s+/gm, "") // headings, quotes, list markers
-        .replace(/[*_`~]+/g, "") // emphasis and code marks
-        .replace(/\s+/g, " ")
-        .trim();
-    if (text.length <= max) return text;
-    const cut = text.slice(0, max);
-    const lastSpace = cut.lastIndexOf(" ");
-    return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
-}
-
 /** Search description: the article's summary, else the start of its text. */
 function describe(article: ArticleRaw) {
-    return article.summary?.trim() || plainExcerpt(article.content || "");
+    return article.summary?.trim() || markdownExcerpt(article.content || "");
 }
 
 // Generate SEO Metadata dynamically
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { id } = await params;
-    const [article, t] = await Promise.all([getArticle(id), getCopy()]);
+    const [article, t] = await Promise.all([getPublishedArticle(id), getCopy()]);
 
     if (!article) {
         return {
             title: t("blog.notFoundTitle"),
+            robots: { index: false, follow: true },
         };
     }
 
-    const [{ ownerName }, siteOpenGraph] = await Promise.all([getSiteSeo(), getSiteOpenGraph()]);
+    const [site, siteOpenGraph] = await Promise.all([getSiteSeo(), getSiteOpenGraph()]);
+    const { ownerName } = site;
     const cover = coverImage(article);
 
     return {
-        title: t("blog.articleSeoTitle", { title: article.title }),
-        description: describe(article) || t("blog.seoDescription"),
+        title: article.title,
+        description: describe(article) || site.fill(site.seo.pages.articles.description),
         // The article's tags; without tags the site-wide keywords stay (the key must then be absent)
         ...(article.tags?.length ? { keywords: article.tags } : {}),
         alternates: {
@@ -75,25 +75,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
+/** Every published article is built ahead of time; new ones are built on their first visit. */
 export async function generateStaticParams() {
-    const articles = await getCollection<ArticleRaw>('articles');
-    return articles.map((article) => ({
-        id: article.id,
-    }));
+    const articles = (await getPublicArticles()) ?? [];
+    return articles.map((article) => ({ id: article.id }));
 }
-
-export const revalidate = 0;
 
 export default async function ArticlePage({ params }: Props) {
     const { id } = await params;
-    const article = await getArticle(id);
+    const article = await getPublishedArticle(id);
 
     if (!article) {
         notFound();
     }
 
     // Owner and site name from the dashboard settings (the same cached read as the root layout)
-    const { ownerName, siteName } = await getSiteSeo();
+    const [{ ownerName }, t] = await Promise.all([getSiteSeo(), getCopy()]);
     const cover = coverImage(article);
 
     // eslint-disable-next-line react-hooks/purity
@@ -108,40 +105,52 @@ export default async function ArticlePage({ params }: Props) {
         updatedAt: updatedAtMs
     };
 
-    const jsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        headline: article.title,
-        image: [cover || `${SITE_URL}${SHARE_IMAGE.url}`],
-        datePublished: new Date(createdAtMs).toISOString(),
-        dateModified: updatedAtMs ? new Date(updatedAtMs).toISOString() : new Date(createdAtMs).toISOString(),
-        author: {
-            '@type': 'Person',
-            name: article.authorName || ownerName,
-            url: SITE_URL
+    // Up to three other published articles (from the same cache as the blog page)
+    const related = ((await getPublicArticles()) ?? [])
+        .filter((other) => other.id !== id)
+        .slice(0, 3)
+        .map((other) => ({
+            id: other.id,
+            title: other.title,
+            summary: other.summary,
+            content: (other.content || "").slice(0, 400),
+            media: other.media,
+            createdAt: other.createdAt,
+        }));
+
+    const path = `/articles/${id}`;
+    const words = (article.content || "").split(/\s+/).filter(Boolean).length;
+    const jsonLd = pageGraph(
+        {
+            "@type": "BlogPosting",
+            "@id": `${absoluteUrl(path)}#article`,
+            headline: article.title,
+            description: describe(article),
+            image: [cover || absoluteUrl(SHARE_IMAGE.url)],
+            datePublished: new Date(createdAtMs).toISOString(),
+            dateModified: new Date(updatedAtMs || createdAtMs).toISOString(),
+            inLanguage: articleLanguage(article),
+            keywords: (article.tags ?? []).join(", "),
+            wordCount: words || undefined,
+            // Members' articles link to their profile; articles without an author are the owner's
+            author: article.authorId
+                ? { "@type": "Person", name: article.authorName || ownerName, url: absoluteUrl(`/users/${article.authorId}`) }
+                : { "@id": PERSON_ID },
+            publisher: { "@id": ORGANIZATION_ID },
+            mainEntityOfPage: absoluteUrl(path),
+            isPartOf: { "@type": "Blog", "@id": `${absoluteUrl("/articles")}#page` },
         },
-        publisher: {
-            '@type': 'Organization',
-            name: siteName,
-            logo: {
-                '@type': 'ImageObject',
-                url: `${SITE_URL}/icon.png`
-            }
-        },
-        description: describe(article),
-        mainEntityOfPage: {
-            '@type': 'WebPage',
-            '@id': `${SITE_URL}/articles/${id}`
-        }
-    };
+        breadcrumbs([
+            { name: t("nav.home"), path: "/" },
+            { name: t("blog.title"), path: "/articles" },
+            { name: article.title, path },
+        ])
+    );
 
     return (
         <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
-            <ArticleView article={serializedArticle} />
+            <JsonLd data={jsonLd} />
+            <ArticleView article={serializedArticle} related={related} />
         </>
     );
 }

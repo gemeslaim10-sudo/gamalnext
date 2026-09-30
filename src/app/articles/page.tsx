@@ -1,50 +1,43 @@
 import type { Metadata } from "next";
 import { PenLine } from "lucide-react";
-import { getCollection } from "@/lib/server-utils";
 import { getCopy } from "@/lib/copy/server";
 import { ButtonLink, Page, PageHeader } from "@/components/ui";
-import type { ArticleRaw, ArticleSerialized } from "@/types";
-import { getTimestampMs } from "@/types";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { getPublicArticles } from "@/lib/content/server";
+import { getSiteSeo, pageMetadata } from "@/lib/seo/server";
+import { ORGANIZATION_ID, breadcrumbs, pageGraph, webPage } from "@/lib/seo/structured-data";
+import { absoluteUrl } from "@/lib/seo/server";
 import ArticlesList from "./ArticlesList";
 
-// Shared links use the site-wide share card with this title and description (see the root layout)
+// Title, description and keywords: /admin/seo → Pages → Blog
 export async function generateMetadata(): Promise<Metadata> {
-    const t = await getCopy();
-    return {
-        title: t("blog.seoTitle"),
-        description: t("blog.seoDescription"),
-        alternates: {
-            canonical: './',
-        },
-    };
+    return pageMetadata("articles");
 }
 
-export const revalidate = 0; // Helper for dynamic
-
 export default async function ArticlesPage() {
-    // Fetch articles on server
-    let articles: ArticleSerialized[] = [];
-    try {
-        const rawArticles = await getCollection<ArticleRaw>("articles");
-        // Sort by createdAt desc
-        articles = rawArticles.sort((a, b) => {
-            const dateA = getTimestampMs(a.createdAt);
-            const dateB = getTimestampMs(b.createdAt);
-            return dateB - dateA;
-        }).map((article) => ({
-            ...article,
-            // Serialize timestamps to numbers to pass to Client Component
-            createdAt: getTimestampMs(article.createdAt) || 0,
-            updatedAt: getTimestampMs(article.updatedAt) || null
-        }));
-    } catch (e) {
-        console.error("Failed to fetch articles server side", e);
-    }
-
-    const t = await getCopy();
+    // Published articles only (cached; refreshed when an article is published, edited or deleted)
+    const [articles, t, site] = await Promise.all([getPublicArticles(), getCopy(), getSiteSeo()]);
 
     return (
         <Page>
+            <JsonLd
+                data={pageGraph(
+                    webPage("Blog", "/articles", t("blog.title"), site.fill(site.seo.pages.articles.description), {
+                        publisher: { "@id": ORGANIZATION_ID },
+                        blogPost: (articles ?? []).slice(0, 20).map((article) => ({
+                            "@type": "BlogPosting",
+                            headline: article.title,
+                            url: absoluteUrl(`/articles/${article.id}`),
+                            datePublished: article.createdAt ? new Date(article.createdAt).toISOString() : undefined,
+                            description: article.summary || undefined,
+                        })),
+                    }),
+                    breadcrumbs([
+                        { name: t("nav.home"), path: "/" },
+                        { name: t("blog.title"), path: "/articles" },
+                    ])
+                )}
+            />
             <PageHeader
                 title={t("blog.title")}
                 description={t("blog.description")}
@@ -55,9 +48,9 @@ export default async function ArticlesPage() {
                     </ButtonLink>
                 }
             />
-            {/* An empty server result can also mean the read failed, so the list then loads on the
-                client (skeleton first) instead of flashing "no articles" */}
-            <ArticlesList initialArticles={articles.length > 0 ? articles : undefined} />
+            {/* Without server data (read failed) the list loads on the client (skeleton first)
+                instead of flashing "no articles" */}
+            <ArticlesList initialArticles={articles && articles.length > 0 ? articles : undefined} />
         </Page>
     );
 }

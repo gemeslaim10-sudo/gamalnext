@@ -1,40 +1,17 @@
-import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { ArrowRight } from "lucide-react";
-import { db } from "@/lib/firebase";
+import { getPublicArticles } from "@/lib/content/server";
 import { ButtonLink, Section } from "@/components/ui";
 import { getCopy } from "@/lib/copy/server";
 import { cn } from "@/lib/utils";
 import { ArticleCard, hasAnyCover } from "./ArticleCard";
-import type { ArticleSerialized, ArticleRaw } from "@/types";
-import { getTimestampMs } from "@/types";
-
-export const revalidate = 3600; // Revalidate every hour
+import type { ArticleSerialized } from "@/types";
 
 /** Phones show the first few cards; the rest appear from the 2-column breakpoint up. */
 const PHONE_LIMIT = 3;
 
+/** The six newest published articles (articles waiting for review stay out). */
 async function getTrendingArticles(): Promise<ArticleSerialized[]> {
-    try {
-        const q = query(
-            collection(db, "articles"),
-            orderBy("createdAt", "desc"),
-            limit(6)
-        );
-        const snap = await getDocs(q);
-        return snap.docs.map(d => {
-            const data = d.data() as Omit<ArticleRaw, 'id'>;
-            return {
-                id: d.id,
-                ...data,
-                // Serialize all timestamps
-                createdAt: getTimestampMs(data.createdAt) || Date.now(),
-                updatedAt: getTimestampMs(data.updatedAt) || null
-            };
-        });
-    } catch (e) {
-        console.error("Error fetching trending articles:", e);
-        return [];
-    }
+    return ((await getPublicArticles()) ?? []).slice(0, 6);
 }
 
 /** "Latest articles" on the profile page. Title and link text: /admin/copy → Profile page. */

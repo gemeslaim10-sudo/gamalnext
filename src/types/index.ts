@@ -28,6 +28,8 @@ export interface ArticleRaw {
     authorId: string;
     authorName?: string;
     tags?: string[];
+    /** "pending" while waiting for review; missing or "published" = public */
+    status?: string;
 }
 /** Serialized article (timestamps converted to numbers for client components) */
 export interface ArticleSerialized {
@@ -96,23 +98,6 @@ export interface UserProfile {
     bio?: string;
     lastLoginAt?: FirebaseTimestamp;
     createdAt?: FirebaseTimestamp;
-}
-// ── Chat Types ──────────────────────────────────────────────────────────────
-export interface ChatMessage {
-    id: string;
-    text: string;
-    sender: 'user' | 'assistant' | 'ai';
-    timestamp: FirebaseTimestamp;
-}
-export interface ChatSession {
-    id: string;
-    userName?: string;
-    userEmail?: string;
-    lastMessage?: string;
-    lastMessageAt: FirebaseTimestamp;
-    messageCount?: number;
-    startedAt?: FirebaseTimestamp;
-    userContext?: Record<string, unknown>;
 }
 // ── Branding ────────────────────────────────────────────────────────────────
 export interface BrandingSettings {

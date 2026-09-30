@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { cloudinaryLoader, isCloudinaryImage } from "@/lib/cloudinary-loader";
 
 interface AvatarProps {
     src?: string | null;
@@ -21,7 +22,12 @@ export function Avatar({ src, alt, size = 40, className, priority }: AvatarProps
             style={{ width: size, height: size }}
         >
             {src ? (
-                <Image src={src} alt={alt} fill sizes={`${size}px`} className="object-cover" priority={priority} />
+                // Cloudinary photos come straight from Cloudinary at twice the display size (sharp on retina screens)
+                isCloudinaryImage(src) ? (
+                    <Image src={cloudinaryLoader({ src, width: size * 2 })} alt={alt} fill unoptimized className="object-cover" priority={priority} />
+                ) : (
+                    <Image src={src} alt={alt} fill sizes={`${size}px`} className="object-cover" priority={priority} />
+                )
             ) : (
                 <User aria-hidden style={{ width: size * 0.5, height: size * 0.5 }} />
             )}

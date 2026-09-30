@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useCopy } from '@/components/providers/CopyProvider';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { loadFirestore } from '@/lib/firebase-app';
+import { reportEvent } from '@/lib/reportEvent';
 import { Star } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Button, Card, Field, Skeleton, Textarea } from '@/components/ui';
@@ -34,7 +34,8 @@ export default function AddReview({ onAdded }: { onAdded?: () => void }) {
 
         setLoading(true);
         try {
-            await addDoc(collection(db, "reviews"), {
+            const { db, addDoc, collection, serverTimestamp } = await loadFirestore();
+            const reviewRef = await addDoc(collection(db, "reviews"), {
                 uid: user.uid,
                 userId: user.uid, // required by the reviews security rule
                 userName: user.displayName || t("profile.reviewAnonymous"),
@@ -45,6 +46,8 @@ export default function AddReview({ onAdded }: { onAdded?: () => void }) {
                 createdAt: serverTimestamp(),
                 isGuest: false
             });
+            // Waiting for approval: the owner can get an email about it
+            reportEvent({ event: "review.pending", id: reviewRef.id });
             toast.success(t("profile.reviewSuccess"));
             setComment("");
             setRating(5);

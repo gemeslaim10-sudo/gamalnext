@@ -1,28 +1,9 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { Analytics, getAnalytics, isSupported } from "firebase/analytics";
+import { app, auth } from "./firebase-app";
 
-const firebaseConfig = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
-};
-
-// Debug logging only in development
-if (process.env.NODE_ENV === 'development') {
-    console.log("🔥 Firebase Config:", firebaseConfig.projectId ? "Loaded" : "MISSING");
-}
-
-
-// Initialize Firebase (Singleton pattern)
-
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
+// Browser code that only needs sign-in should import from "@/lib/firebase-app" instead: this
+// module pulls in Firestore. Server code (cached reads) uses it freely.
 const db = getFirestore(app);
 
 // Analytics: lazy singleton pattern to avoid async export race condition.

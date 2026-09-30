@@ -2,12 +2,12 @@
 
 import { useId, type ReactNode } from "react";
 import { SectionCard } from "@/components/admin/SectionCard";
-import { Field, Input, Textarea } from "@/components/ui";
+import { Field, Input, Label, Switch, Textarea } from "@/components/ui";
 import type { PricingSectionText } from "@/lib/pricing/types";
 import { cn } from "@/lib/utils";
 
-// Small controlled inputs used across the pricing editor. Content is typed in English,
-// Arabic is fine too: text inputs pick their direction from what's typed (dir="auto").
+// Small controlled inputs used across the pricing editors. The page content is written in English
+// (Arabic works too): text inputs pick their direction from what's typed (dir="auto").
 
 interface TextFieldProps {
     label: ReactNode;
@@ -34,7 +34,7 @@ export function TextField({ label, value, onChange, hint, placeholder, rows, typ
                     value={value}
                     placeholder={placeholder}
                     onChange={(e) => onChange(e.target.value)}
-                    className="min-h-0"
+                    className="min-h-0 resize-y"
                 />
             ) : (
                 <Input
@@ -91,42 +91,39 @@ interface ToggleFieldProps {
     className?: string;
 }
 
-/** Checkbox with its label and an optional hint; the whole row is clickable. */
+/** An on/off switch with its label and an optional hint (clicking the label toggles it too). */
 export function ToggleField({ label, checked, onChange, hint, className }: ToggleFieldProps) {
+    const id = useId();
     return (
-        <label className={cn("flex min-h-10 cursor-pointer items-start gap-3 py-1", className)}>
-            <input
-                type="checkbox"
-                checked={checked}
-                onChange={(e) => onChange(e.target.checked)}
-                className="mt-0.5 size-4 shrink-0 cursor-pointer accent-foreground"
-            />
-            <span className="min-w-0">
-                <span className="block text-sm font-medium text-foreground">{label}</span>
-                {hint && <span className="mt-0.5 block text-xs text-subtle">{hint}</span>}
-            </span>
-        </label>
+        <div className={cn("flex min-h-10 items-start justify-between gap-4 py-1", className)}>
+            <div className="min-w-0">
+                <Label htmlFor={id} className="cursor-pointer">
+                    {label}
+                </Label>
+                {hint && <p className="mt-0.5 text-xs text-subtle">{hint}</p>}
+            </div>
+            <Switch id={id} checked={checked} onCheckedChange={onChange} className="mt-0.5" />
+        </div>
     );
 }
 
 interface SectionTextCardProps {
-    title: ReactNode;
     value: PricingSectionText;
     onChange: (value: PricingSectionText) => void;
 }
 
-/** Title + description of one section of the public page. */
-export function SectionTextCard({ title, value, onChange }: SectionTextCardProps) {
+/** Title + description shown above a section of the public page. */
+export function SectionTextCard({ value, onChange }: SectionTextCardProps) {
     return (
-        <SectionCard title={title} description="يظهر فوق القسم في صفحة الأسعار. امسح العنوان لإخفاء العنوان والوصف معًا.">
+        <SectionCard title="عنوان القسم في الصفحة" description="بيظهر فوق القسم. لو مسحت العنوان، العنوان والوصف يختفوا مع بعض.">
             <div className="space-y-4">
-                <TextField label="عنوان القسم" value={value.title} onChange={(next) => onChange({ ...value, title: next })} />
+                <TextField label="العنوان" value={value.title} onChange={(title) => onChange({ ...value, title })} />
                 <TextField
-                    label="وصف القسم"
+                    label="الوصف"
                     rows={2}
                     value={value.description}
-                    onChange={(next) => onChange({ ...value, description: next })}
-                    hint="اختياري"
+                    onChange={(description) => onChange({ ...value, description })}
+                    hint="اختياري."
                 />
             </div>
         </SectionCard>
