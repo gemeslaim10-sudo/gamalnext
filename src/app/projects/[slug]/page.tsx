@@ -1,6 +1,9 @@
 import { cache } from "react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowRight } from "lucide-react";
+import { servicesFor } from "@/lib/services/server";
 import { Page } from "@/components/ui";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getCopy } from "@/lib/copy/server";
@@ -50,6 +53,20 @@ const getProjectData = cache(async (slug: string) => {
     return { project, allProjects: projects };
 });
 
+/**
+ * Search description of a project without one: only what the project data says (its name and
+ * technologies), so every project page has its own description instead of the generic one.
+ */
+function factualDescription(project: Project, name: string, businessName: string, ownerName: string) {
+    const tech = String(project.tags || "")
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+        .slice(0, 4);
+    const built = tech.length > 1 ? `, built with ${tech.slice(0, -1).join(", ")} and ${tech.at(-1)}` : tech.length === 1 ? `, built with ${tech[0]}` : "";
+    return excerpt(`${name}: a project by ${businessName} (${ownerName})${built}. Screenshots and details of the work.`);
+}
+
 /** First `max` characters of a text on one line, for the search description. */
 function excerpt(text: string, max = 160) {
     const flat = text.replace(/\s+/g, " ").trim();
@@ -69,7 +86,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     return {
         title: name,
-        description: project.description ? excerpt(String(project.description)) : site.fill(site.seo.pages.projects.description),
+        description: project.description ? excerpt(String(project.description)) : factualDescription(project, name, site.businessName, site.ownerName),
         ...(project.tags ? { keywords: String(project.tags).split(",").map((tag) => tag.trim()).filter(Boolean) } : {}),
         // One address per project, whichever link was followed (old feed links used the position)
         alternates: { canonical: `/projects/${projectSlug(project)}` },
@@ -102,6 +119,18 @@ export default async function ProjectDetailsPage({ params }: Props) {
     const galleries = projectGalleries(allProjects);
     const current = galleries.findIndex((gallery) => gallery.href === path);
     const sequence = current >= 0 ? { groups: galleries, current } : undefined;
+
+    // Case study sections (only the ones written in the dashboard) and the matching service pages
+    const features = String(project.features || "")
+        .split("\n")
+        .map((line) => line.replace(/^\s*[-*•]\s*/, "").trim())
+        .filter(Boolean);
+    const caseStudy = [
+        { title: t("projects.challengeTitle"), text: String(project.challenge || "").trim() },
+        { title: t("projects.solutionTitle"), text: String(project.solution || "").trim() },
+    ].filter((part) => part.text);
+    const results = String(project.results || "").trim();
+    const services = await servicesFor("projects", [title, project.tags, project.category, project.description]);
     const jsonLd = pageGraph(
         {
             "@type": "CreativeWork",
@@ -114,6 +143,8 @@ export default async function ProjectDetailsPage({ params }: Props) {
             genre: project.category ? String(project.category) : undefined,
             creator: { "@id": ORGANIZATION_ID },
             publisher: { "@id": ORGANIZATION_ID },
+            // The services this project shows (their pages describe them)
+            about: services.map((service) => ({ "@id": `${absoluteUrl(service.href)}#service` })),
             sameAs: typeof project.link === "string" && /^https?:\/\//.test(project.link) ? project.link : undefined,
             inLanguage: "en",
         },
@@ -149,6 +180,54 @@ export default async function ProjectDetailsPage({ params }: Props) {
                             >
                                 {project.description}
                             </p>
+                        </section>
+                    )}
+
+                    {caseStudy.map((part) => (
+                        <section key={part.title} className="max-w-content">
+                            <h2 className="text-base font-semibold text-foreground">{part.title}</h2>
+                            <p style={textDirStyle(part.text)} className="mt-2 whitespace-pre-line break-words text-[15px] leading-7 text-muted">
+                                {part.text}
+                            </p>
+                        </section>
+                    ))}
+
+                    {features.length > 0 && (
+                        <section className="max-w-content">
+                            <h2 className="text-base font-semibold text-foreground">{t("projects.featuresTitle")}</h2>
+                            <ul className="mt-2 list-disc space-y-1 ps-5 text-[15px] leading-7 text-muted">
+                                {features.map((feature) => (
+                                    <li key={feature} style={textDirStyle(feature)}>
+                                        {feature}
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    )}
+
+                    {results && (
+                        <section className="max-w-content">
+                            <h2 className="text-base font-semibold text-foreground">{t("projects.resultsTitle")}</h2>
+                            <p style={textDirStyle(results)} className="mt-2 whitespace-pre-line break-words text-[15px] leading-7 text-muted">
+                                {results}
+                            </p>
+                        </section>
+                    )}
+
+                    {services.length > 0 && (
+                        <section className="max-w-content rounded-card border border-border bg-surface p-5">
+                            <h2 className="text-base font-semibold text-foreground">{t("projects.relatedServices")}</h2>
+                            <ul className="mt-3 space-y-3">
+                                {services.map((service) => (
+                                    <li key={service.href}>
+                                        <Link href={service.href} className="group inline-flex items-center gap-1.5 font-medium text-foreground hover:underline hover:underline-offset-4">
+                                            {service.name}
+                                            <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
+                                        </Link>
+                                        {service.summary && <p className="mt-0.5 text-sm leading-relaxed text-muted">{service.summary}</p>}
+                                    </li>
+                                ))}
+                            </ul>
                         </section>
                     )}
                 </div>

@@ -95,7 +95,7 @@ function pagePart(id: SeoPageId): SeoPartSpec<SeoPage> {
 export const SEO_PARTS = {
     basics: topLevelPart(["siteTitle", "titleTemplate", "description", "keywords"]),
     sharing: topLevelPart(["shareSiteName", "shareTagline", "twitterHandle"]),
-    identity: businessPart(["name", "alternateNames", "summary", "founderName", "foundingYear"]),
+    identity: businessPart(["name", "alternateNames", "summary", "founderName", "founderAlternateNames", "foundingYear"]),
     contact: businessPart(["phone", "whatsapp", "email"]),
     address: businessPart(["streetAddress", "city", "region", "postalCode", "country", "areaServed", "languages", "mapUrl"]),
     hours: businessPart(["openingHours", "priceRange"]),

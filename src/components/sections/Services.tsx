@@ -14,7 +14,7 @@ export default async function Services() {
 
     return (
         <Section id="services" title={t('profile.servicesTitle')} description={t('profile.servicesDescription')}>
-            <MainSkillsGrid skills={services} />
+            <MainSkillsGrid skills={services} learnMore={t("skills.learnMore")} />
         </Section>
     );
 }

@@ -57,6 +57,13 @@ export default function SeoIdentityEditor() {
                                 hint="فاضي = اسمك من الإعدادات."
                             />
                             <TextField
+                                label="أسماء تانية ليك"
+                                value={draft.founderAlternateNames}
+                                onChange={(founderAlternateNames) => part.set({ founderAlternateNames })}
+                                hint="اسمك بالعربي، والاسم اللي على LinkedIn أو أي اسم بيدوّروا عليك بيه، مفصولين بفاصلة (,). بيعرّف جوجل إنهم كلهم نفس الشخص صاحب GTech."
+                                className="sm:col-span-2"
+                            />
+                            <TextField
                                 label="سنة التأسيس"
                                 dir="ltr"
                                 inputMode="numeric"

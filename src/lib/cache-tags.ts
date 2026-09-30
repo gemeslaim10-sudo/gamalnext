@@ -21,6 +21,8 @@ export const CACHE_TAGS = {
     feed: "feed",
     /** Public member profiles (/users/…) */
     members: "members",
+    /** Service pages (/services/…, /ar/services/…) */
+    services: "services",
 } as const;
 
 export type CacheTag = (typeof CACHE_TAGS)[keyof typeof CACHE_TAGS];

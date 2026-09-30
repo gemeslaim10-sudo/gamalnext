@@ -1,0 +1,985 @@
+{
+  "index": {
+    "en": {
+      "seoTitle": "Software Development Services: ERP, CRM, Web & Shopify",
+      "seoDescription": "GTech, run by Gamal Abdelaty in Cairo: business analysis, custom ERP and CRM development, custom software, company websites and Shopify development.",
+      "h1": "Business software, websites and Shopify development",
+      "intro": "GTech is a software studio in Cairo, Egypt, run by Gamal Abdelaty. We start by understanding how your business works, then build the system or website that fits it: from a focused CRM to a full ERP, a web application, a company website or a Shopify store."
+    },
+    "ar": {
+      "seoTitle": "خدمات برمجة الأنظمة والمواقع في مصر: ERP وCRM وبرامج الشركات",
+      "seoDescription": "GTech بإدارة جمال عبد العاطي في القاهرة تقدم تحليل الأعمال وبرمجة أنظمة ERP وCRM المخصصة وتطبيقات الويب ومواقع الشركات ومتاجر Shopify.",
+      "h1": "برمجة أنظمة الشركات والمواقع ومتاجر Shopify",
+      "intro": "GTech استوديو برمجيات في القاهرة يديره جمال عبد العاطي. نبدأ بفهم طريقة عمل شركتك، ثم نبني النظام أو الموقع المناسب لها: من نظام CRM لمتابعة العملاء إلى نظام ERP متكامل، أو تطبيق ويب، أو موقع شركة، أو متجر على Shopify."
+    }
+  },
+  "labels": {
+    "en": {
+      "home": "Home",
+      "services": "Services",
+      "startingFrom": "Starting prices",
+      "priceFrom": "From",
+      "allPrices": "See all prices",
+      "relatedProjects": "Related projects",
+      "relatedArticles": "Further reading",
+      "otherServices": "Other services",
+      "ctaButton": "Tell us about your project",
+      "contactLink": "Other ways to reach us",
+      "learnMore": "Learn more",
+      "otherLanguage": "اقرأ هذه الصفحة بالعربية"
+    },
+    "ar": {
+      "home": "الرئيسية",
+      "services": "الخدمات",
+      "startingFrom": "الأسعار المبدئية",
+      "priceFrom": "يبدأ من",
+      "allPrices": "كل الأسعار",
+      "relatedProjects": "مشاريع ذات صلة",
+      "relatedArticles": "مقالات مفيدة",
+      "otherServices": "خدمات أخرى",
+      "ctaButton": "احكِ لنا عن مشروعك",
+      "contactLink": "طرق تواصل أخرى",
+      "learnMore": "اعرف المزيد",
+      "otherLanguage": "Read this page in English"
+    }
+  },
+  "items": [
+    {
+      "slug": "custom-erp-development",
+      "visible": true,
+      "pricingIds": [
+        "erp-systems",
+        "business-analysis"
+      ],
+      "projectKeywords": "ERP, inventory, accounting, warehouse",
+      "articleKeywords": "ERP, Operations",
+      "en": {
+        "name": "Custom ERP development",
+        "summary": "One system for inventory, sales, purchasing and accounting, built around the way your company works.",
+        "seoTitle": "Custom ERP Development in Egypt",
+        "seoDescription": "Custom ERP systems for companies in Egypt: inventory, sales, purchasing, accounting and reports in one system, built in modules after a business analysis.",
+        "h1": "Custom ERP development for growing companies",
+        "intro": "A custom ERP is one system that connects the parts of your company that usually live in separate spreadsheets: inventory, sales, purchasing, accounting and the reports that tie them together. Instead of adapting your processes to a generic package, the system is designed around how your business already works, and around what it needs to change.\n\nGTech starts every ERP project with business analysis, then builds and launches the system in modules: usually the process that hurts most first, such as inventory and sales, then the rest step by step.",
+        "audienceTitle": "Is a custom ERP right for you?",
+        "audience": [
+          "Trading, distribution and manufacturing companies managing stock across teams or branches",
+          "Companies whose processes don't fit ready-made ERP packages",
+          "Businesses that have outgrown spreadsheets and disconnected tools",
+          "Owners who want live numbers instead of month-end surprises"
+        ],
+        "problemsTitle": "Signs your company needs an ERP",
+        "problems": [
+          "Nobody knows the real stock levels until the month-end count",
+          "Sales orders, invoices and purchase orders are typed more than once",
+          "Each department keeps its own numbers, and they never match",
+          "Reports take days to prepare and are already outdated when they arrive"
+        ],
+        "includesTitle": "What a GTech ERP can include",
+        "includes": [
+          "Inventory and warehouses: items, stock movements, transfers and low-stock alerts",
+          "Sales and customers: quotations, orders, invoices and returns",
+          "Purchasing and suppliers: requests, approvals and purchase orders",
+          "Links to accounting: receivables, payables and financial summaries",
+          "Roles and permissions for every team, with a full activity history",
+          "Dashboards and reports built from your real data, in Arabic and English"
+        ],
+        "processTitle": "How we build your ERP",
+        "process": [
+          {
+            "title": "Business analysis",
+            "text": "We map your processes, who owns each piece of data and the reports you need, and agree on what the first phase must achieve."
+          },
+          {
+            "title": "Design",
+            "text": "Screens and workflows are reviewed with the people who will use them, before development starts."
+          },
+          {
+            "title": "Build in modules",
+            "text": "Each module is built, tested and launched on its own, starting with the one that hurts most."
+          },
+          {
+            "title": "Data migration",
+            "text": "We move the data that matters, such as open balances, active items and customers, and check it with you."
+          },
+          {
+            "title": "Training and support",
+            "text": "Your team is trained on real tasks, and we stay available after launch as the business grows."
+          }
+        ],
+        "faqTitle": "Custom ERP questions",
+        "faqs": [
+          {
+            "question": "What is a custom ERP system?",
+            "answer": "A custom ERP is enterprise resource planning software designed for one company's processes. It connects inventory, sales, purchasing, accounting and reports in one system, instead of forcing the company to adapt to a generic package."
+          },
+          {
+            "question": "Should I choose a custom ERP or a ready-made ERP?",
+            "answer": "Ready-made ERPs are quick to start but make you adapt to their workflows. A custom ERP fits your processes and grows with you, but it needs clear requirements. If your processes are standard, a ready-made package may be enough, and we'll tell you honestly after the analysis."
+          },
+          {
+            "question": "How much does custom ERP development cost?",
+            "answer": "It depends on the modules, the number of users and how complex your processes are. The starting price is shown on this page; after a short analysis we send a fixed quote for the first phase."
+          },
+          {
+            "question": "Can the ERP work in Arabic?",
+            "answer": "Yes. The system can be built in Arabic, English or both, with right-to-left screens for Arabic."
+          },
+          {
+            "question": "Can we start with a small part of the ERP?",
+            "answer": "Yes, and we recommend it. Most companies start with inventory and sales, then add purchasing, accounting and reports as separate modules."
+          }
+        ],
+        "ctaTitle": "Planning an ERP for your company?",
+        "ctaText": "Tell us what your company does and which process causes the most trouble today. We'll suggest a first phase and send you a clear quote."
+      },
+      "ar": {
+        "name": "برمجة نظام ERP مخصص",
+        "summary": "نظام واحد للمخزون والمبيعات والمشتريات والحسابات، مصمم حسب طريقة عمل شركتك.",
+        "seoTitle": "برمجة نظام ERP مخصص للشركات في مصر",
+        "seoDescription": "نصمم ونبرمج أنظمة ERP مخصصة للشركات في مصر: المخزون والمبيعات والمشتريات والحسابات والتقارير في نظام واحد، على مراحل وبعد تحليل كامل لطريقة عملك.",
+        "h1": "برمجة نظام ERP مخصص لشركتك",
+        "intro": "نظام ERP المخصص هو نظام واحد يربط أجزاء شركتك التي تعيش عادة في ملفات Excel منفصلة: المخزون والمبيعات والمشتريات والحسابات والتقارير التي تجمعها. وبدلًا من أن تغيّر طريقة عملك لتناسب برنامجًا جاهزًا، يُصمم النظام حول طريقة عمل شركتك الفعلية وما تحتاج إلى تطويره.\n\nنبدأ كل مشروع ERP في GTech بتحليل الأعمال، ثم نبني النظام ونطلقه على مراحل: غالبًا نبدأ بالجزء الأكثر إزعاجًا مثل المخزون والمبيعات، ثم نضيف الباقي خطوة بخطوة.",
+        "audienceTitle": "هل يناسب شركتك نظام ERP مخصص؟",
+        "audience": [
+          "شركات التجارة والتوزيع والتصنيع التي تدير مخزونًا بين عدة فرق أو فروع",
+          "شركات لا تناسب إجراءاتها أنظمة ERP الجاهزة",
+          "شركات تجاوزت مرحلة ملفات Excel والبرامج المتفرقة",
+          "أصحاب شركات يريدون أرقامًا لحظية بدل مفاجآت آخر الشهر"
+        ],
+        "problemsTitle": "علامات تقول إن شركتك تحتاج نظام ERP",
+        "problems": [
+          "لا أحد يعرف رصيد المخزون الحقيقي إلا بعد الجرد",
+          "أوامر البيع والفواتير وأوامر الشراء تُكتب أكثر من مرة",
+          "كل قسم له أرقامه الخاصة ولا تتطابق أبدًا",
+          "إعداد التقارير يستغرق أيامًا وتكون قديمة عند وصولها"
+        ],
+        "includesTitle": "ماذا يمكن أن يشمل نظام ERP من GTech؟",
+        "includes": [
+          "المخزون والمخازن: الأصناف والحركات والتحويلات وتنبيهات الحد الأدنى",
+          "المبيعات والعملاء: عروض الأسعار والطلبات والفواتير والمرتجعات",
+          "المشتريات والموردين: الطلبات والموافقات وأوامر الشراء",
+          "الربط مع الحسابات: المستحقات والمدفوعات والملخصات المالية",
+          "صلاحيات لكل فريق وسجل كامل للعمليات",
+          "لوحات متابعة وتقارير من بياناتك الحقيقية بالعربي والإنجليزي"
+        ],
+        "processTitle": "كيف نبني نظام ERP لشركتك؟",
+        "process": [
+          {
+            "title": "تحليل الأعمال",
+            "text": "نرسم إجراءاتك ونحدد المسؤول عن كل بيان والتقارير المطلوبة، ونتفق على هدف المرحلة الأولى."
+          },
+          {
+            "title": "التصميم",
+            "text": "نراجع الشاشات وخطوات العمل مع المستخدمين الفعليين قبل بدء البرمجة."
+          },
+          {
+            "title": "البناء على مراحل",
+            "text": "نبني كل وحدة ونختبرها ونطلقها وحدها، ونبدأ بالأكثر أهمية."
+          },
+          {
+            "title": "نقل البيانات",
+            "text": "ننقل البيانات المهمة مثل الأرصدة المفتوحة والأصناف النشطة والعملاء، ونراجعها معك."
+          },
+          {
+            "title": "التدريب والدعم",
+            "text": "ندرب فريقك على مهام حقيقية، ونبقى معك بعد الإطلاق مع نمو شركتك."
+          }
+        ],
+        "faqTitle": "أسئلة عن برمجة نظام ERP",
+        "faqs": [
+          {
+            "question": "ما هو نظام ERP المخصص؟",
+            "answer": "هو نظام لتخطيط موارد المؤسسة مصمم لإجراءات شركة واحدة، يربط المخزون والمبيعات والمشتريات والحسابات والتقارير في نظام واحد، بدل أن تضطر الشركة للتكيف مع برنامج جاهز."
+          },
+          {
+            "question": "هل أختار نظام ERP مخصصًا أم نظامًا جاهزًا؟",
+            "answer": "الأنظمة الجاهزة أسرع في البداية لكنها تفرض عليك طريقة عملها. أما النظام المخصص فيناسب إجراءاتك وينمو معك، لكنه يحتاج متطلبات واضحة. إذا كانت إجراءاتك تقليدية فقد يكفيك نظام جاهز، وسنخبرك بصراحة بعد التحليل."
+          },
+          {
+            "question": "كم تكلفة برمجة نظام ERP؟",
+            "answer": "تعتمد على الوحدات المطلوبة وعدد المستخدمين ومدى تعقيد الإجراءات. السعر المبدئي موضح في هذه الصفحة، وبعد تحليل قصير نرسل لك عرض سعر ثابتًا للمرحلة الأولى."
+          },
+          {
+            "question": "هل يعمل نظام ERP باللغة العربية؟",
+            "answer": "نعم، يمكن بناء النظام بالعربية أو الإنجليزية أو باللغتين، مع شاشات من اليمين لليسار للعربية."
+          },
+          {
+            "question": "هل يمكن أن نبدأ بجزء صغير من النظام؟",
+            "answer": "نعم، وهذا ما ننصح به. أغلب الشركات تبدأ بالمخزون والمبيعات، ثم تضيف المشتريات والحسابات والتقارير كوحدات لاحقة."
+          }
+        ],
+        "ctaTitle": "تفكر في نظام ERP لشركتك؟",
+        "ctaText": "اكتب لنا نشاط شركتك وأكثر عملية تسبب مشكلات اليوم، وسنقترح عليك مرحلة أولى ونرسل لك عرض سعر واضحًا."
+      }
+    },
+    {
+      "slug": "crm-development",
+      "visible": true,
+      "pricingIds": [
+        "crm-systems",
+        "whatsapp-api"
+      ],
+      "projectKeywords": "CRM, leads, customers, pipeline",
+      "articleKeywords": "CRM, Sales",
+      "en": {
+        "name": "CRM development",
+        "summary": "Customers, leads, deals and follow-ups in one place, built around the way your team sells.",
+        "seoTitle": "Custom CRM Development in Egypt",
+        "seoDescription": "Custom CRM systems for sales teams: one pipeline for leads and deals, full customer history, follow-up reminders, and leads from your website and WhatsApp.",
+        "h1": "Custom CRM development for sales teams",
+        "intro": "A CRM (customer relationship management system) keeps every lead, customer, conversation and deal in one place, so your team always knows who to call, what was promised and what happens next. A custom CRM is built around your own sales stages, fields and approvals, which makes it easier for the team to use from the first day.\n\nGTech builds CRMs that connect to where your leads really come from, such as your website forms and WhatsApp, and turns the follow-ups your team does from memory into reminders and reports.",
+        "audienceTitle": "Who a custom CRM is for",
+        "audience": [
+          "Sales teams tracking leads in Excel, notebooks or personal WhatsApp chats",
+          "Companies whose sales process makes off-the-shelf CRMs complicated",
+          "Managers who want a live pipeline instead of weekly status meetings",
+          "Businesses that lose customers when a salesperson leaves"
+        ],
+        "problemsTitle": "Problems a CRM fixes",
+        "problems": [
+          "Leads arrive from many places, and some are never followed up",
+          "Nobody knows who spoke to a customer last or what was offered",
+          "The same customer is saved several times with different spellings and numbers",
+          "Simple questions, such as how many leads came in this month and from where, take hours to answer"
+        ],
+        "includesTitle": "What your CRM can include",
+        "includes": [
+          "A sales pipeline with your own stages and deal values",
+          "A record for every customer: calls, messages, notes, quotes and files",
+          "Follow-up reminders and tasks, so no lead waits too long",
+          "Lead capture from your website forms and WhatsApp",
+          "Roles for sales, managers and support",
+          "Reports on lead sources, conversion rates and expected revenue"
+        ],
+        "processTitle": "How we build your CRM",
+        "process": [
+          {
+            "title": "Map your sales process",
+            "text": "We document your stages, fields and approvals as they really are today."
+          },
+          {
+            "title": "Clean and import",
+            "text": "We merge duplicates and import the customers and open deals worth keeping."
+          },
+          {
+            "title": "Launch the essentials",
+            "text": "The pipeline, customer history and reminders go live first: the parts your team feels on day one."
+          },
+          {
+            "title": "Connect and automate",
+            "text": "Website forms, WhatsApp and reports are added once the team is comfortable with the system."
+          }
+        ],
+        "faqTitle": "CRM questions",
+        "faqs": [
+          {
+            "question": "What is a CRM system?",
+            "answer": "A CRM (customer relationship management) system stores every lead and customer with their full history, including calls, messages, quotes and deals, and helps a sales team follow up on time and see its pipeline at a glance."
+          },
+          {
+            "question": "Why build a custom CRM instead of using a ready-made one?",
+            "answer": "Ready-made CRMs are built for everyone, so teams often pay for features they don't use and adapt to workflows they didn't choose. A custom CRM follows your own stages and fields, which usually makes it easier for the team to adopt."
+          },
+          {
+            "question": "Can the CRM connect to WhatsApp?",
+            "answer": "Yes. Leads and messages can come in through the WhatsApp Business API, and your website forms can create new leads automatically."
+          },
+          {
+            "question": "Can ERP and CRM be one system?",
+            "answer": "Yes. Many companies start with a CRM for sales and later add ERP modules such as inventory and invoicing to the same system, or the other way around."
+          }
+        ],
+        "ctaTitle": "Losing track of your leads?",
+        "ctaText": "Tell us how your team sells today: where leads come from and how you follow up. We'll suggest the smallest CRM that fixes it."
+      },
+      "ar": {
+        "name": "برمجة نظام CRM",
+        "summary": "العملاء والفرص والصفقات والمتابعات في مكان واحد، مصمم حسب طريقة بيع فريقك.",
+        "seoTitle": "برمجة نظام CRM مخصص لإدارة العملاء في مصر",
+        "seoDescription": "نبرمج أنظمة CRM مخصصة لإدارة العملاء: مسار مبيعات واحد لكل الفرص والصفقات، وسجل كامل لكل عميل، وتذكيرات متابعة، واستقبال العملاء من موقعك وواتساب، وتقارير مبيعات.",
+        "h1": "برمجة نظام CRM مخصص لإدارة العملاء",
+        "intro": "نظام CRM (إدارة علاقات العملاء) يجمع كل عميل محتمل وكل عميل وكل محادثة وكل صفقة في مكان واحد، فيعرف فريقك دائمًا بمن يتصل، وماذا وعد، وما الخطوة التالية. والنظام المخصص يُبنى حول مراحل البيع والحقول والموافقات الخاصة بشركتك، فيستخدمه الفريق بسهولة من أول يوم.\n\nنبني في GTech أنظمة CRM مرتبطة بالمصادر الحقيقية لعملائك مثل نماذج موقعك وواتساب، ونحوّل المتابعات التي يعتمد فيها الفريق على الذاكرة إلى تذكيرات وتقارير.",
+        "audienceTitle": "لمن يناسب نظام CRM المخصص؟",
+        "audience": [
+          "فرق مبيعات تتابع العملاء في Excel أو الكشاكيل أو محادثات واتساب الشخصية",
+          "شركات لها طريقة بيع تجعل أنظمة CRM الجاهزة معقدة",
+          "مديرون يريدون متابعة المبيعات لحظيًا بدل الاجتماعات الأسبوعية",
+          "شركات تخسر عملاءها عندما يترك أحد موظفي المبيعات العمل"
+        ],
+        "problemsTitle": "مشكلات يحلها نظام CRM",
+        "problems": [
+          "العملاء يأتون من أماكن كثيرة وبعضهم لا يُتابع أبدًا",
+          "لا أحد يعرف من تحدث مع العميل آخر مرة أو ماذا عُرض عليه",
+          "نفس العميل مسجل أكثر من مرة بأسماء وأرقام مختلفة",
+          "أسئلة بسيطة مثل عدد العملاء هذا الشهر ومصدرهم تحتاج ساعات للإجابة"
+        ],
+        "includesTitle": "ماذا يمكن أن يشمل نظام CRM؟",
+        "includes": [
+          "مسار مبيعات بمراحلك أنت وقيمة كل صفقة",
+          "ملف لكل عميل فيه المكالمات والرسائل والملاحظات وعروض الأسعار والملفات",
+          "تذكيرات ومهام متابعة حتى لا ينتظر أي عميل طويلًا",
+          "استقبال العملاء من نماذج الموقع وواتساب",
+          "صلاحيات لفرق المبيعات والإدارة والدعم",
+          "تقارير عن مصادر العملاء ونسب التحويل والإيرادات المتوقعة"
+        ],
+        "processTitle": "كيف نبني نظام CRM لشركتك؟",
+        "process": [
+          {
+            "title": "رسم طريقة البيع",
+            "text": "نوثق مراحل البيع والحقول والموافقات كما هي في الواقع."
+          },
+          {
+            "title": "التنظيف والاستيراد",
+            "text": "ندمج العملاء المكررين ونستورد العملاء والصفقات المفتوحة التي تستحق الاحتفاظ بها."
+          },
+          {
+            "title": "إطلاق الأساسيات",
+            "text": "نطلق أولًا مسار المبيعات وسجل العملاء والتذكيرات، وهي الأجزاء التي يشعر بها الفريق من أول يوم."
+          },
+          {
+            "title": "الربط والأتمتة",
+            "text": "نضيف ربط الموقع وواتساب والتقارير بعد أن يعتاد الفريق على النظام."
+          }
+        ],
+        "faqTitle": "أسئلة عن أنظمة CRM",
+        "faqs": [
+          {
+            "question": "ما هو نظام CRM؟",
+            "answer": "نظام CRM أو نظام إدارة علاقات العملاء يحفظ كل عميل وعميل محتمل مع تاريخه الكامل من مكالمات ورسائل وعروض وصفقات، ويساعد فريق المبيعات على المتابعة في الوقت المناسب ورؤية كل الصفقات بنظرة واحدة."
+          },
+          {
+            "question": "لماذا أبرمج نظام CRM مخصصًا بدل استخدام نظام جاهز؟",
+            "answer": "الأنظمة الجاهزة مصممة للجميع، فيدفع الفريق غالبًا مقابل خصائص لا يستخدمها ويتكيف مع خطوات لم يخترها. أما النظام المخصص فيتبع مراحلك وحقولك، وهذا يجعل استخدامه أسهل عادة."
+          },
+          {
+            "question": "هل يمكن ربط نظام CRM بواتساب؟",
+            "answer": "نعم، يمكن استقبال العملاء والرسائل عبر WhatsApp Business API، ويمكن لنماذج موقعك إنشاء عملاء جدد تلقائيًا."
+          },
+          {
+            "question": "هل يمكن أن يكون ERP وCRM نظامًا واحدًا؟",
+            "answer": "نعم، كثير من الشركات تبدأ بنظام CRM للمبيعات ثم تضيف وحدات ERP مثل المخزون والفواتير لنفس النظام، أو العكس."
+          }
+        ],
+        "ctaTitle": "تفقد متابعة عملائك؟",
+        "ctaText": "اكتب لنا كيف يبيع فريقك اليوم، ومن أين يأتي العملاء وكيف تتابعونهم، وسنقترح عليك أبسط نظام CRM يحل المشكلة."
+      }
+    },
+    {
+      "slug": "custom-software-development",
+      "visible": true,
+      "pricingIds": [
+        "web-app",
+        "mobile-app",
+        "website-to-app",
+        "whatsapp-api",
+        "booking-system"
+      ],
+      "projectKeywords": "Dashboard, CMS, Supabase, Firebase, academy, booking",
+      "articleKeywords": "Digital Transformation, Requirements",
+      "en": {
+        "name": "Custom software development",
+        "summary": "Web applications, dashboards, internal tools and mobile apps built around your workflow.",
+        "seoTitle": "Custom Software & Web App Development in Egypt",
+        "seoDescription": "Custom business software: web applications, dashboards, internal tools, WhatsApp integrations and Android and iOS apps, built around your workflow.",
+        "h1": "Custom software and web applications for your business",
+        "intro": "Custom software is a system built for one specific way of working: a booking platform, an internal dashboard, a portal for your customers or a tool that replaces a tangle of spreadsheets. It does what your business needs and nothing it doesn't, and it grows with you instead of charging per user for features you never use.\n\nGTech builds web applications with modern TypeScript, with dashboards your team can manage, and can turn them into Android and iOS apps when you need them on the phone.",
+        "audienceTitle": "Typical custom software projects",
+        "audience": [
+          "Booking and scheduling systems for clinics, academies and service businesses",
+          "Internal dashboards and admin panels that replace spreadsheets",
+          "Customer or member portals with accounts and roles",
+          "WhatsApp Business API integrations for replies, alerts and order updates",
+          "Mobile apps for Android and iOS, or your existing website as an app"
+        ],
+        "problemsTitle": "When custom software makes sense",
+        "problems": [
+          "Your workflow doesn't fit any product you've tried",
+          "Your team copies the same data between several tools",
+          "You pay every month for software that covers a small part of what you need",
+          "Your idea is the product itself, so an off-the-shelf tool isn't an option"
+        ],
+        "includesTitle": "What's included",
+        "includes": [
+          "Requirements and screen designs reviewed with you before development",
+          "A secure web application with user accounts, roles and permissions",
+          "An admin dashboard to manage content, data and settings",
+          "Reports, exports and notifications where you need them",
+          "Deployment, hosting setup and a period of support after launch"
+        ],
+        "processTitle": "How we work",
+        "process": [
+          {
+            "title": "Understand",
+            "text": "We start from the problem and the people who will use the system, not from a feature list."
+          },
+          {
+            "title": "Design",
+            "text": "You review the main screens and flows before any code is written."
+          },
+          {
+            "title": "Build and review",
+            "text": "We build in short steps and show you working parts regularly, so feedback comes early."
+          },
+          {
+            "title": "Launch and support",
+            "text": "We deploy the system, train your team and stay available for fixes and the next improvements."
+          }
+        ],
+        "faqTitle": "Custom software questions",
+        "faqs": [
+          {
+            "question": "What is custom software development?",
+            "answer": "It is designing and building software for one organization's workflow, such as a booking system, a customer portal or an internal dashboard, instead of adapting the organization to a general-purpose product."
+          },
+          {
+            "question": "Should I choose custom software or a SaaS product?",
+            "answer": "A SaaS product is faster to start and fine when it fits. Custom software makes sense when your workflow is unusual, when you pay for several tools that don't work together, or when the software is your product. We'll recommend the simpler option when it fits."
+          },
+          {
+            "question": "Do you build mobile apps?",
+            "answer": "Yes. We can turn your web application or website into an Android and iOS app, or build a dedicated app for both platforms with a dashboard to manage it."
+          },
+          {
+            "question": "How long does a custom software project take?",
+            "answer": "It depends on the scope. We usually launch a focused first version, so you can start using it early and plan the next steps with real feedback."
+          }
+        ],
+        "ctaTitle": "Have a system in mind?",
+        "ctaText": "Describe what you want the software to do and who will use it. We'll reply with questions, a suggested first version and a starting estimate."
+      },
+      "ar": {
+        "name": "برمجة الأنظمة والبرامج المخصصة",
+        "summary": "تطبيقات ويب ولوحات تحكم وأدوات داخلية وتطبيقات موبايل مصممة حسب طريقة عملك.",
+        "seoTitle": "برمجة أنظمة وتطبيقات ويب مخصصة للشركات في مصر",
+        "seoDescription": "نبرمج أنظمة مخصصة للشركات: تطبيقات ويب ولوحات تحكم وأدوات داخلية وربط WhatsApp API وتطبيقات أندرويد وiOS، مصممة حول طريقة عملك مع صلاحيات وتقارير وتصدير.",
+        "h1": "برمجة أنظمة وتطبيقات مخصصة لشركتك",
+        "intro": "البرنامج المخصص هو نظام مبني لطريقة عمل محددة: منصة حجوزات، أو لوحة تحكم داخلية، أو بوابة لعملائك، أو أداة تستبدل مجموعة ملفات Excel متشابكة. هو يفعل ما يحتاجه عملك فقط، وينمو معك بدل أن تدفع اشتراكًا لكل مستخدم مقابل خصائص لا تستخدمها.\n\nنبني في GTech تطبيقات الويب بتقنيات TypeScript الحديثة مع لوحات تحكم يديرها فريقك، ويمكننا تحويلها إلى تطبيقات أندرويد وiOS عندما تحتاجها على الموبايل.",
+        "audienceTitle": "أمثلة على الأنظمة المخصصة",
+        "audience": [
+          "أنظمة حجز ومواعيد للعيادات والأكاديميات وشركات الخدمات",
+          "لوحات تحكم داخلية تستبدل ملفات Excel",
+          "بوابات للعملاء أو الأعضاء بحسابات وصلاحيات",
+          "ربط WhatsApp Business API للردود والتنبيهات وتحديثات الطلبات",
+          "تطبيقات موبايل أندرويد وiOS، أو تحويل موقعك الحالي إلى تطبيق"
+        ],
+        "problemsTitle": "متى يكون البرنامج المخصص هو الحل؟",
+        "problems": [
+          "طريقة عملك لا تناسب أي برنامج جربته",
+          "فريقك ينقل نفس البيانات بين أكثر من برنامج",
+          "تدفع شهريًا لبرنامج يغطي جزءًا صغيرًا مما تحتاجه",
+          "فكرتك هي المنتج نفسه، فلا يصلح لها برنامج جاهز"
+        ],
+        "includesTitle": "ماذا يشمل؟",
+        "includes": [
+          "متطلبات وتصميم شاشات نراجعها معك قبل البرمجة",
+          "تطبيق ويب آمن بحسابات مستخدمين وصلاحيات",
+          "لوحة تحكم لإدارة المحتوى والبيانات والإعدادات",
+          "تقارير وتصدير وإشعارات حيث تحتاجها",
+          "النشر وتجهيز الاستضافة وفترة دعم بعد الإطلاق"
+        ],
+        "processTitle": "طريقة العمل",
+        "process": [
+          {
+            "title": "الفهم",
+            "text": "نبدأ من المشكلة ومن الأشخاص الذين سيستخدمون النظام، لا من قائمة خصائص."
+          },
+          {
+            "title": "التصميم",
+            "text": "تراجع الشاشات والخطوات الأساسية قبل كتابة أي كود."
+          },
+          {
+            "title": "البناء والمراجعة",
+            "text": "نبني على خطوات قصيرة ونعرض عليك أجزاء تعمل بانتظام، فتصل ملاحظاتك مبكرًا."
+          },
+          {
+            "title": "الإطلاق والدعم",
+            "text": "ننشر النظام وندرب فريقك ونبقى متاحين للإصلاحات والتطويرات التالية."
+          }
+        ],
+        "faqTitle": "أسئلة عن البرامج المخصصة",
+        "faqs": [
+          {
+            "question": "ما المقصود ببرمجة برامج مخصصة؟",
+            "answer": "هي تصميم وبناء برنامج لطريقة عمل مؤسسة معينة، مثل نظام حجوزات أو بوابة عملاء أو لوحة تحكم داخلية، بدل أن تتكيف المؤسسة مع منتج عام."
+          },
+          {
+            "question": "هل أختار برنامجًا مخصصًا أم اشتراكًا في برنامج جاهز (SaaS)؟",
+            "answer": "البرنامج الجاهز أسرع في البداية ومناسب إذا كان يلائمك. أما البرنامج المخصص فمناسب عندما تكون طريقة عملك مختلفة، أو تدفع لعدة برامج لا تعمل مع بعضها، أو عندما يكون البرنامج هو منتجك. وسننصحك بالخيار الأبسط إذا كان مناسبًا."
+          },
+          {
+            "question": "هل تبرمجون تطبيقات موبايل؟",
+            "answer": "نعم، يمكننا تحويل تطبيق الويب أو موقعك إلى تطبيق أندرويد وiOS، أو بناء تطبيق مخصص للمنصتين مع لوحة تحكم لإدارته."
+          },
+          {
+            "question": "كم يستغرق تنفيذ برنامج مخصص؟",
+            "answer": "يعتمد على النطاق. غالبًا نطلق نسخة أولى مركزة لتبدأ في استخدامها مبكرًا، ثم نخطط الخطوات التالية بناءً على ملاحظات حقيقية."
+          }
+        ],
+        "ctaTitle": "عندك فكرة نظام؟",
+        "ctaText": "اكتب لنا ماذا تريد أن يفعل البرنامج ومن سيستخدمه، وسنرد عليك بأسئلة ونسخة أولى مقترحة وتقدير مبدئي."
+      }
+    },
+    {
+      "slug": "business-analysis",
+      "visible": true,
+      "pricingIds": [
+        "business-analysis"
+      ],
+      "projectKeywords": "",
+      "articleKeywords": "Business Analysis, Requirements",
+      "en": {
+        "name": "Business analysis",
+        "summary": "Map how your business really works and turn it into clear, prioritized requirements before anything is built.",
+        "seoTitle": "Business Analysis for Software Projects in Egypt",
+        "seoDescription": "Before you build an ERP, CRM or custom system, we map your processes and write clear requirements, priorities and scope, so you build only what you need.",
+        "h1": "Business analysis before you build software",
+        "intro": "Business analysis is the step that turns “we need a system” into a clear, priced plan that can be built. At GTech, we study how your company works today, how orders, approvals, stock and reports actually move, and translate it into requirements a developer can build and a manager can approve.\n\nYou can book it on its own, to get an independent plan before choosing who will build the system, or as the first phase of an ERP, CRM or custom software project with us.",
+        "audienceTitle": "Who business analysis is for",
+        "audience": [
+          "Companies planning an ERP, CRM or custom system and unsure what they actually need",
+          "Teams that received very different quotes for the same system",
+          "Businesses whose last software project went over budget or was abandoned",
+          "Managers who know something is broken, but not exactly where"
+        ],
+        "problemsTitle": "What it prevents",
+        "problems": [
+          "Vague requirements that lead to wrong estimates and endless changes",
+          "Features nobody uses, while the real bottlenecks stay",
+          "Processes that each department describes differently",
+          "Reports and numbers that managers don't trust"
+        ],
+        "includesTitle": "What you receive",
+        "includes": [
+          "Process maps of how work flows today and how it should flow",
+          "A requirements list in plain language: what to build, for whom and why",
+          "Priorities: what's needed for launch, what can wait and what isn't worth building",
+          "A clear scope and estimate for the first phase",
+          "Documents that belong to you, whoever builds the system"
+        ],
+        "processTitle": "How the analysis works",
+        "process": [
+          {
+            "title": "Listen",
+            "text": "Short interviews with managers and with the people who do the work every day."
+          },
+          {
+            "title": "Walk the process",
+            "text": "We follow real orders, invoices or requests from start to finish and note every handoff and workaround."
+          },
+          {
+            "title": "Find the bottlenecks",
+            "text": "We identify the few problems that cause most of the cost and delay."
+          },
+          {
+            "title": "Validate and prioritize",
+            "text": "We review simple flows and sketches with your team before anything is built, then agree on the first phase."
+          }
+        ],
+        "faqTitle": "Business analysis questions",
+        "faqs": [
+          {
+            "question": "What is business analysis in a software project?",
+            "answer": "It's the work of understanding how a business operates and turning that into clear requirements, priorities and scope for a system. It answers what to build, for whom and in which order, before development starts."
+          },
+          {
+            "question": "Can I get business analysis without building the system with you?",
+            "answer": "Yes. The analysis documents are yours, and you can use them with any development team."
+          },
+          {
+            "question": "How long does a business analysis take?",
+            "answer": "It depends on the size of the business and the number of departments involved. An analysis of one or two processes is much shorter than a company-wide ERP study; we agree on the scope first."
+          },
+          {
+            "question": "Do I need business analysis for a small project?",
+            "answer": "For a simple website, usually not. For any system that changes how your team works, such as an ERP, a CRM, inventory or bookings, a short analysis almost always saves money."
+          }
+        ],
+        "ctaTitle": "Not sure what you need yet?",
+        "ctaText": "Tell us briefly how your business works today and what's going wrong. We'll suggest where to start, even if the answer is a smaller system than you expected."
+      },
+      "ar": {
+        "name": "تحليل الأعمال",
+        "summary": "نفهم طريقة عمل شركتك بالتفصيل ونحوّلها إلى متطلبات واضحة ومرتبة قبل بناء أي نظام.",
+        "seoTitle": "تحليل الأعمال قبل برمجة الأنظمة في مصر",
+        "seoDescription": "قبل برمجة نظام ERP أو CRM أو أي نظام مخصص، نحلل طريقة عمل شركتك ونكتب المتطلبات والأولويات ونطاق العمل بوضوح، لتدفع فقط مقابل ما تحتاجه فعلًا.",
+        "h1": "تحليل الأعمال قبل برمجة أي نظام",
+        "intro": "تحليل الأعمال هو الخطوة التي تحوّل جملة «محتاجين سيستم» إلى خطة واضحة ومسعّرة وقابلة للتنفيذ. في GTech ندرس كيف تعمل شركتك اليوم: كيف تتحرك الطلبات والموافقات والمخزون والتقارير فعليًا، ثم نحول ذلك إلى متطلبات يفهمها المبرمج ويوافق عليها المدير.\n\nيمكنك طلب التحليل وحده للحصول على خطة مستقلة قبل اختيار من سينفذ النظام، أو كمرحلة أولى لمشروع ERP أو CRM أو برنامج مخصص معنا.",
+        "audienceTitle": "لمن يناسب تحليل الأعمال؟",
+        "audience": [
+          "شركات تخطط لنظام ERP أو CRM أو نظام مخصص ولا تعرف بالضبط ما تحتاجه",
+          "فرق حصلت على عروض أسعار مختلفة جدًا لنفس النظام",
+          "شركات تعثّر مشروعها البرمجي السابق أو تجاوز الميزانية",
+          "مديرون يعرفون أن هناك مشكلة لكن لا يعرفون مكانها بالضبط"
+        ],
+        "problemsTitle": "ماذا يمنع تحليل الأعمال؟",
+        "problems": [
+          "متطلبات غير واضحة تؤدي إلى تقديرات خاطئة وتعديلات لا تنتهي",
+          "خصائص لا يستخدمها أحد بينما تبقى المشكلات الحقيقية كما هي",
+          "كل قسم يشرح نفس العملية بطريقة مختلفة",
+          "تقارير وأرقام لا يثق فيها المديرون"
+        ],
+        "includesTitle": "ماذا تستلم؟",
+        "includes": [
+          "خرائط توضح سير العمل الحالي والمطلوب",
+          "قائمة متطلبات بلغة بسيطة: ماذا نبني، ولمن، ولماذا",
+          "أولويات واضحة: ما يلزم للإطلاق، وما يمكن تأجيله، وما لا يستحق البناء",
+          "نطاق عمل وتقدير واضح للمرحلة الأولى",
+          "مستندات ملكك أنت، أيًّا كان من سينفذ النظام"
+        ],
+        "processTitle": "خطوات تحليل الأعمال",
+        "process": [
+          {
+            "title": "الاستماع",
+            "text": "مقابلات قصيرة مع الإدارة ومع الموظفين الذين ينفذون العمل يوميًا."
+          },
+          {
+            "title": "تتبّع العملية",
+            "text": "نتابع طلبًا أو فاتورة حقيقية من البداية للنهاية ونسجل كل تسليم وكل حل مؤقت."
+          },
+          {
+            "title": "تحديد نقاط الاختناق",
+            "text": "نحدد المشكلات القليلة التي تسبب أغلب التأخير والتكلفة."
+          },
+          {
+            "title": "المراجعة وترتيب الأولويات",
+            "text": "نراجع مخططات بسيطة مع فريقك قبل أي برمجة، ثم نتفق على المرحلة الأولى."
+          }
+        ],
+        "faqTitle": "أسئلة عن تحليل الأعمال",
+        "faqs": [
+          {
+            "question": "ما هو تحليل الأعمال في مشروع برمجي؟",
+            "answer": "هو فهم طريقة عمل الشركة وتحويلها إلى متطلبات وأولويات ونطاق عمل واضح للنظام، ليجيب عن: ماذا نبني، ولمن، وبأي ترتيب، قبل بدء البرمجة."
+          },
+          {
+            "question": "هل يمكنني طلب تحليل الأعمال فقط دون تنفيذ النظام معكم؟",
+            "answer": "نعم. مستندات التحليل ملكك، ويمكنك استخدامها مع أي فريق برمجة."
+          },
+          {
+            "question": "كم يستغرق تحليل الأعمال؟",
+            "answer": "يعتمد على حجم الشركة وعدد الأقسام المشاركة. تحليل عملية أو عمليتين أقصر بكثير من دراسة ERP للشركة كلها، ونتفق على النطاق أولًا."
+          },
+          {
+            "question": "هل أحتاج تحليل أعمال لمشروع صغير؟",
+            "answer": "لموقع بسيط غالبًا لا. أما أي نظام سيغير طريقة عمل فريقك مثل ERP أو CRM أو المخزون أو الحجوزات، فالتحليل القصير يوفر المال في أغلب الأحيان."
+          }
+        ],
+        "ctaTitle": "لست متأكدًا مما تحتاجه؟",
+        "ctaText": "اكتب لنا باختصار كيف تعمل شركتك اليوم وأين المشكلة، وسنقترح عليك من أين تبدأ، حتى لو كانت الإجابة نظامًا أصغر مما توقعت."
+      }
+    },
+    {
+      "slug": "website-development",
+      "visible": true,
+      "pricingIds": [
+        "landing-page",
+        "company-website",
+        "portfolio",
+        "blog",
+        "custom-store",
+        "directory-site"
+      ],
+      "projectKeywords": "website, portfolio, law firm, agency, profile, design, corporate, store, e-commerce",
+      "articleKeywords": "Websites, Hosting",
+      "en": {
+        "name": "Website development",
+        "summary": "Fast company websites, landing pages, portfolios and online stores that you can edit yourself.",
+        "seoTitle": "Company Website Development in Egypt",
+        "seoDescription": "Fast company websites, landing pages, portfolios, blogs and online stores in Egypt, designed around your brand, easy to edit, with a free year of maintenance.",
+        "h1": "Website development for companies and professionals",
+        "intro": "A company website should explain what you do in seconds, load fast on a phone, make contacting you effortless and turn visitors into conversations. GTech designs and builds websites around your brand instead of ready-made templates, with a simple dashboard so you can update text, images and prices yourself.\n\nWe build landing pages for ads, company websites, portfolios, blogs and news sites, booking and directory websites, and custom online stores without platform commissions.",
+        "audienceTitle": "Websites we build",
+        "audience": [
+          "Landing pages for ads and campaigns",
+          "Company websites with services, projects and contact pages",
+          "Portfolios for designers, engineers and consultants",
+          "Blogs and news sites with a writing dashboard",
+          "Booking, real-estate and directory websites",
+          "Custom online stores with online payments"
+        ],
+        "problemsTitle": "Signs your website needs work",
+        "problems": [
+          "Visitors can't tell what you do from the first screen",
+          "The site is slow on phones or looks broken on some screens",
+          "Every small change needs a developer",
+          "People visit, but few of them call or message you"
+        ],
+        "includesTitle": "Every website includes",
+        "includes": [
+          "A design built around your brand, colors and logo",
+          "Mobile-first pages that load fast",
+          "Contact options that convert: WhatsApp, calls and a short form",
+          "Clean, search-friendly pages (full SEO setup is available as an add-on)",
+          "A dashboard to edit your content",
+          "One year of free maintenance: bug fixes and stability checks"
+        ],
+        "processTitle": "From idea to launch",
+        "process": [
+          {
+            "title": "Brief",
+            "text": "We agree on your goals, your audience, the pages and the content you already have."
+          },
+          {
+            "title": "Design",
+            "text": "You see and approve the look of the main pages before development."
+          },
+          {
+            "title": "Build",
+            "text": "We build the pages, connect your domain and set up hosting that fits the site."
+          },
+          {
+            "title": "Launch",
+            "text": "We publish the website and show you how to edit it yourself."
+          }
+        ],
+        "faqTitle": "Website questions",
+        "faqs": [
+          {
+            "question": "How much does a website cost?",
+            "answer": "It depends on the type of website and the number of pages. The packages and their prices are on the pricing page; custom projects are quoted after a short brief."
+          },
+          {
+            "question": "Can I edit the website myself?",
+            "answer": "Yes. Every website comes with a simple dashboard for updating text, images and prices without code."
+          },
+          {
+            "question": "Is hosting included in the price?",
+            "answer": "Hosting is paid to the hosting provider, separately from the website price. Several packages run on free hosting, and each package shows its expected hosting cost."
+          },
+          {
+            "question": "Do you build websites in Arabic?",
+            "answer": "Yes. Websites can be in Arabic, English or both, with right-to-left layouts for Arabic."
+          }
+        ],
+        "ctaTitle": "Need a website that brings in clients?",
+        "ctaText": "Tell us about your business and the website you have in mind. We'll suggest the right package and what it would include."
+      },
+      "ar": {
+        "name": "تصميم وبرمجة المواقع",
+        "summary": "مواقع شركات وصفحات هبوط ومعارض أعمال ومتاجر سريعة، تعدّلها بنفسك.",
+        "seoTitle": "تصميم وبرمجة مواقع الشركات في مصر",
+        "seoDescription": "نصمم ونبرمج مواقع شركات سريعة وصفحات هبوط ومعارض أعمال ومدونات ومتاجر إلكترونية في مصر، بهوية شركتك، مع لوحة تحكم سهلة وسنة صيانة مجانية.",
+        "h1": "تصميم وبرمجة مواقع للشركات والمحترفين",
+        "intro": "موقع الشركة يجب أن يشرح ما تقدمه في ثوانٍ، ويفتح بسرعة على الموبايل، ويجعل التواصل معك سهلًا، ويحوّل الزوار إلى عملاء. في GTech نصمم ونبرمج المواقع حول هوية شركتك لا بقوالب جاهزة، مع لوحة تحكم بسيطة تعدّل منها النصوص والصور والأسعار بنفسك.\n\nنبني صفحات هبوط للإعلانات، ومواقع شركات، ومعارض أعمال، ومدونات ومواقع أخبار، ومواقع حجز وعقارات وأدلة، ومتاجر إلكترونية مخصصة بدون عمولات منصات.",
+        "audienceTitle": "المواقع التي نبنيها",
+        "audience": [
+          "صفحات هبوط للإعلانات والحملات",
+          "مواقع شركات بصفحات الخدمات والمشاريع والتواصل",
+          "معارض أعمال للمصممين والمهندسين والاستشاريين",
+          "مدونات ومواقع أخبار بلوحة كتابة",
+          "مواقع حجز وعقارات وأدلة",
+          "متاجر إلكترونية مخصصة بالدفع الإلكتروني"
+        ],
+        "problemsTitle": "علامات تقول إن موقعك يحتاج تطويرًا",
+        "problems": [
+          "الزائر لا يفهم ما تقدمه من أول شاشة",
+          "الموقع بطيء على الموبايل أو شكله مكسور على بعض الشاشات",
+          "أي تعديل بسيط يحتاج مبرمجًا",
+          "الزوار يدخلون لكن قليلًا منهم يتصل أو يراسلك"
+        ],
+        "includesTitle": "كل موقع يشمل",
+        "includes": [
+          "تصميمًا حول هوية شركتك وألوانها وشعارها",
+          "صفحات مصممة للموبايل أولًا وسريعة التحميل",
+          "وسائل تواصل تحقق نتائج: واتساب واتصال ونموذج قصير",
+          "صفحات منظمة وصديقة لمحركات البحث (وإعداد SEO الكامل متاح كإضافة)",
+          "لوحة تحكم لتعديل المحتوى",
+          "سنة صيانة مجانية: إصلاح الأعطال ومتابعة الاستقرار"
+        ],
+        "processTitle": "من الفكرة إلى الإطلاق",
+        "process": [
+          {
+            "title": "الاتفاق",
+            "text": "نتفق على أهدافك وجمهورك والصفحات والمحتوى المتاح لديك."
+          },
+          {
+            "title": "التصميم",
+            "text": "ترى شكل الصفحات الرئيسية وتوافق عليه قبل البرمجة."
+          },
+          {
+            "title": "البرمجة",
+            "text": "نبني الصفحات ونربط الدومين ونجهز الاستضافة المناسبة للموقع."
+          },
+          {
+            "title": "الإطلاق",
+            "text": "ننشر الموقع ونوضح لك كيف تعدّله بنفسك."
+          }
+        ],
+        "faqTitle": "أسئلة عن تصميم المواقع",
+        "faqs": [
+          {
+            "question": "كم تكلفة تصميم موقع؟",
+            "answer": "تعتمد على نوع الموقع وعدد الصفحات. الباقات وأسعارها موجودة في صفحة الأسعار، والمشاريع المخصصة نسعرها بعد اتفاق قصير."
+          },
+          {
+            "question": "هل أستطيع تعديل الموقع بنفسي؟",
+            "answer": "نعم، كل موقع معه لوحة تحكم بسيطة لتعديل النصوص والصور والأسعار بدون برمجة."
+          },
+          {
+            "question": "هل الاستضافة ضمن سعر الموقع؟",
+            "answer": "الاستضافة تُدفع لمزود الاستضافة منفصلة عن سعر الموقع. وعدة باقات تعمل على استضافة مجانية، وكل باقة توضح تكلفة الاستضافة المتوقعة."
+          },
+          {
+            "question": "هل تصممون مواقع باللغة العربية؟",
+            "answer": "نعم، يمكن أن يكون الموقع بالعربية أو الإنجليزية أو باللغتين، مع تصميم من اليمين لليسار للعربية."
+          }
+        ],
+        "ctaTitle": "تحتاج موقعًا يجلب لك عملاء؟",
+        "ctaText": "اكتب لنا عن نشاطك والموقع الذي تفكر فيه، وسنقترح عليك الباقة المناسبة وما تشمله."
+      }
+    },
+    {
+      "slug": "shopify-development",
+      "visible": true,
+      "pricingIds": [
+        "shopify-store",
+        "shopify-themes",
+        "custom-shopify-theme"
+      ],
+      "projectKeywords": "Shopify",
+      "articleKeywords": "Shopify, E-Commerce",
+      "en": {
+        "name": "Shopify development",
+        "summary": "Shopify store setup, professional themes and custom themes built to sell.",
+        "seoTitle": "Shopify Store & Theme Development in Egypt",
+        "seoDescription": "Shopify store setup and Shopify themes: professional ready-made themes for far less than Theme Store prices, or custom themes built for your brand.",
+        "h1": "Shopify store setup and theme development",
+        "intro": "Shopify runs your store's hosting, checkout and payments; the theme decides how fast the store feels and how easily visitors buy. GTech sets up complete Shopify stores and offers professional Shopify themes, installed and set up on your store for far less than typical Theme Store prices, as well as custom themes designed and built for your brand.\n\nEvery store is built mobile-first, with clear product pages and as few heavy apps as possible, so it stays fast.",
+        "audienceTitle": "Who it's for",
+        "audience": [
+          "Brands launching their first online store on Shopify",
+          "Existing stores that feel slow or dated on phones",
+          "Stores selling in Arabic, or in Arabic and English",
+          "Brands that need special product layouts, bundles or size guides"
+        ],
+        "problemsTitle": "What we fix",
+        "problems": [
+          "Slow product pages that lose visitors before they buy",
+          "Themes that break when the store is switched to Arabic (right-to-left)",
+          "Too many apps slowing the store down and adding monthly fees",
+          "Product pages that hide the price, the variants or the delivery details"
+        ],
+        "includesTitle": "What we offer",
+        "includes": [
+          "Complete store setup: theme, pages, payments and shipping",
+          "Professional ready-made themes, installed and configured",
+          "Custom themes built from scratch for your brand",
+          "Product import and collection setup",
+          "Fast, mobile-first product and collection pages",
+          "Arabic and bilingual storefronts with correct right-to-left layouts"
+        ],
+        "processTitle": "How it works",
+        "process": [
+          {
+            "title": "Choose the path",
+            "text": "We look at your products and budget and recommend a ready-made or a custom theme."
+          },
+          {
+            "title": "Design and set up",
+            "text": "We configure the theme, pages, payments and shipping around your brand."
+          },
+          {
+            "title": "Add products",
+            "text": "We add your first products and collections and check them on phones."
+          },
+          {
+            "title": "Launch",
+            "text": "We test the checkout from start to finish, launch the store and show you how to manage it."
+          }
+        ],
+        "faqTitle": "Shopify questions",
+        "faqs": [
+          {
+            "question": "Is the Shopify subscription included in the price?",
+            "answer": "No. Shopify's monthly plan is paid directly to Shopify. Our price covers setting up the store, the theme and the work around it."
+          },
+          {
+            "question": "Should I choose a ready-made or a custom Shopify theme?",
+            "answer": "A professional ready-made theme suits most new and growing stores. A custom theme makes sense when your brand needs a distinctive experience or special product layouts."
+          },
+          {
+            "question": "Can my Shopify store be in Arabic?",
+            "answer": "Yes. We set up Arabic and bilingual stores and check the right-to-left layout of the menus, product pages and checkout."
+          },
+          {
+            "question": "Shopify or a custom online store?",
+            "answer": "Shopify is quick to launch and handles hosting and payments for a monthly fee. A custom store gives you full ownership with no platform fees or sales commission. Both are on our pricing page."
+          }
+        ],
+        "ctaTitle": "Launching or fixing a Shopify store?",
+        "ctaText": "Send us your store link or tell us what you sell. We'll recommend the right theme path and send you a quote."
+      },
+      "ar": {
+        "name": "إنشاء متاجر وثيمات Shopify",
+        "summary": "إنشاء متاجر Shopify وثيمات احترافية وثيمات مخصصة مصممة للبيع.",
+        "seoTitle": "إنشاء متجر Shopify وتصميم ثيمات Shopify في مصر",
+        "seoDescription": "ننشئ متاجر Shopify كاملة ونصمم ثيمات Shopify: ثيمات احترافية جاهزة بسعر أقل بكثير من متجر الثيمات، أو ثيمات مخصصة لهويتك. سريعة ومصممة للموبايل وسهلة التعديل.",
+        "h1": "إنشاء متاجر Shopify وتصميم الثيمات",
+        "intro": "منصة Shopify تتولى استضافة متجرك والدفع وإتمام الطلبات، أما الثيم فهو الذي يحدد سرعة المتجر وسهولة الشراء. في GTech ننشئ متاجر Shopify كاملة، ونقدم ثيمات Shopify احترافية نركبها ونجهزها على متجرك بسعر أقل بكثير من أسعار متجر ثيمات Shopify المعتادة، بالإضافة إلى ثيمات مخصصة نصممها ونبرمجها لهويتك.\n\nنبني كل متجر للموبايل أولًا، بصفحات منتجات واضحة وأقل عدد ممكن من التطبيقات الثقيلة، ليبقى سريعًا.",
+        "audienceTitle": "لمن هذه الخدمة؟",
+        "audience": [
+          "براندات تطلق أول متجر إلكتروني لها على Shopify",
+          "متاجر حالية بطيئة أو شكلها قديم على الموبايل",
+          "متاجر تبيع بالعربية أو بالعربية والإنجليزية",
+          "براندات تحتاج عرضًا خاصًا للمنتجات أو باقات أو دليل مقاسات"
+        ],
+        "problemsTitle": "ماذا نصلح؟",
+        "problems": [
+          "صفحات منتجات بطيئة تخسر الزائر قبل الشراء",
+          "ثيمات تتكسر عند تحويل المتجر للعربية (من اليمين لليسار)",
+          "تطبيقات كثيرة تبطئ المتجر وتضيف رسومًا شهرية",
+          "صفحات منتجات تخفي السعر أو المقاسات أو تفاصيل الشحن"
+        ],
+        "includesTitle": "ماذا نقدم؟",
+        "includes": [
+          "إنشاء المتجر بالكامل: الثيم والصفحات والدفع والشحن",
+          "ثيمات جاهزة احترافية نركبها ونجهزها",
+          "ثيمات مخصصة نبرمجها من الصفر لهويتك",
+          "رفع المنتجات وتنظيم الأقسام",
+          "صفحات منتجات وأقسام سريعة ومصممة للموبايل",
+          "متاجر بالعربية أو باللغتين بتصميم صحيح من اليمين لليسار"
+        ],
+        "processTitle": "خطوات العمل",
+        "process": [
+          {
+            "title": "اختيار الطريق",
+            "text": "ننظر إلى منتجاتك وميزانيتك ونقترح ثيمًا جاهزًا أو مخصصًا."
+          },
+          {
+            "title": "التصميم والتجهيز",
+            "text": "نجهز الثيم والصفحات والدفع والشحن حسب هويتك."
+          },
+          {
+            "title": "إضافة المنتجات",
+            "text": "نضيف أول منتجاتك وأقسامك ونراجعها على الموبايل."
+          },
+          {
+            "title": "الإطلاق",
+            "text": "نختبر الشراء من البداية للنهاية، ونطلق المتجر، ونوضح لك كيف تديره."
+          }
+        ],
+        "faqTitle": "أسئلة عن Shopify",
+        "faqs": [
+          {
+            "question": "هل اشتراك Shopify ضمن السعر؟",
+            "answer": "لا، اشتراك Shopify الشهري يُدفع مباشرة لشركة Shopify، وسعرنا يغطي إنشاء المتجر والثيم والعمل عليه."
+          },
+          {
+            "question": "هل أختار ثيم Shopify جاهزًا أم مخصصًا؟",
+            "answer": "الثيم الجاهز الاحترافي يناسب أغلب المتاجر الجديدة والنامية، والثيم المخصص مناسب عندما يحتاج البراند تجربة مميزة أو عرضًا خاصًا للمنتجات."
+          },
+          {
+            "question": "هل يمكن أن يكون متجر Shopify بالعربية؟",
+            "answer": "نعم، نجهز متاجر بالعربية أو باللغتين، ونراجع اتجاه اليمين لليسار في القوائم وصفحات المنتجات وإتمام الشراء."
+          },
+          {
+            "question": "هل أختار Shopify أم متجرًا مخصصًا؟",
+            "answer": "متجر Shopify سريع في الإطلاق ويتولى الاستضافة والدفع مقابل اشتراك شهري، أما المتجر المخصص فيمنحك ملكية كاملة بدون رسوم منصة أو عمولة على المبيعات. الخياران موجودان في صفحة الأسعار."
+          }
+        ],
+        "ctaTitle": "تطلق متجر Shopify أو تريد تحسين متجرك؟",
+        "ctaText": "أرسل لنا رابط متجرك أو اكتب لنا ماذا تبيع، وسنقترح عليك الثيم المناسب ونرسل لك عرض سعر."
+      }
+    }
+  ]
+}

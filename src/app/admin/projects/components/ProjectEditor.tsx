@@ -154,6 +154,53 @@ export function ProjectEditor({ index }: { index: number | null }) {
                     </Field>
                 </Group>
 
+                {/* Turns the project page into a case study, which search engines and clients read as proof */}
+                <Group title="دراسة الحالة (اختياري)">
+                    <p className="text-sm text-muted">
+                        كل خانة بتظهر قسم في صفحة المشروع لما تكتبها. اكتب اللي حصل فعلًا بس، ولو معندكش نتيجة بأرقام سيب «النتايج» فاضية.
+                    </p>
+                    <Field label="المشكلة" htmlFor="project-challenge" hint="العميل كان بيعاني من إيه قبل المشروع؟">
+                        <Textarea
+                            id="project-challenge"
+                            dir="auto"
+                            rows={3}
+                            className="field-sizing-content max-h-72"
+                            value={draft.challenge}
+                            onChange={(e) => update("challenge", e.target.value)}
+                        />
+                    </Field>
+                    <Field label="الحل" htmlFor="project-solution" hint="عملت إيه وليه اخترت الطريقة دي.">
+                        <Textarea
+                            id="project-solution"
+                            dir="auto"
+                            rows={3}
+                            className="field-sizing-content max-h-72"
+                            value={draft.solution}
+                            onChange={(e) => update("solution", e.target.value)}
+                        />
+                    </Field>
+                    <Field label="أهم المميزات" htmlFor="project-features" hint="ميزة في كل سطر، زي: حجز المواعيد أونلاين.">
+                        <Textarea
+                            id="project-features"
+                            dir="auto"
+                            rows={4}
+                            className="field-sizing-content max-h-72"
+                            value={draft.features}
+                            onChange={(e) => update("features", e.target.value)}
+                        />
+                    </Field>
+                    <Field label="النتايج" htmlFor="project-results" hint="أرقام أو نتايج حقيقية بس (زي: الحجوزات بقت أونلاين بالكامل).">
+                        <Textarea
+                            id="project-results"
+                            dir="auto"
+                            rows={2}
+                            className="field-sizing-content max-h-72"
+                            value={draft.results}
+                            onChange={(e) => update("results", e.target.value)}
+                        />
+                    </Field>
+                </Group>
+
                 {draft.category === "software" && (
                     <Group title="الرابط">
                         <Field label="رابط المشروع" htmlFor="project-link" hint="الموقع شغال فين، لو متاح للناس.">

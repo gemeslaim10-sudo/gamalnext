@@ -1,4 +1,5 @@
-import { BarChart, BarChart3, Code, Database, FileText, LineChart, Search, type LucideIcon } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, BarChart, BarChart3, Code, Database, FileText, LineChart, Search, type LucideIcon } from 'lucide-react';
 import { Badge, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import type { SkillItem } from './data';
@@ -6,7 +7,8 @@ import type { SkillItem } from './data';
 // Icon names the dashboard can save for a skill card
 const ICONS: Record<string, LucideIcon> = { Code, Search, BarChart, BarChart3, Database, LineChart, FileText };
 
-export function MainSkillsGrid({ skills }: { skills: SkillItem[] }) {
+/** `learnMore`: label of the link to a card's service page (cards with a link only) */
+export function MainSkillsGrid({ skills, learnMore = "Learn more" }: { skills: SkillItem[]; learnMore?: string }) {
     // Two or four cards read best as a 2×n grid; other counts fill three columns on wide screens
     const twoColumns = skills.length === 2 || skills.length === 4;
 
@@ -36,6 +38,15 @@ export function MainSkillsGrid({ skills }: { skills: SkillItem[] }) {
                                     </Badge>
                                 ))}
                             </div>
+                        )}
+                        {skill.href?.startsWith('/') && (
+                            <Link
+                                href={skill.href}
+                                className={cn('inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:underline hover:underline-offset-4', tags.length === 0 && 'mt-auto')}
+                                aria-label={`${learnMore}: ${skill.title}`}
+                            >
+                                {learnMore} <ArrowRight aria-hidden className="size-4" />
+                            </Link>
                         )}
                     </Card>
                 );

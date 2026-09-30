@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { Badge, Card } from "@/components/ui";
 import { SPEC_KEYS, type PricingItem, type PricingLabels } from "@/lib/pricing/types";
 import { fixedPrice, formatAmount } from "@/lib/pricing/utils";
@@ -9,10 +11,12 @@ interface PricingItemCardProps {
     labels: PricingLabels;
     /** Show the "custom quote" label where the price would be (packages). Services omit it: their button says it. */
     showQuoteLabel?: boolean;
+    /** The service page that explains this item, if any */
+    detailsHref?: string;
 }
 
 /** One package or service: name, price, short note, spec list and a request button. */
-export function PricingItemCard({ item, labels, showQuoteLabel = true }: PricingItemCardProps) {
+export function PricingItemCard({ item, labels, showQuoteLabel = true, detailsHref }: PricingItemCardProps) {
     const price = fixedPrice(item);
     const currency = labels.currency.trim();
     const specs = SPEC_KEYS.map((key) => ({ key, label: labels[key], value: item[key].trim() })).filter((spec) => spec.value);
@@ -42,6 +46,15 @@ export function PricingItemCard({ item, labels, showQuoteLabel = true }: Pricing
                     <p dir="auto" className="text-sm leading-relaxed text-muted">
                         {item.description}
                     </p>
+                )}
+                {detailsHref && labels.learnMore && (
+                    <Link
+                        href={detailsHref}
+                        aria-label={`${labels.learnMore}: ${item.name}`}
+                        className="inline-flex items-center gap-1.5 self-start text-sm font-medium text-foreground hover:underline hover:underline-offset-4"
+                    >
+                        {labels.learnMore} <ArrowRight aria-hidden className="size-4" />
+                    </Link>
                 )}
 
                 {specs.length > 0 && (

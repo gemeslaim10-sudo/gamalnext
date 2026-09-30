@@ -12,6 +12,8 @@ import { AddonList } from "./components/AddonList";
 import { ContactBlock } from "./components/ContactBlock";
 import { FaqList } from "./components/FaqList";
 import { PricingItemCard } from "./components/PricingItemCard";
+import { servicePath } from "@/lib/services/content";
+import { getServicePages } from "@/lib/services/server";
 
 // Title, description and keywords: /admin/seo → Pages → Pricing. The page itself is cached until the
 // pricing editor saves (or the owner clears the cache).
@@ -36,7 +38,12 @@ export default async function PricingPage() {
         contact.email.trim() !== "" || contact.numbers.some((entry) => phoneLinks(entry.number, contact.countryCode));
 
     // Prices and questions as structured data, matching what the page shows
-    const [t, site] = await Promise.all([getCopy(), getSiteSeo()]);
+    const [t, site, servicePages] = await Promise.all([getCopy(), getSiteSeo(), getServicePages("en")]);
+    // Each priced item links to the service page that lists it, for visitors who want the details
+    const detailsHref = (id: string) => {
+        const service = servicePages.find((page) => page.pricingIds.includes(id));
+        return service ? servicePath(service.slug) : undefined;
+    };
     const currency = /^[A-Z]{3}$/.test(labels.currency.trim().toUpperCase()) ? labels.currency.trim().toUpperCase() : "USD";
     const jsonLd = pageGraph(
         webPage("WebPage", "/pricing", header.title || site.fill(site.seo.pages.pricing.title), header.description || site.fill(site.seo.pages.pricing.description)),
@@ -78,7 +85,7 @@ export default async function PricingPage() {
                     <Section id="packages" title={sections.packages.title} description={sections.packages.description}>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {packages.map((item) => (
-                                <PricingItemCard key={item.id} item={item} labels={labels} />
+                                <PricingItemCard key={item.id} item={item} labels={labels} detailsHref={detailsHref(item.id)} />
                             ))}
                         </div>
                     </Section>
@@ -94,7 +101,7 @@ export default async function PricingPage() {
                     <Section id="services" title={sections.services.title} description={sections.services.description}>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {services.map((item) => (
-                                <PricingItemCard key={item.id} item={item} labels={labels} showQuoteLabel={false} />
+                                <PricingItemCard key={item.id} item={item} labels={labels} showQuoteLabel={false} detailsHref={detailsHref(item.id)} />
                             ))}
                         </div>
                     </Section>

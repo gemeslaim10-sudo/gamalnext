@@ -12,6 +12,7 @@ export const skillsCopy = {
             type: "textarea",
             default: "The services GTech offers and the tools behind them.",
         },
+        { key: "learnMore", label: "Service cards: link to the service page", default: "Learn more" },
         { key: "techStackTitle", label: "Skills page: title above the tech stack", default: "Tech stack" },
         { key: "softwareTitle", label: "Skills page: title above the software list", default: "Software proficiency" },
         { key: "toolsTitle", label: "Skills page: title above the daily tools", default: "Daily productivity tools" },

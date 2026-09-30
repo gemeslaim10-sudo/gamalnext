@@ -36,6 +36,21 @@ export function ArticleFields({ value, onChange, errors }: ArticleFieldsProps) {
             </Field>
 
             <Field
+                label="رابط المقال"
+                htmlFor="article-slug"
+                hint="آخر جزء في اللينك: /articles/… — كلمات إنجليزي قصيرة بشَرطة، زي before-you-buy-an-erp. سيبه فاضي عشان يتعمل من العنوان. لو غيّرته بعد النشر، اللينك القديم هيبطّل."
+            >
+                <Input
+                    id="article-slug"
+                    dir="ltr"
+                    value={value.slug}
+                    onChange={(e) => onChange("slug", e.target.value)}
+                    placeholder="before-you-buy-an-erp"
+                    autoComplete="off"
+                />
+            </Field>
+
+            <Field
                 label="الملخص"
                 htmlFor="article-summary"
                 hint={`سطرين عن المقال لنتايج جوجل والمشاركة. لو فاضي بيتاخد من أول المقال. (${value.summary.length}/160)`}

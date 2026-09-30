@@ -2,7 +2,7 @@
 // Every place that collects a lead (popup, contact form, pricing, chat assistant)
 // goes through `POST /api/leads` or `saveLead()`, so all leads look the same.
 
-export type LeadSource = "popup" | "contact" | "pricing" | "chat" | "other";
+export type LeadSource = "popup" | "contact" | "pricing" | "services" | "chat" | "other";
 
 export type LeadStatus = "new" | "contacted" | "closed";
 

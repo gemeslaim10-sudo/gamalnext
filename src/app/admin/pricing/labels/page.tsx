@@ -22,6 +22,7 @@ const GROUPS: { title: string; description: string; fields: LabelField[] }[] = [
             { key: "request", label: "زر الطلب" },
             { key: "requestQuote", label: "زر طلب عرض سعر", hint: "للعناصر اللي من غير سعر ثابت." },
             { key: "featured", label: "شارة العنصر المميز" },
+            { key: "learnMore", label: "رابط صفحة الخدمة", hint: "تحت الباقات والخدمات اللي ليها صفحة خدمة." },
             { key: "discount", label: "شارة الخصم", hint: "{percent} بتتبدّل بنسبة الخصم لوحدها." },
             { key: "originalPrice", label: "السعر قبل الخصم (لقارئ الشاشة)", hint: "مش ظاهر؛ بيتقري قبل السعر المشطوب." },
         ],

@@ -6,13 +6,16 @@ interface ArticleHeaderProps {
     title: string;
     authorId?: string;
     authorName?: string;
+    /** Where the author's name links (the site owner: the profile page; members: their page) */
+    authorHref?: string;
     formattedDate: string;
     /** ISO date for the <time> element */
     isoDate?: string;
     contentDir: "rtl" | "ltr";
 }
 
-export function ArticleHeader({ title, authorId, authorName, formattedDate, isoDate, contentDir }: ArticleHeaderProps) {
+export function ArticleHeader({ title, authorId, authorName, authorHref, formattedDate, isoDate, contentDir }: ArticleHeaderProps) {
+    const href = authorHref ?? (authorId ? `/users/${authorId}` : undefined);
     const t = useCopy();
 
     return (
@@ -26,8 +29,8 @@ export function ArticleHeader({ title, authorId, authorName, formattedDate, isoD
                 <p className="mt-3 text-sm text-subtle">
                     {authorName && (
                         <>
-                            {authorId ? (
-                                <Link href={`/users/${authorId}`} className="transition-colors hover:text-foreground">
+                            {href ? (
+                                <Link href={href} className="transition-colors hover:text-foreground">
                                     {authorName}
                                 </Link>
                             ) : (

@@ -9,6 +9,8 @@ export interface SkillItem {
     tags: string;
     /** Icon name picked in the dashboard: Code | Database | BarChart | FileText */
     icon: string;
+    /** Its service page (e.g. /services/crm-development), shown as a "Learn more" link */
+    href?: string;
 }
 
 export interface TechStackItem {

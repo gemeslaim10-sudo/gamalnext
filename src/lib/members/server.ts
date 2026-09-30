@@ -61,6 +61,7 @@ export async function getMemberArticles(id: string): Promise<ArticleCardData[]> 
         .filter((article) => article.authorId === id)
         .map((article) => ({
             id: article.id,
+            slug: article.slug,
             title: article.title,
             // The card shows the summary, else the plain start of the (Markdown) text
             summary: article.summary || markdownExcerpt(article.content || "", 150),
