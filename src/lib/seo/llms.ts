@@ -3,6 +3,7 @@
 // Built from the same cached dashboard data as the pages.
 import { SITE_URL } from "@/lib/constants";
 import { getProjects, getPublicArticles, projectImage } from "@/lib/content/server";
+import { articlePath } from "@/lib/articles/paths";
 import { loadPricing } from "@/lib/pricing/server";
 import { isListed } from "@/lib/pricing/utils";
 import type { PricingItem } from "@/lib/pricing/types";
@@ -11,6 +12,8 @@ import { NAV_LINKS } from "@/config/navigation";
 import { getCopy } from "@/lib/copy/server";
 import { clean, getSiteSeo } from "./server";
 import { splitList } from "./settings";
+import { hasPage, servicePath } from "@/lib/services/content";
+import { getServicePages } from "@/lib/services/server";
 
 const oneLine = (text: unknown, max = 220) => {
     const flat = String(text ?? "").replace(/\s+/g, " ").trim();
@@ -20,13 +23,14 @@ const oneLine = (text: unknown, max = 220) => {
 const url = (path: string) => new URL(path, SITE_URL).toString();
 
 export async function buildLlmsText({ full = false }: { full?: boolean } = {}) {
-    const [site, pricingResult, skills, projects, articles, t] = await Promise.all([
+    const [site, pricingResult, skills, projects, articles, t, servicePages] = await Promise.all([
         getSiteSeo(),
         loadPricing(),
         getSkillsData(),
         getProjects(),
         getPublicArticles(),
         getCopy(),
+        getServicePages("en"),
     ]);
     const { seo } = site;
     const business = seo.business;
@@ -60,12 +64,25 @@ export async function buildLlmsText({ full = false }: { full?: boolean } = {}) {
     const facts = seo.ai.facts.map((fact) => site.fill(fact)).filter(Boolean);
     if (facts.length) add("## Key facts", "", ...facts.map((fact) => `- ${fact}`), "");
 
-    // Services
-    const services = (skills.mainSkills ?? []).filter((item) => clean(item.title));
-    if (services.length) {
+    // Services: one page each (English, and Arabic where it exists), else the "What I do" cards
+    if (servicePages.length) {
         add("## Services", "");
-        for (const item of services) add(`- [${item.title.trim()}](${url("/skills")}): ${oneLine(item.description)}`);
+        for (const item of servicePages) {
+            const arabic = hasPage(item, "ar") ? ` (Arabic: ${url(servicePath(item.slug, "ar"))})` : "";
+            add(`- [${oneLine(item.en.name, 120)}](${url(servicePath(item.slug))}): ${oneLine(item.en.summary)}${arabic}`);
+            if (full) {
+                add(`  ${oneLine(item.en.intro, 900)}`);
+                for (const faq of item.en.faqs) add(`  - Q: ${oneLine(faq.question, 200)} A: ${oneLine(faq.answer, 500)}`);
+            }
+        }
         add("");
+    } else {
+        const services = (skills.mainSkills ?? []).filter((item) => clean(item.title));
+        if (services.length) {
+            add("## Services", "");
+            for (const item of services) add(`- [${item.title.trim()}](${url("/skills")}): ${oneLine(item.description)}`);
+            add("");
+        }
     }
 
     // Prices
@@ -127,12 +144,12 @@ export async function buildLlmsText({ full = false }: { full?: boolean } = {}) {
     if (articles?.length) {
         add("## Articles", "");
         for (const article of articles) {
-            add(`- [${oneLine(article.title, 160)}](${url(`/articles/${article.id}`)})${article.summary ? `: ${oneLine(article.summary, 200)}` : ""}`);
+            add(`- [${oneLine(article.title, 160)}](${url(articlePath(article))})${article.summary ? `: ${oneLine(article.summary, 200)}` : ""}`);
         }
         add("");
         if (full) {
             for (const article of articles) {
-                add(`### ${oneLine(article.title, 200)}`, "", `Source: ${url(`/articles/${article.id}`)}`, "", String(article.content ?? "").trim(), "");
+                add(`### ${oneLine(article.title, 200)}`, "", `Source: ${url(articlePath(article))}`, "", String(article.content ?? "").trim(), "");
             }
         }
     }

@@ -17,12 +17,13 @@ export const STATUS_BADGE: Record<LeadStatus, "warning" | "success" | "neutral">
     closed: "neutral",
 };
 
-export const SOURCES: LeadSource[] = ["popup", "contact", "pricing", "chat", "other"];
+export const SOURCES: LeadSource[] = ["popup", "contact", "pricing", "services", "chat", "other"];
 
 export const SOURCE_LABEL: Record<LeadSource, string> = {
     popup: "النافذة",
     contact: "صفحة التواصل",
     pricing: "الأسعار",
+    services: "صفحات الخدمات",
     chat: "المساعد الذكي",
     other: "تاني",
 };

@@ -4,6 +4,7 @@
 import { getAdminDb } from "@/lib/firebase-admin";
 import { CACHE_TAGS, cached } from "@/lib/cache";
 import { NAV_LINKS } from "@/config/navigation";
+import { articlePath } from "@/lib/articles/paths";
 import { slugify } from "@/lib/utils";
 
 export interface SiteFacts {
@@ -188,7 +189,7 @@ function readArticles(docs: Record<string, unknown>[] | undefined): SiteFacts["a
         .filter((a) => !isHidden(a) && !["pending", "rejected", "draft"].includes(String(a.status || "")))
         .map((a) => ({
             title: text(a.title, 160) || "",
-            link: `/articles/${a.id}`,
+            link: articlePath({ id: String(a.id), slug: typeof a.slug === "string" ? a.slug : undefined }),
             summary: text(a.excerpt ?? a.summary, 160),
         }))
         .filter((a) => a.title)

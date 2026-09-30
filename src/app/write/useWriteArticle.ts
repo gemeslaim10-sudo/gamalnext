@@ -4,6 +4,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { ALLOWED_ADMINS } from "@/lib/constants";
 import { refreshSite } from "@/lib/refreshSite";
+import { slugFromTitle } from "@/lib/articles/paths";
 import { reportEvent } from "@/lib/reportEvent";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -60,7 +61,7 @@ export function useWriteArticle() {
                 status: status, // Moderate if not admin
                 likesCount: 0,
                 commentsCount: 0,
-                slug: formData.title.toLowerCase().replace(/\s+/g, '-'),
+                slug: slugFromTitle(formData.title),
                 tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean), // Process tags
                 createdAt: serverTimestamp()
             });

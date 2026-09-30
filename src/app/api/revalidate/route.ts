@@ -4,6 +4,7 @@ import { getAdminDb, verifyAuthUser } from "@/lib/firebase-admin";
 import { ALLOWED_ADMINS } from "@/lib/constants";
 import { CACHE_TAGS, isCacheTag, type CacheTag } from "@/lib/cache-tags";
 import { submitToIndexNow } from "@/lib/seo/indexnow";
+import { articlePath } from "@/lib/articles/paths";
 
 export const dynamic = "force-dynamic";
 
@@ -84,11 +85,16 @@ export async function POST(req: Request) {
         }
     }
 
-    expire([articleId ? CACHE_TAGS.articles : CACHE_TAGS.posts, CACHE_TAGS.feed]);
+    // Articles also appear on the service pages ("Further reading")
+    expire(articleId ? [CACHE_TAGS.articles, CACHE_TAGS.feed, CACHE_TAGS.services] : [CACHE_TAGS.posts, CACHE_TAGS.feed]);
     if (articleId) {
-        revalidatePath(`/articles/${articleId}`);
+        // The article's page lives at its readable address (older ones: at their id)
+        const slug = (await getAdminDb().collection("articles").doc(articleId).get()).get("slug");
+        const path = articlePath({ id: articleId, slug: typeof slug === "string" ? slug : undefined });
+        revalidatePath(path);
+        if (path !== `/articles/${articleId}`) revalidatePath(`/articles/${articleId}`);
         // Let Bing & co. know right away (live site only); runs after the response is sent
-        after(() => submitToIndexNow([`/articles/${articleId}`, "/articles"]));
+        after(() => submitToIndexNow([path, "/articles"]));
     }
     return NextResponse.json({ ok: true, refreshed: articleId ? "article" : "post" });
 }

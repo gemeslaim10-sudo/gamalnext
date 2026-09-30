@@ -5,6 +5,7 @@ export const navigationCopy = {
     title: "Navigation (top bar & mobile menu)",
     fields: [
         { key: "home", label: "Link: Home", default: "Home" },
+        { key: "services", label: "Link: Services", default: "Services" },
         { key: "profile", label: "Link: Profile", default: "Profile" },
         { key: "projects", label: "Link: Projects", default: "Projects" },
         { key: "skills", label: "Link: Skills", default: "Skills" },

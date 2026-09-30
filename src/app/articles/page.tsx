@@ -4,6 +4,7 @@ import { getCopy } from "@/lib/copy/server";
 import { ButtonLink, Page, PageHeader } from "@/components/ui";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getPublicArticles } from "@/lib/content/server";
+import { articlePath } from "@/lib/articles/paths";
 import { getSiteSeo, pageMetadata } from "@/lib/seo/server";
 import { ORGANIZATION_ID, breadcrumbs, pageGraph, webPage } from "@/lib/seo/structured-data";
 import { absoluteUrl } from "@/lib/seo/server";
@@ -27,7 +28,7 @@ export default async function ArticlesPage() {
                         blogPost: (articles ?? []).slice(0, 20).map((article) => ({
                             "@type": "BlogPosting",
                             headline: article.title,
-                            url: absoluteUrl(`/articles/${article.id}`),
+                            url: absoluteUrl(articlePath(article)),
                             datePublished: article.createdAt ? new Date(article.createdAt).toISOString() : undefined,
                             description: article.summary || undefined,
                         })),

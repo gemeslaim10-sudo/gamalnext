@@ -6,6 +6,7 @@ import { loadPricing } from "@/lib/pricing/server";
 import { isListed } from "@/lib/pricing/utils";
 import type { PricingContent } from "@/lib/pricing/types";
 import { getSkillsData } from "@/components/sections/skills/data";
+import { getServicePages } from "@/lib/services/server";
 import { SHARE_IMAGE, absoluteUrl, clean, getSiteSeo, type SiteSeo } from "./server";
 import { splitList } from "./settings";
 
@@ -64,8 +65,10 @@ function profiles(site: SiteSeo) {
     return [...new Set(links.filter((link): link is string => Boolean(link && /^https?:\/\//.test(link))))];
 }
 
-/** Services the business offers: the "What I do" list, else the badges from Settings. */
+/** Services the business offers: its service pages, else the "What I do" list, else the badges from Settings. */
 async function serviceNames(site: SiteSeo) {
+    const pages = await getServicePages("en");
+    if (pages.length > 0) return pages.map((item) => item.en.name.trim());
     const skills = await getSkillsData();
     const names = (skills.mainSkills ?? []).map((item) => clean(item.title)).filter((name): name is string => Boolean(name));
     return names.length > 0 ? names : splitList(site.settings?.ownerBadges ? String(site.settings.ownerBadges) : "");
@@ -146,6 +149,9 @@ export async function siteGraph() {
         "@type": "Person",
         "@id": PERSON_ID,
         name: site.ownerName,
+        // Other forms of the name (Arabic, the LinkedIn name…): one person, whichever name is searched
+        alternateName: splitList(site.fill(business.founderAlternateNames)),
+        description: clean(site.settings?.ownerBio ? String(site.settings.ownerBio) : undefined),
         url: absoluteUrl("/profile"),
         image: site.logo,
         jobTitle: site.ownerTitle,
@@ -235,14 +241,14 @@ export function faqPage(path: string, items: { question: string; answer: string 
     };
 }
 
-/** Services with the company as provider (skills page "What I do", pricing custom-quote services). */
 /** An offer's price: exact, or where it starts (`from`). */
-function offerPrice(price: number, currency: string, from?: boolean) {
+export function offerPrice(price: number, currency: string, from?: boolean) {
     return from
         ? { priceSpecification: { "@type": "PriceSpecification", minPrice: price, priceCurrency: currency } }
         : { price, priceCurrency: currency };
 }
 
+/** Services with the company as provider (skills page "What I do", pricing custom-quote services). */
 export function serviceNodes(
     items: { name: string; description?: string; price?: number | null; priceFrom?: boolean; currency?: string }[],
     url: string

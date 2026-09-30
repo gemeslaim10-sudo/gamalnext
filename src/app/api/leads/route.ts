@@ -5,7 +5,7 @@ import { saveLead } from "@/lib/leads/server";
 
 export const dynamic = "force-dynamic";
 
-const SOURCES: readonly LeadSource[] = ["popup", "contact", "pricing", "chat", "other"];
+const SOURCES: readonly LeadSource[] = ["popup", "contact", "pricing", "services", "chat", "other"];
 const MAX_BODY_CHARS = 10_000;
 const RATE_LIMIT = { max: 5, windowMs: 10 * 60 * 1000 };
 

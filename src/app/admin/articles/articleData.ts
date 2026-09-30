@@ -5,6 +5,7 @@ import type { User } from "firebase/auth";
 import { loadFirestore } from "@/lib/firebase-app";
 import { refreshSite } from "@/lib/refreshSite";
 import { isPublicArticle } from "@/lib/content/shared";
+import { slugFromTitle } from "@/lib/articles/paths";
 import { invalidateAdminDocs, refreshAdminCounts, type AdminListOptions } from "@/components/admin/kit";
 import { invalidateCounts, type CountFilter } from "@/components/admin/kit/listData";
 import type { FirebaseTimestamp, MediaItem } from "@/types";
@@ -74,6 +75,8 @@ export const readArticleDoc = (raw: Record<string, unknown> | null): ArticleDoc 
 
 export interface ArticleForm {
     title: string;
+    /** The readable end of the address (/articles/{slug}); empty = made from the title */
+    slug: string;
     summary: string;
     /** Comma separated while editing; saved as a list */
     tags: string;
@@ -83,7 +86,7 @@ export interface ArticleForm {
 
 export type ArticleErrors = Partial<Record<keyof ArticleForm, string>>;
 
-export const EMPTY_ARTICLE: ArticleForm = { title: "", summary: "", tags: "", media: [], content: "" };
+export const EMPTY_ARTICLE: ArticleForm = { title: "", slug: "", summary: "", tags: "", media: [], content: "" };
 
 export function toArticleForm(article: ArticleDoc): ArticleForm {
     const media = Array.isArray(article.media)
@@ -93,6 +96,7 @@ export function toArticleForm(article: ArticleDoc): ArticleForm {
           : [];
     return {
         title: article.title ?? "",
+        slug: article.slug ?? "",
         summary: article.summary ?? article.excerpt ?? "",
         tags: Array.isArray(article.tags) ? article.tags.join(", ") : "",
         media,
@@ -107,16 +111,7 @@ export function validateArticle(form: ArticleForm): ArticleErrors {
     return errors;
 }
 
-/** Same rule the dashboard always used for the (informational) slug. */
-function makeSlug(title: string) {
-    return title
-        .toLowerCase()
-        .replace(/[^؀-ۿa-z0-9\s-]/g, "")
-        .trim()
-        .replace(/\s+/g, "-");
-}
-
-/** The fields the editor owns. An existing slug is kept, like before. */
+/** The fields the editor owns. The slug typed in the form wins, else the saved one, else one from the title. */
 export function articlePatch(form: ArticleForm, currentSlug?: string) {
     return {
         title: form.title.trim(),
@@ -127,7 +122,7 @@ export function articlePatch(form: ArticleForm, currentSlug?: string) {
             .split(/[,،]/)
             .map((tag) => tag.trim())
             .filter(Boolean),
-        slug: currentSlug || makeSlug(form.title),
+        slug: slugFromTitle(form.slug) || currentSlug || slugFromTitle(form.title),
     };
 }
 

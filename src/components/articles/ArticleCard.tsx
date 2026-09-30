@@ -5,6 +5,7 @@ import { Card, FadeImg, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { getTimestampMs } from "@/types";
 import { getArticleSummary, formatArticleDateEn } from "@/lib/articles/articleCardHelpers";
+import { articlePath } from "@/lib/articles/paths";
 import type { FirebaseTimestamp, MediaItem } from "@/types";
 
 /** The fields a card needs; every article list in the app has them. */
@@ -15,6 +16,8 @@ export interface ArticleCardData {
     content?: string;
     media?: MediaItem[];
     createdAt?: FirebaseTimestamp;
+    /** Readable address (older articles use their id) */
+    slug?: string;
 }
 
 interface ArticleCardProps {
@@ -61,7 +64,7 @@ export function ArticleCard({ article, showCover = true, actions, className }: A
                 <h3 dir="auto" className="line-clamp-2 text-base font-semibold leading-snug text-foreground">
                     {/* The link covers the whole card, so the card is one click target */}
                     <Link
-                        href={`/articles/${article.id}`}
+                        href={articlePath(article)}
                         className="after:absolute after:inset-0 after:rounded-card focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-foreground"
                     >
                         {article.title}

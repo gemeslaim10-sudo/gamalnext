@@ -38,7 +38,8 @@ export default function OwnerProfile() {
                 <Avatar src={avatar} alt={name} size={64} priority />
                 <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                        <h1 className="text-lg font-semibold text-foreground">{name}</h1>
+                        {/* The page's H1 says what GTech does (top of the home page); the owner is a sub-heading */}
+                        <h2 className="text-lg font-semibold text-foreground">{name}</h2>
                         {availability && <Badge>{availability}</Badge>}
                     </div>
                     {title && <p className="mt-1 text-sm leading-relaxed text-muted">{title}</p>}

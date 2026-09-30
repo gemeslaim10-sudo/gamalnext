@@ -4,6 +4,7 @@ import { parseDate } from "../utils";
 import type { FeedItem } from "../types";
 import { isPublicArticle } from "@/lib/content/shared";
 import { markdownExcerpt } from "@/lib/articles/plainText";
+import { articlePath } from "@/lib/articles/paths";
 
 export async function fetchArticlesFeed(allFeed: FeedItem[]) {
     try {
@@ -23,7 +24,7 @@ export async function fetchArticlesFeed(allFeed: FeedItem[]) {
                 imageUrl: data.media?.[0]?.url || null,
                 gallery: Array.isArray(data.media) ? (data.media as Array<{ url: string }>).map(m => m.url) : null,
                 mediaType: data.media?.[0]?.type || "image",
-                link: `/articles/${docSnap.id}`,
+                link: articlePath({ id: docSnap.id, slug: data.slug }),
                 createdAt: parseDate(data.createdAt),
             });
         });

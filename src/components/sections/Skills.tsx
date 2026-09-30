@@ -32,7 +32,7 @@ export default async function Skills({ data }: { data: SkillsData }) {
                     <h2 id="main-skills-title" className="sr-only">
                         Services
                     </h2>
-                    <MainSkillsGrid skills={mainSkills} />
+                    <MainSkillsGrid skills={mainSkills} learnMore={t("skills.learnMore")} />
                 </section>
             )}
 

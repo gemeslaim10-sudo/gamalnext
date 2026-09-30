@@ -33,6 +33,13 @@ export interface ProjectForm {
     /** Video projects */
     videoUrl: string;
     embedCode: string;
+    // Case study (optional): shown as sections on the project page when filled
+    challenge: string;
+    solution: string;
+    /** One per line */
+    features: string;
+    /** Real results only */
+    results: string;
 }
 
 const text = (value: unknown) => (typeof value === "string" ? value : "");
@@ -48,6 +55,10 @@ export function toForm(item: StoredProject): ProjectForm {
         link: text(item.link),
         videoUrl: text(item.videoUrl),
         embedCode: text(item.embedCode),
+        challenge: text(item.challenge),
+        solution: text(item.solution),
+        features: text(item.features),
+        results: text(item.results),
     };
 }
 
@@ -62,6 +73,10 @@ export const EMPTY_PROJECT: ProjectForm = {
     link: "",
     videoUrl: "",
     embedCode: "",
+    challenge: "",
+    solution: "",
+    features: "",
+    results: "",
 };
 
 /**
@@ -83,6 +98,10 @@ export function applyForm(original: StoredProject, form: ProjectForm): StoredPro
         ["gallery", form.gallery, form.gallery.length === 0],
         ["videoUrl", form.videoUrl.trim(), !form.videoUrl.trim()],
         ["embedCode", form.embedCode.trim(), !form.embedCode.trim()],
+        ["challenge", form.challenge.trim(), !form.challenge.trim()],
+        ["solution", form.solution.trim(), !form.solution.trim()],
+        ["features", form.features.trim(), !form.features.trim()],
+        ["results", form.results.trim(), !form.results.trim()],
     ];
     for (const [key, value, empty] of optional) {
         if (!empty || key in original) next[key] = value;

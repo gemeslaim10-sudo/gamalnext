@@ -55,6 +55,7 @@ const SOURCE_LABELS: Record<string, string> = {
     popup: "نافذة الأرقام",
     contact: "صفحة التواصل",
     pricing: "صفحة الأسعار",
+    services: "صفحة خدمة",
     chat: "الشات",
     other: "الموقع",
 };

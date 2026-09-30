@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { loadFirestore } from "@/lib/firebase-app";
@@ -27,9 +29,17 @@ type Article = {
     createdAt?: FirebaseTimestamp;
     authorId: string;
     authorName?: string;
+    authorHref?: string;
 }
 
-export default function ArticleView({ article, related = [] }: { article: Article; related?: ArticleCardData[] }) {
+interface ArticleViewProps {
+    article: Article;
+    related?: ArticleCardData[];
+    /** Service pages about the article's topic */
+    services?: { name: string; summary: string; href: string }[];
+}
+
+export default function ArticleView({ article, related = [], services = [] }: ArticleViewProps) {
     const t = useCopy();
     const { user } = useAuth();
     const router = useRouter();
@@ -80,6 +90,7 @@ export default function ArticleView({ article, related = [] }: { article: Articl
                     title={article.title}
                     authorId={article.authorId}
                     authorName={article.authorName}
+                    authorHref={article.authorHref}
                     formattedDate={formattedDate}
                     isoDate={createdAtMs ? new Date(createdAtMs).toISOString() : undefined}
                     contentDir={contentDir}
@@ -94,6 +105,24 @@ export default function ArticleView({ article, related = [] }: { article: Articl
                 <div className="mt-8">
                     <ArticleBody content={article.content} contentDir={contentDir} />
                 </div>
+
+                {/* The reader's next step: the service pages this article is about */}
+                {services.length > 0 && (
+                    <aside className="mt-10 rounded-card border border-border bg-surface p-5">
+                        <h2 className="text-base font-semibold text-foreground">{t("blog.relatedServices")}</h2>
+                        <ul className="mt-3 space-y-3">
+                            {services.map((service) => (
+                                <li key={service.href}>
+                                    <Link href={service.href} className="group inline-flex items-center gap-1.5 font-medium text-foreground hover:underline hover:underline-offset-4">
+                                        {service.name}
+                                        <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
+                                    </Link>
+                                    {service.summary && <p className="mt-0.5 text-sm leading-relaxed text-muted">{service.summary}</p>}
+                                </li>
+                            ))}
+                        </ul>
+                    </aside>
+                )}
 
                 <div className="mt-10">
                     <ArticleActions

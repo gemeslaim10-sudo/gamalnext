@@ -15,7 +15,7 @@ export const DEFAULT_PRICING: PricingContent = {
     },
     header: {
         eyebrow: "GTech",
-        title: "Web services & digital solutions packages",
+        title: "Prices for websites, apps and business software",
         description: "Modern technical solutions, competitive prices, and a visual identity that represents you.",
     },
     offer: {
@@ -28,6 +28,7 @@ export const DEFAULT_PRICING: PricingContent = {
         request: "Request",
         requestQuote: "Request a quote",
         featured: "Recommended",
+        learnMore: "Learn more",
         pages: "Pages",
         hosting: "Hosting",
         hostingCost: "Hosting cost",

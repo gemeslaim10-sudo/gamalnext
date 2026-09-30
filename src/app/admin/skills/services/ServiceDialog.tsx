@@ -89,6 +89,20 @@ function ServiceForm({ service, isNew, onClose, onDone }: Omit<ServiceDialogProp
                         placeholder="Next.js, React, WordPress"
                     />
                 </Field>
+
+                <Field
+                    label="رابط «Learn more»"
+                    htmlFor="service-href"
+                    hint="صفحة الخدمة اللي الكارت يودّي لها، زي /services/custom-erp-development. فاضي = من غير رابط."
+                >
+                    <Input
+                        id="service-href"
+                        value={item.href ?? ""}
+                        onChange={(event) => set({ href: event.target.value })}
+                        dir="ltr"
+                        placeholder="/services/..."
+                    />
+                </Field>
             </div>
 
             <div className="flex flex-wrap justify-end gap-2 border-t border-border px-5 py-4">

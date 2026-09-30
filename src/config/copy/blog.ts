@@ -37,6 +37,7 @@ export const blogCopy = {
         { key: "linkCopied", label: "Toast: article link copied", default: "Link copied to clipboard!" },
         { key: "copyFailed", label: "Toast: copying the article link failed", default: "Failed to copy link." },
         { key: "relatedTitle", label: "Article page: related articles heading", default: "Related articles" },
+        { key: "relatedServices", label: "Article page: heading of the related services box", default: "How GTech can help" },
         { key: "viewAll", label: "Article page: View all button next to related articles", default: "View all" },
 
         // Edit article page (/articles/…/edit)

@@ -2,6 +2,7 @@ import { SITE_URL } from "@/lib/constants";
 import { getCopy } from "@/lib/copy/server";
 import { getPublicArticles } from "@/lib/content/server";
 import { markdownExcerpt } from "@/lib/articles/plainText";
+import { articlePath } from "@/lib/articles/paths";
 import { getSiteSeo } from "@/lib/seo/server";
 
 // Cached with the site content: rebuilt when an article is published, edited or deleted
@@ -14,7 +15,7 @@ const escapeXml = (text: string) =>
 export async function GET() {
     const [articles, site, t] = await Promise.all([getPublicArticles(), getSiteSeo(), getCopy()]);
     const items = (articles ?? []).slice(0, 50).map((article) => {
-        const link = `${SITE_URL}/articles/${article.id}`;
+        const link = `${SITE_URL}${articlePath(article)}`;
         const cover = article.media?.find((item) => item.type === "image" && item.url)?.url;
         return [
             "<item>",

@@ -15,7 +15,7 @@ import { LeadSuccess } from "./LeadSuccess";
 import { LEAD_MODAL_EVENT, hasSubmittedLead, markPopupShown, wasPopupShownThisVisit, type OpenLeadModalDetail } from "./events";
 import { LEAD_CAPTURE_DOC, fillName, normalizeLeadCapture, type LeadCaptureSettings } from "./settings";
 
-const SOURCES: readonly LeadSource[] = ["popup", "contact", "pricing", "chat", "other"];
+const SOURCES: readonly LeadSource[] = ["popup", "contact", "pricing", "services", "chat", "other"];
 
 /** When the visitor is busy (typing, another dialog open, tab in the background), look again after this long. */
 const RETRY_MS = 4000;

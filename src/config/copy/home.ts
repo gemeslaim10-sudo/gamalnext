@@ -5,6 +5,18 @@ export const homeCopy = {
     title: "Home page (feed)",
     description: "The home page's Google title and description are the site-wide ones in the SEO section.",
     fields: [
+        {
+            key: "introTitle",
+            label: "Main heading at the top of the home page (the page's H1: say what GTech does)",
+            default: "Custom ERP, CRM and business software, built around how your company works",
+        },
+        {
+            key: "introText",
+            label: "Line under the main heading",
+            default:
+                "GTech is Gamal Abdelaty's software studio in Cairo, Egypt. We analyze how your business works, then build the ERP, CRM, web application or website that fits it, plus Shopify stores and hosting.",
+        },
+        { key: "allServices", label: "Link to the services page, after the service links", default: "All services" },
         { key: "typeProject", label: "Feed label for projects", default: "Project" },
         { key: "typeArticle", label: "Feed label for articles", default: "Article" },
         { key: "typePost", label: "Feed label for community posts", default: "Post" },

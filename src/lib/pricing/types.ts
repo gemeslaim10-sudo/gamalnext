@@ -77,6 +77,8 @@ export interface PricingLabels extends Record<SpecKey, string> {
     request: string;
     requestQuote: string;
     featured: string;
+    /** Link from a priced item to its service page, e.g. "Learn more" */
+    learnMore: string;
     /** Discount badge; `{percent}` is replaced with the computed discount */
     discount: string;
     /** Read by screen readers before a struck-through price */

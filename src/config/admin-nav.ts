@@ -2,6 +2,7 @@ import {
     Bell,
     BookOpen,
     Bot,
+    BriefcaseBusiness,
     Code,
     FileText,
     FlaskConical,
@@ -63,6 +64,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
         label: "محتوى الموقع",
         items: [
             { href: "/admin/content", label: "الواجهة", description: "العنوان والوصف والصورة في صفحة البروفايل", icon: PanelTop },
+            { href: "/admin/services", label: "صفحات الخدمات", description: "صفحة لكل خدمة بالإنجليزي والعربي، لجوجل والعملاء", icon: BriefcaseBusiness },
             { href: "/admin/skills", label: "الخدمات والمهارات", description: "الخدمات والتقنيات والأدوات", icon: Code },
             { href: "/admin/projects", label: "المشاريع", description: "معرض الأعمال", icon: FolderOpen },
             { href: "/admin/copy", label: "نصوص الموقع", description: "كل الكلام اللي بيظهر للزوار، مقسّم حسب الصفحة", icon: Type },

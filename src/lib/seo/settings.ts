@@ -24,6 +24,8 @@ export interface SeoBusiness {
     summary: string;
     /** Founder / owner ("" = owner name from Settings) */
     founderName: string;
+    /** Other forms of the founder's name (Arabic, the name on LinkedIn…), comma separated: tells search engines they are one person */
+    founderAlternateNames: string;
     foundingYear: string;
     /** Main phone in international format, e.g. +201024531452 ("" = WhatsApp number from Settings) */
     phone: string;
@@ -106,6 +108,7 @@ export const DEFAULT_SEO: SeoSettings = {
         summary:
             "GTech is a software company founded by Gamal Abdelaty. It offers business analysis and builds ERP and CRM systems for companies and institutions, company websites and online stores, and web hosting. It also designs professional Shopify themes at a fraction of Shopify Theme Store prices, and builds WordPress sites. GTech is based in Egypt and works with clients worldwide.",
         founderName: "",
+        founderAlternateNames: "",
         foundingYear: "",
         phone: "",
         whatsapp: "",
@@ -210,6 +213,7 @@ export function normalizeSeo(raw: unknown): SeoSettings {
             alternateNames: text(business.alternateNames, d.business.alternateNames),
             summary: text(business.summary, d.business.summary),
             founderName: text(business.founderName, d.business.founderName),
+            founderAlternateNames: text(business.founderAlternateNames, d.business.founderAlternateNames),
             foundingYear: text(business.foundingYear, d.business.foundingYear),
             phone: text(business.phone, d.business.phone),
             whatsapp: text(business.whatsapp, d.business.whatsapp),

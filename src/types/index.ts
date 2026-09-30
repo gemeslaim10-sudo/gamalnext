@@ -30,6 +30,8 @@ export interface ArticleRaw {
     tags?: string[];
     /** "pending" while waiting for review; missing or "published" = public */
     status?: string;
+    /** Readable address part: /articles/{slug} (older articles have none and use their id) */
+    slug?: string;
 }
 /** Serialized article (timestamps converted to numbers for client components) */
 export interface ArticleSerialized {
@@ -43,6 +45,7 @@ export interface ArticleSerialized {
     authorId: string;
     authorName?: string;
     tags?: string[];
+    slug?: string;
 }
 /** Minimal article card type (used in listings, trending, related) */
 export interface ArticleCard {
@@ -72,6 +75,12 @@ export interface ProjectItem {
     description?: string;
     category: string;
     slug?: string;
+    // Case study (optional, from the dashboard)
+    challenge?: string;
+    solution?: string;
+    /** One per line */
+    features?: string;
+    results?: string;
 }
 export interface ProjectsData {
     items: ProjectItem[];

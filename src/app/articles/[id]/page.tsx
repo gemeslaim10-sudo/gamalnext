@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getCopy } from "@/lib/copy/server";
 import { getArticle, getPublicArticles, isPublicArticle } from "@/lib/content/server";
 import { markdownExcerpt } from "@/lib/articles/plainText";
+import { articlePath } from "@/lib/articles/paths";
+import { getAdminUids } from "@/lib/firebase-admin";
+import { servicesFor } from "@/lib/services/server";
 import { SHARE_IMAGE, absoluteUrl, getSiteOpenGraph, getSiteSeo } from "@/lib/seo/server";
 import { ORGANIZATION_ID, PERSON_ID, breadcrumbs, pageGraph } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -19,6 +22,36 @@ async function getPublishedArticle(id: string) {
     const article = await getArticle(id);
     if (article === undefined) throw new Error(`Article ${id} couldn't be read`);
     return article && isPublicArticle(article) ? article : null;
+}
+
+/**
+ * The address part is the article's slug, or its id (older links, articles without a slug).
+ * Returns the article, its id and its one public address.
+ */
+async function findArticle(param: string) {
+    let key = param;
+    try {
+        key = decodeURIComponent(param);
+    } catch {
+        // Not encoded: use it as it is
+    }
+    const published = (await getPublicArticles()) ?? [];
+    const match = published.find((article) => article.slug?.trim() === key) ?? published.find((article) => article.id === key);
+    const id = match?.id ?? key;
+    const article = await getPublishedArticle(id);
+    if (!article) return null;
+    // `current`: the address part is already the article's own (its slug, or its id when it has none)
+    return { id, article, path: articlePath({ id, slug: article.slug }), current: key === (article.slug?.trim() || id) };
+}
+
+/** The site owner's articles are credited to the site's person (same entity as /profile). */
+async function isOwnerArticle(article: ArticleRaw) {
+    if (!article.authorId) return true;
+    try {
+        return (await getAdminUids()).has(article.authorId);
+    } catch {
+        return false;
+    }
 }
 
 /** Arabic when most letters of the title and text are Arabic. */
@@ -41,15 +74,16 @@ function describe(article: ArticleRaw) {
 
 // Generate SEO Metadata dynamically
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const { id } = await params;
-    const [article, t] = await Promise.all([getPublishedArticle(id), getCopy()]);
+    const { id: param } = await params;
+    const [found, t] = await Promise.all([findArticle(param), getCopy()]);
 
-    if (!article) {
+    if (!found) {
         return {
             title: t("blog.notFoundTitle"),
             robots: { index: false, follow: true },
         };
     }
+    const { article, path } = found;
 
     const [site, siteOpenGraph] = await Promise.all([getSiteSeo(), getSiteOpenGraph()]);
     const { ownerName } = site;
@@ -61,7 +95,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         // The article's tags; without tags the site-wide keywords stay (the key must then be absent)
         ...(article.tags?.length ? { keywords: article.tags } : {}),
         alternates: {
-            canonical: `/articles/${id}`,
+            canonical: path,
         },
         // Shared links (X follows): the site-wide card with this title and description, the
         // article's cover image when it has one, and the article details
@@ -78,19 +112,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /** Every published article is built ahead of time; new ones are built on their first visit. */
 export async function generateStaticParams() {
     const articles = (await getPublicArticles()) ?? [];
-    return articles.map((article) => ({ id: article.id }));
+    return articles.map((article) => ({ id: article.slug?.trim() || article.id }));
 }
 
 export default async function ArticlePage({ params }: Props) {
-    const { id } = await params;
-    const article = await getPublishedArticle(id);
+    const { id: param } = await params;
+    const found = await findArticle(param);
 
-    if (!article) {
+    if (!found) {
         notFound();
     }
+    const { id, article, path } = found;
+    // One address per article: old links (by id) move to the readable one
+    if (!found.current) permanentRedirect(path);
 
-    // Owner and site name from the dashboard settings (the same cached read as the root layout)
-    const [{ ownerName }, t] = await Promise.all([getSiteSeo(), getCopy()]);
+    // Owner and site name from the dashboard settings (the same cached read as the root layout);
+    // service pages about the article's topic (from their article keywords), for the reader's next step
+    const [{ ownerName }, t, services, ownArticle] = await Promise.all([
+        getSiteSeo(),
+        getCopy(),
+        servicesFor("articles", [...(article.tags ?? []), article.title]),
+        isOwnerArticle(article),
+    ]);
     const cover = coverImage(article);
 
     // eslint-disable-next-line react-hooks/purity
@@ -102,7 +145,9 @@ export default async function ArticlePage({ params }: Props) {
         ...article,
         id: id,
         createdAt: createdAtMs,
-        updatedAt: updatedAtMs
+        updatedAt: updatedAtMs,
+        // The owner's articles credit the owner's profile page, the same person search engines see
+        authorHref: ownArticle ? "/profile" : undefined,
     };
 
     // Up to three other published articles (from the same cache as the blog page)
@@ -111,6 +156,7 @@ export default async function ArticlePage({ params }: Props) {
         .slice(0, 3)
         .map((other) => ({
             id: other.id,
+            slug: other.slug,
             title: other.title,
             summary: other.summary,
             content: (other.content || "").slice(0, 400),
@@ -118,7 +164,6 @@ export default async function ArticlePage({ params }: Props) {
             createdAt: other.createdAt,
         }));
 
-    const path = `/articles/${id}`;
     const words = (article.content || "").split(/\s+/).filter(Boolean).length;
     const jsonLd = pageGraph(
         {
@@ -132,10 +177,11 @@ export default async function ArticlePage({ params }: Props) {
             inLanguage: articleLanguage(article),
             keywords: (article.tags ?? []).join(", "),
             wordCount: words || undefined,
-            // Members' articles link to their profile; articles without an author are the owner's
-            author: article.authorId
-                ? { "@type": "Person", name: article.authorName || ownerName, url: absoluteUrl(`/users/${article.authorId}`) }
-                : { "@id": PERSON_ID },
+            // The owner's articles are the site's person; members' articles link to their profile
+            author: ownArticle
+                ? { "@id": PERSON_ID }
+                : { "@type": "Person", name: article.authorName || ownerName, url: absoluteUrl(`/users/${article.authorId}`) },
+            about: services.map((service) => ({ "@id": `${absoluteUrl(service.href)}#service` })),
             publisher: { "@id": ORGANIZATION_ID },
             mainEntityOfPage: absoluteUrl(path),
             isPartOf: { "@type": "Blog", "@id": `${absoluteUrl("/articles")}#page` },
@@ -150,7 +196,7 @@ export default async function ArticlePage({ params }: Props) {
     return (
         <>
             <JsonLd data={jsonLd} />
-            <ArticleView article={serializedArticle} related={related} />
+            <ArticleView article={serializedArticle} related={related} services={services} />
         </>
     );
 }
