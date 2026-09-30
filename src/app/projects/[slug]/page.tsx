@@ -5,6 +5,7 @@ import { Page } from "@/components/ui";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getCopy } from "@/lib/copy/server";
 import { getProjects, projectImage, projectSlug, type Project } from "@/lib/content/server";
+import { projectGalleries, projectImages } from "@/lib/content/shared";
 import { absoluteUrl, getSiteOpenGraph, getSiteSeo } from "@/lib/seo/server";
 import { ORGANIZATION_ID, breadcrumbs, pageGraph } from "@/lib/seo/structured-data";
 import { cn, slugify, textDirStyle } from "@/lib/utils";
@@ -91,10 +92,16 @@ export default async function ProjectDetailsPage({ params }: Props) {
         : [];
 
     // Main image first, then the gallery
-    const allImages = [project.image, ...((project.gallery as string[] | undefined) || [])].filter(Boolean) as string[];
+    const allImages = projectImages(project);
     const facts = getProjectFacts(project, t);
 
     const path = `/projects/${projectSlug(project)}`;
+
+    // Every project's images: the viewer goes from this project's last image straight on to the
+    // next project's first one (and back)
+    const galleries = projectGalleries(allProjects);
+    const current = galleries.findIndex((gallery) => gallery.href === path);
+    const sequence = current >= 0 ? { groups: galleries, current } : undefined;
     const jsonLd = pageGraph(
         {
             "@type": "CreativeWork",
@@ -124,7 +131,7 @@ export default async function ProjectDetailsPage({ params }: Props) {
 
             <div className="grid gap-8 lg:grid-cols-3 lg:gap-10">
                 <div className={cn("min-w-0 space-y-8", facts.length > 0 ? "lg:col-span-2" : "lg:col-span-3")}>
-                    <ProjectGallery title={title} images={allImages} />
+                    <ProjectGallery title={title} images={allImages} sequence={sequence} />
 
                     {typeof project.embedCode === "string" && project.embedCode && (
                         <div

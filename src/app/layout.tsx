@@ -102,7 +102,9 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang="en" dir="ltr" suppressHydrationWarning>
+    // data-scroll-behavior: smooth scrolling is for in-page links only — Next.js turns it off while
+    // it moves to a new page, so pages open at the top without a scroll animation
+    <html lang="en" dir="ltr" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${cairo.variable} flex min-h-dvh flex-col font-sans`} suppressHydrationWarning>
         <AuthProvider>
           <JsonLd data={graph} />

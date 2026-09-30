@@ -68,6 +68,9 @@
   --animate-rise-in: rise-in var(--motion-slow) var(--ease-out) backwards;
   --animate-page-in: page-in var(--motion-slow) var(--ease-out) backwards;
   --animate-zoom-in: zoom-in var(--motion-base) var(--ease-out) backwards;
+  /* The image viewer's next / previous item slides in from the side it came from */
+  --animate-slide-in-next: slide-in-next var(--motion-base) var(--ease-out) backwards;
+  --animate-slide-in-prev: slide-in-prev var(--motion-base) var(--ease-out) backwards;
 
   @keyframes fade-in {
     from { opacity: 0; }
@@ -77,12 +80,21 @@
     from { opacity: 0; transform: translateY(10px); }
   }
 
+  /* A new page: a soft fade with a barely-there lift (no scrolling, no jumps) */
   @keyframes page-in {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(4px); }
   }
 
   @keyframes zoom-in {
     from { opacity: 0; transform: scale(0.96); }
+  }
+
+  @keyframes slide-in-next {
+    from { opacity: 0; transform: translateX(32px); }
+  }
+
+  @keyframes slide-in-prev {
+    from { opacity: 0; transform: translateX(-32px); }
   }
 
   @keyframes bar-fill {

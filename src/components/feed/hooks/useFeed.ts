@@ -2,7 +2,18 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "react-hot-toast";
 
 import type { FeedItem } from "../types";
+import { feedImages } from "../feedMedia";
+import type { LightboxGroup, LightboxPosition } from "@/components/media/Lightbox";
 import { useCopy } from "@/components/providers/CopyProvider";
+
+/** One card's images as a set for the viewer; its title links to its page (posts have none). */
+function viewerGroup(item: FeedItem): LightboxGroup {
+    return {
+        title: item.title,
+        href: item.type === "post" ? undefined : item.link,
+        items: feedImages(item).map((url) => ({ url, type: "image" as const })),
+    };
+}
 
 export interface FeedInitialPage {
     items: FeedItem[];
@@ -12,8 +23,9 @@ export interface FeedInitialPage {
 /**
  * @param initialPage the first page, rendered with the home page on the server (null when the
  *   server couldn't read it — then the browser loads page 1 itself)
+ * @param projectGalleries every project's images (from the server), for the image viewer
  */
-export function useFeed(initialPage?: FeedInitialPage | null) {
+export function useFeed(initialPage?: FeedInitialPage | null, projectGalleries?: LightboxGroup[]) {
     const t = useCopy();
     const [items, setItems] = useState<FeedItem[]>(initialPage?.items ?? []);
     const [page, setPage] = useState(1);
@@ -26,7 +38,7 @@ export function useFeed(initialPage?: FeedInitialPage | null) {
     const [activeComments, setActiveComments] = useState<string | null>(null);
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
     // The last opened images stay in state after closing so the viewer can animate out
-    const [lightbox, setLightbox] = useState<{ images: string[]; index: number; title: string } | null>(null);
+    const [lightbox, setLightbox] = useState<{ groups: LightboxGroup[]; position: LightboxPosition } | null>(null);
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const observer = useRef<IntersectionObserver | null>(null);
 
@@ -116,10 +128,24 @@ export function useFeed(initialPage?: FeedInitialPage | null) {
         });
     };
 
-    const openLightbox = (images: string[], index: number, title: string) => {
-        setLightbox({ images, index, title });
+    /**
+     * A project opens among every project's images (in the order of the projects page), so visitors
+     * can browse them all without closing the viewer; a post's or an article's images show on their own.
+     */
+    const openLightbox = (item: FeedItem, index: number) => {
+        const group = item.type === "project" && projectGalleries ? projectGalleries.findIndex((gallery) => gallery.href === item.link) : -1;
+        if (projectGalleries && group >= 0) {
+            // The card may list the images differently from the project page: open the one tapped
+            const url = feedImages(item)[index];
+            const start = projectGalleries[group].items.findIndex((media) => media.url === url);
+            setLightbox({ groups: projectGalleries, position: { group, index: Math.max(0, start) } });
+        } else {
+            setLightbox({ groups: [viewerGroup(item)], position: { group: 0, index } });
+        }
         setLightboxOpen(true);
     };
+
+    const moveLightbox = (position: LightboxPosition) => setLightbox((current) => (current ? { ...current, position } : current));
 
     const closeLightbox = () => setLightboxOpen(false);
 
@@ -140,6 +166,7 @@ export function useFeed(initialPage?: FeedInitialPage | null) {
         toggleComments,
         toggleExpand,
         openLightbox,
+        moveLightbox,
         closeLightbox
     };
 }

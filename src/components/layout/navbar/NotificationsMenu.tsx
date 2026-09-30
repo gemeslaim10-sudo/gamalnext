@@ -31,7 +31,9 @@ export function NotificationsMenu() {
 
     return (
         <Dropdown
-            className="w-80 max-w-[calc(100vw-2rem)] p-0"
+            // Phones: pinned under the navbar with a small margin on both sides, so none of it can
+            // leave the screen (the bell isn't at the edge, so a panel anchored to it would stick out)
+            className="w-80 p-0 max-sm:fixed max-sm:inset-x-3 max-sm:top-[3.75rem] max-sm:mt-0 max-sm:w-auto"
             trigger={({ open, toggle }) => (
                 <button
                     type="button"
@@ -50,7 +52,7 @@ export function NotificationsMenu() {
             )}
         >
             {(close) => (
-                <div className="max-h-96 overflow-y-auto">
+                <div className="max-h-[min(24rem,calc(100dvh-5rem))] overflow-y-auto overscroll-contain">
                     <p className="sticky top-0 border-b border-border bg-surface px-4 py-3 text-sm font-semibold text-foreground">
                         {t("nav.notifications")}
                     </p>

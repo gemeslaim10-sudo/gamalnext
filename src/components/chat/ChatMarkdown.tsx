@@ -1,10 +1,52 @@
 "use client";
 
+import { createContext, useContext, type MouseEvent, type ReactNode } from "react";
 import Link from "next/link";
 import ReactMarkdown, { type Components } from "react-markdown";
+import { SITE_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const LINK = "font-medium text-foreground underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-foreground";
+
+/** Called when a reply's link opens a page of this site, so the chat can close and show that page. */
+export const ChatNavigationContext = createContext<(() => void) | null>(null);
+
+const SITE_HOST = new URL(SITE_URL).host.replace(/^www\./, "");
+
+/** "/pricing" or a full link to this site → the path to open; anything else is external. */
+function sitePath(href: string): string | null {
+    if (href.startsWith("/") && !href.startsWith("//")) return href;
+    try {
+        const url = new URL(href);
+        const host = url.host.replace(/^www\./, "");
+        const here = typeof window === "undefined" ? "" : window.location.host;
+        if (host === SITE_HOST || (here && url.host === here)) return `${url.pathname}${url.search}${url.hash}`;
+    } catch {
+        // Not a full address (mailto:, tel: or a typo): leave it as it is
+    }
+    return null;
+}
+
+function ChatLink({ href = "", children }: { href?: string; children: ReactNode }) {
+    const onNavigate = useContext(ChatNavigationContext);
+    const path = sitePath(href);
+    if (!path) {
+        return (
+            <a href={href} className={LINK} target="_blank" rel="noopener noreferrer">
+                {children}
+            </a>
+        );
+    }
+    // A plain click opens the page here and closes the chat; ctrl/⌘-click still opens a new tab
+    const onClick = (e: MouseEvent) => {
+        if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) onNavigate?.();
+    };
+    return (
+        <Link href={path} onClick={onClick} className={LINK}>
+            {children}
+        </Link>
+    );
+}
 
 /** Light markdown for assistant replies: paragraphs, bold, lists, links. Raw HTML is never rendered. */
 const components: Components = {
@@ -27,20 +69,7 @@ const components: Components = {
     ),
     hr: () => <hr className="border-border" />,
     img: () => null,
-    a: ({ href, children }) => {
-        if (href?.startsWith("/") && !href.startsWith("//")) {
-            return (
-                <Link href={href} className={LINK}>
-                    {children}
-                </Link>
-            );
-        }
-        return (
-            <a href={href} className={LINK} target="_blank" rel="noopener noreferrer">
-                {children}
-            </a>
-        );
-    },
+    a: ({ href, children }) => <ChatLink href={href}>{children}</ChatLink>,
 };
 
 export default function ChatMarkdown({ text, className }: { text: string; className?: string }) {

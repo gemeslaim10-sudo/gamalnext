@@ -1,18 +1,24 @@
 "use client";
 
 import { useBrandingContext } from "@/components/providers/BrandingProvider";
-import Lightbox from "@/components/media/Lightbox";
+import Lightbox, { type LightboxGroup } from "@/components/media/Lightbox";
 import CreatePost from "./CreatePost";
 import FeedPostCard from "./FeedPostCard";
 import { FeedSkeleton, FeedErrorBanner, FeedEndMessage, FeedLoadingSpinner } from "./FeedStates";
 import { useFeed, type FeedInitialPage } from "./hooks/useFeed";
 
-export default function FeedClient({ initialPage }: { initialPage?: FeedInitialPage | null }) {
+interface FeedClientProps {
+    initialPage?: FeedInitialPage | null;
+    /** Every project's images, so the viewer can go from one project on to the next */
+    projectGalleries?: LightboxGroup[];
+}
+
+export default function FeedClient({ initialPage, projectGalleries }: FeedClientProps) {
     const {
         items, loading, hasMore, error, activeComments, expandedItems, lightbox, lightboxOpen,
         retry, lastItemElementRef, handleShare, toggleComments, toggleExpand,
-        openLightbox, closeLightbox
-    } = useFeed(initialPage);
+        openLightbox, moveLightbox, closeLightbox
+    } = useFeed(initialPage, projectGalleries);
 
     const branding = useBrandingContext();
 
@@ -21,10 +27,9 @@ export default function FeedClient({ initialPage }: { initialPage?: FeedInitialP
             {lightbox && (
                 <Lightbox
                     open={lightboxOpen}
-                    items={lightbox.images.map((url) => ({ url, type: "image" as const }))}
-                    index={lightbox.index}
-                    title={lightbox.title}
-                    onIndexChange={(index) => openLightbox(lightbox.images, index, lightbox.title)}
+                    groups={lightbox.groups}
+                    position={lightbox.position}
+                    onPositionChange={moveLightbox}
                     onClose={closeLightbox}
                 />
             )}

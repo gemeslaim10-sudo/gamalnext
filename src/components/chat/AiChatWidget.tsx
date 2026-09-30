@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePresence } from "@/hooks/usePresence";
 import ChatHeader from "./ChatHeader";
 import ChatMessage from "./ChatMessage";
+import { ChatNavigationContext } from "./ChatMarkdown";
 import ChatInput from "./ChatInput";
 import { useAiChat } from "./useAiChat";
 import { useChatStore } from "@/store/chatStore";
@@ -29,6 +30,8 @@ export default function AiChatWidget({ initialConfig }: { initialConfig?: Public
 
     const configLoading = configStatus === "idle" || configStatus === "loading";
     const title = config?.assistantName || (configLoading ? "" : FALLBACK.title);
+    // A link in a reply to a page of the site closes the chat, so the new page isn't covered
+    const closeChat = useCallback(() => setIsOpen(false), []);
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -118,32 +121,34 @@ export default function AiChatWidget({ initialConfig }: { initialConfig?: Public
                         onClearChat={clearChat}
                     />
 
-                    <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
-                        {/* Welcome message from the dashboard */}
-                        {configLoading ? (
-                            <div className="flex justify-start">
-                                <div className="w-3/4 space-y-2 rounded-card bg-surface-hover px-3.5 py-3">
-                                    <Skeleton className="h-3 w-full bg-border" />
-                                    <Skeleton className="h-3 w-2/3 bg-border" />
+                    <ChatNavigationContext.Provider value={closeChat}>
+                        <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
+                            {/* Welcome message from the dashboard */}
+                            {configLoading ? (
+                                <div className="flex justify-start">
+                                    <div className="w-3/4 space-y-2 rounded-card bg-surface-hover px-3.5 py-3">
+                                        <Skeleton className="h-3 w-full bg-border" />
+                                        <Skeleton className="h-3 w-2/3 bg-border" />
+                                    </div>
                                 </div>
-                            </div>
-                        ) : (
-                            welcome && <ChatMessage role="model" text={welcome} />
-                        )}
+                            ) : (
+                                welcome && <ChatMessage role="model" text={welcome} />
+                            )}
 
-                        {messages.map((msg, idx) => (
-                            <ChatMessage key={idx} role={msg.role} text={msg.text} isError={msg.isError} />
-                        ))}
+                            {messages.map((msg, idx) => (
+                                <ChatMessage key={idx} role={msg.role} text={msg.text} isError={msg.isError} />
+                            ))}
 
-                        {loading && (
-                            <div className="flex animate-fade-in justify-start" role="status" aria-label="Typing">
-                                <div className="rounded-card bg-surface-hover px-3.5 py-2.5">
-                                    <Spinner className="size-4" />
+                            {loading && (
+                                <div className="flex animate-fade-in justify-start" role="status" aria-label="Typing">
+                                    <div className="rounded-card bg-surface-hover px-3.5 py-2.5">
+                                        <Spinner className="size-4" />
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                        <div ref={endRef} />
-                    </div>
+                            )}
+                            <div ref={endRef} />
+                        </div>
+                    </ChatNavigationContext.Provider>
 
                     <ChatInput
                         input={input}

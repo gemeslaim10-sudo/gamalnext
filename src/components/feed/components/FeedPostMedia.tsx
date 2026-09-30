@@ -6,7 +6,8 @@ import type { FeedItem } from "../types";
 interface FeedPostMediaProps {
     item: FeedItem;
     index: number;
-    onOpenLightbox: (images: string[], index: number, title: string) => void;
+    /** Opens the viewer at this card's `index`-th image */
+    onOpenLightbox: (item: FeedItem, index: number) => void;
 }
 
 const SIZES = "(max-width: 768px) 100vw, 672px";
@@ -22,7 +23,7 @@ export function FeedPostMedia({ item, index, onOpenLightbox }: FeedPostMediaProp
                     <button
                         key={idx}
                         type="button"
-                        onClick={() => onOpenLightbox(item.gallery!, idx, item.title)}
+                        onClick={() => onOpenLightbox(item, idx)}
                         aria-label={`Open image ${idx + 1} of ${count}`}
                         className={cn(
                             "relative cursor-zoom-in overflow-hidden bg-surface-hover",
@@ -46,7 +47,7 @@ export function FeedPostMedia({ item, index, onOpenLightbox }: FeedPostMediaProp
         return (
             <button
                 type="button"
-                onClick={() => onOpenLightbox([item.imageUrl!], 0, item.title)}
+                onClick={() => onOpenLightbox(item, 0)}
                 aria-label="Open image"
                 className="relative block aspect-video w-full cursor-zoom-in overflow-hidden border-t border-border bg-surface-hover"
             >
