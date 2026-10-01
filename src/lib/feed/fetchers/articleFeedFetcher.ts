@@ -14,6 +14,7 @@ export async function fetchArticlesFeed(allFeed: FeedItem[]) {
             const data = docSnap.data();
             // Articles waiting for review stay out (no status = published before moderation existed)
             if (!isPublicArticle(data)) return;
+            const createdAt = parseDate(data.createdAt);
             allFeed.push({
                 id: docSnap.id,
                 type: "article",
@@ -25,7 +26,8 @@ export async function fetchArticlesFeed(allFeed: FeedItem[]) {
                 gallery: Array.isArray(data.media) ? (data.media as Array<{ url: string }>).map(m => m.url) : null,
                 mediaType: data.media?.[0]?.type || "image",
                 link: articlePath({ id: docSnap.id, slug: data.slug }),
-                createdAt: parseDate(data.createdAt),
+                createdAt,
+                rankAt: createdAt,
             });
         });
     } catch (err) {

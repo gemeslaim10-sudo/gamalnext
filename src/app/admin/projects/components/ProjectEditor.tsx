@@ -139,9 +139,19 @@ export function ProjectEditor({ index }: { index: number | null }) {
                             </Select>
                         </Field>
                     </div>
-                    <Field label="التقنيات" htmlFor="project-tags" hint="مفصولة بفاصلة، زي: React، Firebase، Dashboard">
-                        <Input id="project-tags" dir="auto" value={draft.tags} onChange={(e) => update("tags", e.target.value)} />
-                    </Field>
+                    <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_12rem]">
+                        <Field label="التقنيات" htmlFor="project-tags" hint="مفصولة بفاصلة، زي: React، Firebase، Dashboard">
+                            <Input id="project-tags" dir="auto" value={draft.tags} onChange={(e) => update("tags", e.target.value)} />
+                        </Field>
+                        {/* A real date or none: the home page never makes one up */}
+                        <Field
+                            label="شهر التسليم (اختياري)"
+                            htmlFor="project-date"
+                            hint="زي 2025-06. بيظهر على كارت المشروع في الصفحة الرئيسية وبيترتب على حسبه. فاضي = من غير تاريخ."
+                        >
+                            <Input id="project-date" type="month" dir="ltr" value={draft.date} onChange={(e) => update("date", e.target.value)} />
+                        </Field>
+                    </div>
                     <Field label="الوصف" htmlFor="project-description" hint="سطرين أو تلاتة عن المشروع ونتيجته.">
                         <Textarea
                             id="project-description"

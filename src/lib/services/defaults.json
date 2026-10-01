@@ -55,6 +55,7 @@
       "articleKeywords": "ERP, Operations",
       "en": {
         "name": "Custom ERP development",
+        "label": "ERP systems",
         "summary": "One system for inventory, sales, purchasing and accounting, built around the way your company works.",
         "seoTitle": "Custom ERP Development in Egypt",
         "seoDescription": "Custom ERP systems for companies in Egypt: inventory, sales, purchasing, accounting and reports in one system, built in modules after a business analysis.",
@@ -223,6 +224,7 @@
       "articleKeywords": "CRM, Sales",
       "en": {
         "name": "CRM development",
+        "label": "CRM systems",
         "summary": "Customers, leads, deals and follow-ups in one place, built around the way your team sells.",
         "seoTitle": "Custom CRM Development in Egypt",
         "seoDescription": "Custom CRM systems for sales teams: one pipeline for leads and deals, full customer history, follow-up reminders, and leads from your website and WhatsApp.",
@@ -378,6 +380,7 @@
       "articleKeywords": "Digital Transformation, Requirements",
       "en": {
         "name": "Custom software development",
+        "label": "Custom software",
         "summary": "Web applications, dashboards, internal tools and mobile apps built around your workflow.",
         "seoTitle": "Custom Software & Web App Development in Egypt",
         "seoDescription": "Custom business software: web applications, dashboards, internal tools, WhatsApp integrations and Android and iOS apps, built around your workflow.",
@@ -529,6 +532,7 @@
       "articleKeywords": "Business Analysis, Requirements",
       "en": {
         "name": "Business analysis",
+        "label": "Business analysis",
         "summary": "Map how your business really works and turn it into clear, prioritized requirements before anything is built.",
         "seoTitle": "Business Analysis for Software Projects in Egypt",
         "seoDescription": "Before you build an ERP, CRM or custom system, we map your processes and write clear requirements, priorities and scope, so you build only what you need.",
@@ -683,6 +687,7 @@
       "articleKeywords": "Websites, Hosting",
       "en": {
         "name": "Website development",
+        "label": "Websites",
         "summary": "Fast company websites, landing pages, portfolios and online stores that you can edit yourself.",
         "seoTitle": "Company Website Development in Egypt",
         "seoDescription": "Fast company websites, landing pages, portfolios, blogs and online stores in Egypt, designed around your brand, easy to edit, with a free year of maintenance.",
@@ -840,6 +845,7 @@
       "articleKeywords": "Shopify, E-Commerce",
       "en": {
         "name": "Shopify development",
+        "label": "Shopify stores",
         "summary": "Shopify store setup, professional themes and custom themes built to sell.",
         "seoTitle": "Shopify Store & Theme Development in Egypt",
         "seoDescription": "Shopify store setup and Shopify themes: professional ready-made themes for far less than Theme Store prices, or custom themes built for your brand.",

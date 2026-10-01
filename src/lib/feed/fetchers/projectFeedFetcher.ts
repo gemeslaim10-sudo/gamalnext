@@ -1,7 +1,9 @@
 import { collection, getDocs, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { projectSlug } from "@/lib/content/shared";
+import { projectDate, projectSlug } from "@/lib/content/shared";
 import type { FeedItem, ProjectItem } from "../types";
+
+const DAY_MS = 86400000;
 
 export async function fetchProjectsFeed(allFeed: FeedItem[]) {
     try {
@@ -10,20 +12,26 @@ export async function fetchProjectsFeed(allFeed: FeedItem[]) {
         );
         const projectsDoc = projectsSnap.docs.find(d => d.id === "projects");
         const projectsList: ProjectItem[] = projectsDoc?.data()?.items || [];
+        const now = Date.now();
         projectsList.forEach((p, idx) => {
+            const date = projectDate(p);
             allFeed.push({
                 id: p.id || p.slug || `proj-${idx}`,
                 type: "project",
                 title: p.title || p.name || "Untitled Project",
-                description: p.summary || p.description || "Explore this amazing project.",
-                fullContent: p.description || p.summary || "Explore this amazing project. Features cutting edge technologies and dynamic designs.",
+                // Only the project's own words: without a description the card shows the title and pictures
+                description: p.summary || p.description || "",
+                fullContent: p.description || p.summary || "",
                 imageUrl: p.image || p.imageUrl || p.gallery?.[0] || null,
                 gallery: p.gallery || (p.image ? [p.image] : null),
                 mediaType: p.videoUrl ? "video" : "image",
                 videoUrl: p.videoUrl || null,
                 // Same address as the project cards and the sitemap (one URL per project)
                 link: `/projects/${projectSlug(p) || `proj-${idx}`}`,
-                createdAt: p.createdAt || new Date(Date.now() - idx * 86400000).toISOString(),
+                // The date set in the dashboard, if any: a project without one shows no date
+                createdAt: date,
+                // Undated projects keep the dashboard order near the top of the feed, a day apart
+                rankAt: date ?? new Date(now - idx * DAY_MS).toISOString(),
             });
         });
     } catch (err) {

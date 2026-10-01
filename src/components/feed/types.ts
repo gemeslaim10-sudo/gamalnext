@@ -10,7 +10,8 @@ export type FeedItem = {
     mediaType: "image" | "video";
     videoUrl?: string | null;
     link: string;
-    createdAt: string;
+    /** When it was published, or the month a project was done; undated projects have none */
+    createdAt?: string;
     author?: string;
     /** Photo of the post's author (community posts only) */
     authorPhoto?: string | null;

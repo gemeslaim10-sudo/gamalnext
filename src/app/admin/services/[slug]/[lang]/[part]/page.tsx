@@ -87,6 +87,15 @@ export default function ServiceCopyEditor({ params }: { params: Promise<{ slug: 
                         <>
                             <SectionCard title="الاسم والعنوان">
                                 <TextField label={`اسم الخدمة${rtlHint}`} value={copy.name} onChange={(value) => setCopy({ name: value })} hint="قصير، بيظهر في الكروت واللينكات. فاضي = مفيش صفحة باللغة دي." />
+                                {/* Only the English one shows anywhere (the home page is English) */}
+                                {lang === "en" && (
+                                    <TextField
+                                        label="اسم أقصر (كلمة أو اتنين)"
+                                        value={copy.label}
+                                        onChange={(value) => setCopy({ label: value })}
+                                        hint="بيظهر في سطر لينكات الخدمات تحت عنوان الصفحة الرئيسية، زي «ERP systems». فاضي = اسم الخدمة."
+                                    />
+                                )}
                                 <TextField label="سطر تحت الاسم في الكروت" rows={2} value={copy.summary} onChange={(value) => setCopy({ summary: value })} />
                                 <TextField label="العنوان الرئيسي (H1)" value={copy.h1} onChange={(value) => setCopy({ h1: value })} hint="بيقول الخدمة بوضوح، زي «برمجة نظام ERP مخصص لشركتك». فاضي = مفيش صفحة باللغة دي." />
                                 <TextField

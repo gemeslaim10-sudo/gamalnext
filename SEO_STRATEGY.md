@@ -8,7 +8,8 @@ Site: https://gamaltech.info · Brand: **GTech** · Owner: **Gamal Abdelaty** (f
 
 | Area | Finding |
 |---|---|
-| Indexing | A web search for `site:gamaltech.info` returned **no pages at all**. The site is barely indexed, so no keyword can rank yet. Google's status must be read in Search Console. |
+| Indexing | Google is fine: Search Console shows **29 indexed pages**. The 12 not indexed are expected (4 deleted pages → 404, 3 http/www redirects, `/write` blocked on purpose) except 2 project pages without any description (Art Vision Portfolio, Noorva Store) marked "Crawled – currently not indexed". A non-Google web search for `site:gamaltech.info` returned nothing, so Bing coverage is likely weak. |
+| What people search | Search Console, 28 Jun – 27 Sep 2026: **9 clicks, 524 impressions, average position 14.4**. All 25 queries are spellings of "Gamal Tech / جمال تك / Gammal Tech" (e.g. `gamaltech` 72 impressions at position 4.4, `jamal tech`, `جمالتيك`, `gammal.tech`): mostly people looking for the unrelated Gammal Tech brand, which is why almost nobody clicks. **Zero impressions** for any service (ERP, CRM, websites, Shopify) or for the owner's name. |
 | Brand ambiguity | "Gamal Tech" is already used by YouTube tech channels; "GTech"/"G-Tech" is a generic name used by several companies (e.g. GAM Tech in Canada). The brand query alone can't be won soon. |
 | Owner identity | The owner's name appeared in three forms: **Gamal Abdelaty** (site settings, articles), **Gamal Selim** (Google account, LinkedIn URL `gamalselim10`, the member page `/users/…`) and **Gamal Sabeh** (the CV builder). Search engines couldn't connect them. |
 | Commercial intent | No page targeted what clients search ("custom ERP Egypt", «برمجة نظام ERP»). Services existed only as cards on `/skills`, whose title started with "Services…" (competing with any future services page). |
@@ -27,7 +28,7 @@ Already fine before this work (from earlier rounds): HTTPS and http→https 308,
 
 - **Service landing pages**: `/services` + 6 service pages, and the same in Arabic under `/ar/services`, with `hreflang` pairs, unique titles, descriptions, H1s, FAQ, prices and internal links. All texts live in Firestore (`site_content/services`) and are edited at **/admin/services** (seeded with the content below).
 - **Entity**: "GTech by Gamal Abdelaty" in the home title; `/profile` is the person page (H1 = the owner's name); `Person.alternateName` lists the other real forms of the name (editable in /admin/seo → Business → Identity); the owner's articles credit the Person entity and link to `/profile`; the owner's member page is `noindex` and out of the sitemap.
-- **Home page**: a real H1 ("Custom ERP, CRM and business software, built around how your company works"), an answer-first line, and links to every service page (editable in /admin/copy → Home).
+- **Home page**: a short real H1 ("Custom ERP, CRM & business software", editable in /admin/copy → Home) and one quiet line of links to every service page (short names from /admin/services). Kept compact on purpose: the owner's card under it already carries the introduction, and a wall of text above the fold hurt the first impression on phones.
 - **Navigation**: "Services" added to the main menu; service cards on `/skills` and `/profile` link to their pages; each priced item on `/pricing` links to its service page ("Learn more").
 - **Articles**: readable slugs (`/articles/before-you-buy-an-erp`); old id links 308-redirect to them; a "How GTech can help" box links each article to its service pages; a slug field in the dashboard article editor.
 - **Projects**: optional case-study fields in the project editor (challenge, solution, key features, real results) rendered as sections; a factual meta description per project from its own data; "Related services" links; `CreativeWork.about` → the services.
@@ -62,7 +63,7 @@ These are directions, not strings to repeat: each page uses its cluster naturall
 
 | Page / URL | Primary search intent | Secondary topics | Title | H1 | Index | Schema | Internal links |
 |---|---|---|---|---|---|---|---|
-| `/` | Brand + "custom business software" | ERP, CRM, websites, Shopify | GTech by Gamal Abdelaty: Custom ERP, CRM & Business Software | Custom ERP, CRM and business software, built around how your company works | index | LocalBusiness, Person, WebSite | all 6 services, /services, feed → projects/articles |
+| `/` | Brand + "custom business software" | ERP, CRM, websites, Shopify | GTech by Gamal Abdelaty: Custom ERP, CRM & Business Software | Custom ERP, CRM & business software | index | LocalBusiness, Person, WebSite | all 6 services, /services, feed → projects/articles |
 | `/services` | "software development services Egypt" | list of services | Software Development Services: ERP, CRM, Web & Shopify \| GTech | Business software, websites and Shopify development | index, hreflang en/ar | CollectionPage + ItemList(Service), Breadcrumb | each service, /ar/services |
 | `/services/custom-erp-development` | custom ERP development Egypt | ERP vs ready-made, ERP cost, Arabic ERP | Custom ERP Development in Egypt \| GTech | Custom ERP development for growing companies | index, hreflang | WebPage, Service(+Offer), FAQPage, Breadcrumb | pricing, ERP article, other services, contact |
 | `/services/crm-development` | custom CRM development | WhatsApp CRM, pipeline, follow-ups | Custom CRM Development in Egypt \| GTech | Custom CRM development for sales teams | index, hreflang | same | pricing, CRM article, other services |
@@ -135,7 +136,9 @@ Verification is already in place (meta tag `google-site-verification` is set in 
 
 ## 15. How to evaluate (next 1–3 months)
 
-- **Weeks 1–2**: pages indexed (Pages report), brand + name queries start showing impressions; Bing `site:` search returns pages.
+Baseline before the service pages (28 Jun – 27 Sep 2026): 9 clicks, 524 impressions, average position 14.4, 29 indexed pages, no service or owner-name queries.
+
+- **Weeks 1–2**: the service pages appear as indexed (Pages report); Bing `site:` search returns pages.
 - **Month 1**: impressions for service queries (Performance → Queries filtered by "erp", "crm", "shopify", «نظام»); average position under 50 is progress for a new site.
 - **Months 2–3**: clicks on service pages, leads with source "صفحات الخدمات" in /admin/leads, Arabic queries growing.
 - Track per page: impressions, clicks, CTR, average position; improve the titles/descriptions (in /admin/services) of pages with impressions but low CTR; add FAQs for real questions people search.
