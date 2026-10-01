@@ -6,6 +6,20 @@ export function projectSlug(project: { slug?: string; title?: string; name?: str
     return slugify(String(project.title || project.name || "").trim()) || project.slug?.trim() || "";
 }
 
+/**
+ * A project's real date as an ISO string: the month set in the dashboard ("2025-06"), or an older
+ * full date. Nothing when none was entered — a project's date is never made up.
+ */
+export function projectDate(project: { date?: unknown; createdAt?: unknown }) {
+    for (const value of [project.date, project.createdAt]) {
+        const raw = typeof value === "string" ? value.trim() : "";
+        if (!raw) continue;
+        const time = Date.parse(/^\d{4}-\d{2}$/.test(raw) ? `${raw}-01T00:00:00Z` : raw);
+        if (!Number.isNaN(time)) return new Date(time).toISOString();
+    }
+    return undefined;
+}
+
 /** A project's images as its page shows them: the main image first, then the gallery. */
 export function projectImages(project: { image?: string; gallery?: unknown }) {
     const gallery = Array.isArray(project.gallery) ? project.gallery : [];

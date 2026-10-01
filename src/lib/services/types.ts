@@ -18,6 +18,8 @@ export interface ServiceFaq {
 export interface ServiceCopy {
     /** Short name for cards, links and breadcrumbs, e.g. "Custom ERP development" */
     name: string;
+    /** A word or two for compact lists, e.g. "ERP systems" (the service links on the home page); empty = the name */
+    label: string;
     /** One line under the name on cards and in the services list */
     summary: string;
     /** Search result title (the site name is added after it) */

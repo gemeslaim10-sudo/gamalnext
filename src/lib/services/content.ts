@@ -34,6 +34,7 @@ function faqs(raw: Raw, key: string, fallback: ServiceFaq[] = []): ServiceFaq[] 
 
 export const EMPTY_COPY: ServiceCopy = {
     name: "",
+    label: "",
     summary: "",
     seoTitle: "",
     seoDescription: "",
@@ -57,6 +58,7 @@ function toCopy(value: unknown, fallback: ServiceCopy = EMPTY_COPY): ServiceCopy
     const raw = asRecord(value);
     return {
         name: text(raw, "name", fallback.name),
+        label: text(raw, "label", fallback.label),
         summary: text(raw, "summary", fallback.summary),
         seoTitle: text(raw, "seoTitle", fallback.seoTitle),
         seoDescription: text(raw, "seoDescription", fallback.seoDescription),

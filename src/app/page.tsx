@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import FeedClient from "@/components/feed/FeedClient";
 import type { FeedInitialPage } from "@/components/feed/hooks/useFeed";
 import OwnerProfile from "@/components/feed/OwnerProfile";
-import { Container, buttonVariants } from "@/components/ui";
+import { Container } from "@/components/ui";
 import { getCopy } from "@/lib/copy/server";
 import { getProjects } from "@/lib/content/server";
 import { projectGalleries } from "@/lib/content/shared";
@@ -20,20 +19,27 @@ export default async function HomePage() {
 
     return (
         <Container className="py-6 sm:py-10">
-            {/* What GTech does, first thing on the page (the H1), with a way into each service */}
-            <header className="mx-auto mb-6 max-w-content sm:mb-8 lg:max-w-none xl:max-w-[64.5rem]">
-                <h1 className="max-w-3xl text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{t("home.introTitle")}</h1>
-                <p className="mt-3 max-w-3xl leading-relaxed text-muted">{t("home.introText")}</p>
+            {/* What GTech does (the page's H1) in one short line, and a quiet line of links into each
+                service. The owner's card below already carries the longer introduction. */}
+            <header className="mx-auto mb-5 max-w-content sm:mb-6 lg:max-w-none xl:max-w-[64.5rem]">
+                <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{t("home.introTitle")}</h1>
                 {services.length > 0 && (
-                    <nav aria-label={t("home.allServices")} className="mt-5 flex flex-wrap gap-2">
-                        {services.map((service) => (
-                            <Link key={service.slug} href={servicePath(service.slug)} className={buttonVariants({ variant: "secondary", size: "sm" })}>
-                                {service.en.name}
-                            </Link>
-                        ))}
-                        <Link href="/services" className={buttonVariants({ variant: "ghost", size: "sm" })}>
-                            {t("home.allServices")} <ArrowRight aria-hidden />
-                        </Link>
+                    <nav aria-label={t("nav.services")} className="mt-1.5">
+                        <ul className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+                            {services.map((service, index) => (
+                                <li key={service.slug} className="flex items-center gap-x-2">
+                                    <Link href={servicePath(service.slug)} className="transition-colors hover:text-foreground">
+                                        {service.en.label.trim() || service.en.name}
+                                    </Link>
+                                    {/* After the item, so a wrapped line never starts with a dot */}
+                                    {index < services.length - 1 && (
+                                        <span aria-hidden className="text-subtle">
+                                            ·
+                                        </span>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
                     </nav>
                 )}
             </header>

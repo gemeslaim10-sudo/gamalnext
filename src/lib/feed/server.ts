@@ -12,7 +12,7 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const ENGAGEMENT_WINDOW_DAYS = 14;
 
 async function engagement(item: FeedItem, now: number) {
-    const ageInDays = (now - new Date(item.createdAt).getTime()) / MS_PER_DAY;
+    const ageInDays = (now - new Date(item.rankAt).getTime()) / MS_PER_DAY;
     if (ageInDays > ENGAGEMENT_WINDOW_DAYS) return 0;
     try {
         const [likes, comments] = await Promise.all([
@@ -35,7 +35,7 @@ async function buildRankedFeed(): Promise<FeedItem[]> {
 
     const now = Date.now();
     const scores = await Promise.all(items.map((item) => engagement(item, now)));
-    const weight = (item: FeedItem, index: number) => -((now - new Date(item.createdAt).getTime()) / MS_PER_DAY) * 10 + scores[index] * 2;
+    const weight = (item: FeedItem, index: number) => -((now - new Date(item.rankAt).getTime()) / MS_PER_DAY) * 10 + scores[index] * 2;
 
     return items
         .map((item, index) => ({ item, weight: weight(item, index) }))

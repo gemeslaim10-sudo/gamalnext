@@ -33,6 +33,8 @@ export interface ProjectForm {
     /** Video projects */
     videoUrl: string;
     embedCode: string;
+    /** The month it was done, "YYYY-MM" (optional): shown on its card in the home page feed */
+    date: string;
     // Case study (optional): shown as sections on the project page when filled
     challenge: string;
     solution: string;
@@ -55,6 +57,7 @@ export function toForm(item: StoredProject): ProjectForm {
         link: text(item.link),
         videoUrl: text(item.videoUrl),
         embedCode: text(item.embedCode),
+        date: text(item.date),
         challenge: text(item.challenge),
         solution: text(item.solution),
         features: text(item.features),
@@ -73,6 +76,7 @@ export const EMPTY_PROJECT: ProjectForm = {
     link: "",
     videoUrl: "",
     embedCode: "",
+    date: "",
     challenge: "",
     solution: "",
     features: "",
@@ -98,6 +102,7 @@ export function applyForm(original: StoredProject, form: ProjectForm): StoredPro
         ["gallery", form.gallery, form.gallery.length === 0],
         ["videoUrl", form.videoUrl.trim(), !form.videoUrl.trim()],
         ["embedCode", form.embedCode.trim(), !form.embedCode.trim()],
+        ["date", form.date.trim(), !form.date.trim()],
         ["challenge", form.challenge.trim(), !form.challenge.trim()],
         ["solution", form.solution.trim(), !form.solution.trim()],
         ["features", form.features.trim(), !form.features.trim()],

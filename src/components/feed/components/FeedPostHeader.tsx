@@ -33,7 +33,9 @@ export function FeedPostHeader({ item, siteLogo, siteName }: FeedPostHeaderProps
             <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">{author}</p>
                 <p className="text-xs text-subtle">
-                    {t(getLabelKeyForType(item.type))} · {formatFeedDate(item.createdAt)}
+                    {t(getLabelKeyForType(item.type))}
+                    {/* Only a real date: projects without one in the dashboard show none */}
+                    {item.createdAt && ` · ${formatFeedDate(item.createdAt, item.type === "project" ? "month" : "day")}`}
                 </p>
             </div>
             {canEdit && (

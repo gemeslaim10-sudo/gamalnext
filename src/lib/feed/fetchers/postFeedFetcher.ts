@@ -16,6 +16,7 @@ export async function fetchUserPostsFeed(allFeed: FeedItem[]) {
         ]);
         postsSnap.docs.forEach(docSnap => {
             const data = docSnap.data();
+            const createdAt = parseDate(data.createdAt);
             allFeed.push({
                 id: docSnap.id,
                 type: "post",
@@ -28,7 +29,8 @@ export async function fetchUserPostsFeed(allFeed: FeedItem[]) {
                 gallery: Array.isArray(data.gallery) ? data.gallery as string[] : null,
                 mediaType: data.mediaType || "image",
                 link: `/#${docSnap.id}`,
-                createdAt: parseDate(data.createdAt),
+                createdAt,
+                rankAt: createdAt,
                 author: data.userName || "User",
                 authorPhoto: data.userPhoto || null,
                 // Posts no longer store the email (they're public); older ones still have it
